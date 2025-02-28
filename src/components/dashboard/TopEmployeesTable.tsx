@@ -12,67 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-
-// Mock data for the table
-const employees = [
-  {
-    id: 1,
-    name: "Alex Johnson",
-    position: "Senior Developer",
-    avatar: "https://i.pravatar.cc/150?img=1",
-    occupancyRate: 98,
-    projects: [
-      { name: "Mobile App", status: "active" },
-      { name: "API Development", status: "active" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Maria Garcia",
-    position: "UX Designer",
-    avatar: "https://i.pravatar.cc/150?img=5",
-    occupancyRate: 95,
-    projects: [
-      { name: "Website Redesign", status: "active" },
-      { name: "Mobile App", status: "active" },
-    ],
-  },
-  {
-    id: 3,
-    name: "David Kim",
-    position: "Project Manager",
-    avatar: "https://i.pravatar.cc/150?img=3",
-    occupancyRate: 92,
-    projects: [
-      { name: "CRM System", status: "active" },
-      { name: "Website Redesign", status: "pending" },
-    ],
-  },
-  {
-    id: 4,
-    name: "Sarah Chen",
-    position: "Backend Developer",
-    avatar: "https://i.pravatar.cc/150?img=10",
-    occupancyRate: 88,
-    projects: [
-      { name: "API Development", status: "active" },
-      { name: "Database Migration", status: "active" },
-    ],
-  },
-  {
-    id: 5,
-    name: "James Wilson",
-    position: "DevOps Engineer",
-    avatar: "https://i.pravatar.cc/150?img=8",
-    occupancyRate: 85,
-    projects: [
-      { name: "Infrastructure Upgrade", status: "active" },
-      { name: "CI/CD Pipeline", status: "pending" },
-    ],
-  },
-];
+import { enhancedEmployeesData } from "@/data/employeesData";
 
 export function TopEmployeesTable() {
+  // Trier les employés par taux d'occupation et ne garder que les 5 premiers
+  const topEmployees = [...enhancedEmployeesData]
+    .sort((a, b) => b.occupancyRate - a.occupancyRate)
+    .slice(0, 5);
+
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
       <CardHeader className="pb-2">
@@ -88,12 +35,15 @@ export function TopEmployeesTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {employees.map((employee) => (
+            {topEmployees.map((employee) => (
               <TableRow key={employee.id} className="group">
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border">
-                      <AvatarImage src={employee.avatar} alt={employee.name} />
+                      <AvatarImage 
+                        src={employee.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.name)}&background=random`} 
+                        alt={employee.name} 
+                      />
                       <AvatarFallback>{employee.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -108,15 +58,20 @@ export function TopEmployeesTable() {
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
-                    {employee.projects.map((project, index) => (
-                      <Badge
-                        key={index}
-                        variant={project.status === "active" ? "default" : "outline"}
-                        className="text-xs font-normal"
-                      >
-                        {project.name}
-                      </Badge>
-                    ))}
+                    {employee.projects && employee.projects.length > 0 ? (
+                      employee.projects.map((project, index) => (
+                        <Badge
+                          key={index}
+                          variant={project.status === "active" ? "default" : 
+                                  project.status === "completed" ? "outline" : "secondary"}
+                          className="text-xs font-normal"
+                        >
+                          {project.name}
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Aucun projet</span>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="text-right">

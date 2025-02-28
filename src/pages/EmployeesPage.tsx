@@ -53,6 +53,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { EmployeeData } from "@/components/employees/EmployeeCard";
 
 const EmployeesPage = () => {
   const { t } = useLanguage();
@@ -73,10 +74,10 @@ const EmployeesPage = () => {
     email: "",
     phone: "",
     location: "Madagascar",
-    startDate: new Date().toISOString().split("T")[0],
-    status: "active",
+    joinDate: new Date().toISOString().split("T")[0],
+    manager: "",
     skills: [] as string[],
-    availability: 100,
+    occupancyRate: 85,
     avatar: "",
   });
   
@@ -144,10 +145,22 @@ const EmployeesPage = () => {
     const skillsList = newEmployee.skills.length > 0 ? newEmployee.skills : 
                       ["React", "TypeScript"].slice(0, Math.floor(Math.random() * 2) + 1);
     
-    const completeEmployee = {
+    // Create a sample project for the new employee
+    const randomProject = {
+      id: Math.floor(Math.random() * 100) + 1,
+      name: `Project ${Math.floor(Math.random() * 1000) + 1}`,
+      status: ["active", "pending", "completed"][Math.floor(Math.random() * 3)],
+      client: "TechCorp Industries",
+      category: ["Forfait", "TMA", "Regie"][Math.floor(Math.random() * 3)]
+    };
+    
+    const completeEmployee: EmployeeData = {
       ...newEmployee,
       id: newId,
       skills: skillsList,
+      projects: [randomProject],
+      occupancyRate: newEmployee.occupancyRate,
+      joinDate: newEmployee.joinDate,
       avatar: newEmployee.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(newEmployee.name)}&background=random`,
     };
 
@@ -161,10 +174,10 @@ const EmployeesPage = () => {
       email: "",
       phone: "",
       location: "Madagascar",
-      startDate: new Date().toISOString().split("T")[0],
-      status: "active",
+      joinDate: new Date().toISOString().split("T")[0],
+      manager: "",
       skills: [],
-      availability: 100,
+      occupancyRate: 85,
       avatar: "",
     });
     toast.success("Employé ajouté avec succès");
@@ -365,15 +378,15 @@ const EmployeesPage = () => {
                         </Select>
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="startDate" className="text-right">
+                        <Label htmlFor="joinDate" className="text-right">
                           Date d'embauche
                         </Label>
                         <Input
-                          id="startDate"
+                          id="joinDate"
                           type="date"
                           className="col-span-3"
-                          value={newEmployee.startDate}
-                          onChange={(e) => setNewEmployee({ ...newEmployee, startDate: e.target.value })}
+                          value={newEmployee.joinDate}
+                          onChange={(e) => setNewEmployee({ ...newEmployee, joinDate: e.target.value })}
                         />
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
@@ -389,17 +402,29 @@ const EmployeesPage = () => {
                         />
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="availability" className="text-right">
-                          Disponibilité (%)
+                        <Label htmlFor="occupancyRate" className="text-right">
+                          Taux d'occupation (%)
                         </Label>
                         <Input
-                          id="availability"
+                          id="occupancyRate"
                           type="number"
                           min="0"
                           max="100"
                           className="col-span-3"
-                          value={newEmployee.availability}
-                          onChange={(e) => setNewEmployee({ ...newEmployee, availability: parseInt(e.target.value) || 100 })}
+                          value={newEmployee.occupancyRate}
+                          onChange={(e) => setNewEmployee({ ...newEmployee, occupancyRate: parseInt(e.target.value) || 85 })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="manager" className="text-right">
+                          Manager
+                        </Label>
+                        <Input
+                          id="manager"
+                          placeholder="Nom du manager"
+                          className="col-span-3"
+                          value={newEmployee.manager}
+                          onChange={(e) => setNewEmployee({ ...newEmployee, manager: e.target.value })}
                         />
                       </div>
                     </div>

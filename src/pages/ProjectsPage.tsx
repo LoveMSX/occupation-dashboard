@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { ProjectCard } from "@/components/projects/ProjectCard";
+import { ProjectCard, ProjectData } from "@/components/projects/ProjectCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -60,15 +60,15 @@ const ProjectsPage = () => {
   const [newProject, setNewProject] = useState({
     name: "",
     description: "",
-    status: "ongoing",
+    status: "ongoing" as "ongoing" | "completed" | "standby" | "planned",
     client: "",
-    category: "TMA",
-    location: "Local",
+    category: "TMA" as "TMA" | "Regie" | "Forfait" | "Other",
+    location: "Local" as "Local" | "Offshore" | "Hybrid",
     startDate: new Date().toISOString().split("T")[0],
     endDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split("T")[0],
     progress: 0,
     manager: { name: "", id: 0, avatar: "" },
-    team: [],
+    team: [] as Array<{id: number, name: string, avatar?: string, role?: string}>,
   });
   const [projects, setProjects] = useState(projectsData);
   
@@ -165,9 +165,13 @@ const ProjectsPage = () => {
     }
 
     const newId = Math.max(...projects.map(project => project.id)) + 1;
-    const completeProject = {
+    const completeProject: ProjectData = {
       ...newProject,
       id: newId,
+      status: newProject.status,
+      category: newProject.category,
+      location: newProject.location,
+      team: [],
     };
 
     setProjects([completeProject, ...projects]);
@@ -405,7 +409,7 @@ const ProjectsPage = () => {
                         </Label>
                         <Select
                           value={newProject.category}
-                          onValueChange={(val) => setNewProject({ ...newProject, category: val })}
+                          onValueChange={(val: "TMA" | "Regie" | "Forfait" | "Other") => setNewProject({ ...newProject, category: val })}
                         >
                           <SelectTrigger id="category" className="col-span-3">
                             <SelectValue placeholder="Catégorie" />
@@ -424,7 +428,7 @@ const ProjectsPage = () => {
                         </Label>
                         <Select
                           value={newProject.status}
-                          onValueChange={(val) => setNewProject({ ...newProject, status: val })}
+                          onValueChange={(val: "ongoing" | "completed" | "standby" | "planned") => setNewProject({ ...newProject, status: val })}
                         >
                           <SelectTrigger id="status" className="col-span-3">
                             <SelectValue placeholder="Statut" />
@@ -443,7 +447,7 @@ const ProjectsPage = () => {
                         </Label>
                         <Select
                           value={newProject.location}
-                          onValueChange={(val) => setNewProject({ ...newProject, location: val })}
+                          onValueChange={(val: "Local" | "Offshore" | "Hybrid") => setNewProject({ ...newProject, location: val })}
                         >
                           <SelectTrigger id="location" className="col-span-3">
                             <SelectValue placeholder="Localisation" />
@@ -451,7 +455,7 @@ const ProjectsPage = () => {
                           <SelectContent>
                             <SelectItem value="Local">Local</SelectItem>
                             <SelectItem value="Offshore">Offshore</SelectItem>
-                            <SelectItem value="Remote">Remote</SelectItem>
+                            <SelectItem value="Hybrid">Hybrid</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>

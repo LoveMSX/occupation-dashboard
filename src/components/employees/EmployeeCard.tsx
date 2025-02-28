@@ -6,6 +6,17 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Briefcase, Mail, Phone, MapPin, Tag, Building, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export interface EmployeeData {
   id: number;
@@ -35,6 +46,9 @@ interface EmployeeCardProps {
 }
 
 export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps) {
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [isProjectsDialogOpen, setIsProjectsDialogOpen] = useState(false);
+
   // Function to determine color based on occupancy rate
   const getOccupancyColor = (rate: number) => {
     if (rate > 90) return "bg-success";
@@ -47,6 +61,21 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
   const getOccupancyBadgeVariant = (rate: number) => {
     if (rate >= 80) return "default";
     return "outline";
+  };
+
+  // Fonction pour formater la date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fr-FR', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    }).format(date);
+  };
+
+  // Fonction pour envoyer un email
+  const handleSendEmail = () => {
+    window.location.href = `mailto:${employee.email}`;
   };
   
   if (viewMode === "list") {
@@ -96,7 +125,7 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
             </div>
             
             <div className="flex mt-2 text-sm">
-              <div className="flex items-center mr-4">
+              <div className="flex items-center mr-4 cursor-pointer hover:text-primary transition-colors" onClick={handleSendEmail}>
                 <Mail className="mr-1 h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-muted-foreground">{employee.email}</span>
               </div>
@@ -125,12 +154,154 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
           </div>
           
           <div className="ml-4 flex">
-            <Button variant="ghost" size="sm" className="h-8">
-              <User className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" className="h-8">
-              <Briefcase className="h-4 w-4" />
-            </Button>
+            <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8">
+                  <User className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Profil de la ressource</DialogTitle>
+                  <DialogDescription>
+                    Informations détaillées sur {employee.name}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex items-center space-x-4 py-4">
+                  <Avatar className="h-16 w-16 border-2 border-background">
+                    <AvatarImage src={employee.avatar} alt={employee.name} />
+                    <AvatarFallback className="text-lg">
+                      {employee.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-semibold text-lg">{employee.name}</h3>
+                    <p className="text-sm text-muted-foreground">{employee.position}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium">Département</p>
+                    <p className="text-sm text-muted-foreground">{employee.department}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Localisation</p>
+                    <p className="text-sm text-muted-foreground">{employee.location}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Email</p>
+                    <p className="text-sm text-muted-foreground">{employee.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Téléphone</p>
+                    <p className="text-sm text-muted-foreground">{employee.phone || "Non renseigné"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Date d'embauche</p>
+                    <p className="text-sm text-muted-foreground">{formatDate(employee.joinDate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Manager</p>
+                    <p className="text-sm text-muted-foreground">{employee.manager || "Non renseigné"}</p>
+                  </div>
+                </div>
+                {employee.skills && employee.skills.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm font-medium mb-2">Compétences</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {employee.skills.map((skill, index) => (
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="text-xs font-normal bg-muted/50"
+                        >
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <DialogFooter className="mt-6">
+                  <Button variant="outline" onClick={() => setIsProfileDialogOpen(false)}>
+                    Fermer
+                  </Button>
+                  <Button onClick={handleSendEmail}>
+                    <Mail className="mr-2 h-4 w-4" />
+                    Contacter
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isProjectsDialogOpen} onOpenChange={setIsProjectsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8">
+                  <Briefcase className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[550px]">
+                <DialogHeader>
+                  <DialogTitle>Projets de {employee.name}</DialogTitle>
+                  <DialogDescription>
+                    Liste des projets actuels et passés
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <div className="space-y-4">
+                    {employee.projects.length > 0 ? (
+                      employee.projects.map((project) => (
+                        <div key={project.id} className="flex items-start p-3 border rounded-md">
+                          <div className="flex-1">
+                            <div className="flex items-center">
+                              <h4 className="font-medium">{project.name}</h4>
+                              <Badge 
+                                variant={project.status === "active" ? "default" : 
+                                       project.status === "completed" ? "outline" : "secondary"} 
+                                className="ml-2"
+                              >
+                                {project.status === "active" ? "Actif" : 
+                                 project.status === "completed" ? "Terminé" : "En attente"}
+                              </Badge>
+                            </div>
+                            {project.client && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                Client: {project.client}
+                              </p>
+                            )}
+                            {project.category && (
+                              <Badge variant="outline" className="mt-2">
+                                {project.category}
+                              </Badge>
+                            )}
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => {
+                              toast.success(`Détails du projet ${project.name} affichés`);
+                            }}
+                          >
+                            Détails
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center text-muted-foreground py-8">
+                        Aucun projet associé à cette ressource
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsProjectsDialogOpen(false)}>
+                    Fermer
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </Card>
@@ -167,7 +338,7 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center text-sm">
+          <div className="flex items-center text-sm cursor-pointer hover:text-primary transition-colors" onClick={handleSendEmail}>
             <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">{employee.email}</span>
           </div>
@@ -228,14 +399,156 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
         )}
       </CardContent>
       <CardFooter className="justify-between border-t p-4">
-        <Button variant="ghost" size="sm" className="h-8">
-          <User className="mr-2 h-4 w-4" />
-          Profile
-        </Button>
-        <Button variant="ghost" size="sm" className="h-8">
-          <Briefcase className="mr-2 h-4 w-4" />
-          Projects
-        </Button>
+        <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8">
+              <User className="mr-2 h-4 w-4" />
+              Profile
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Profil de la ressource</DialogTitle>
+              <DialogDescription>
+                Informations détaillées sur {employee.name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center space-x-4 py-4">
+              <Avatar className="h-16 w-16 border-2 border-background">
+                <AvatarImage src={employee.avatar} alt={employee.name} />
+                <AvatarFallback className="text-lg">
+                  {employee.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="font-semibold text-lg">{employee.name}</h3>
+                <p className="text-sm text-muted-foreground">{employee.position}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium">Département</p>
+                <p className="text-sm text-muted-foreground">{employee.department}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Localisation</p>
+                <p className="text-sm text-muted-foreground">{employee.location}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Email</p>
+                <p className="text-sm text-muted-foreground">{employee.email}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Téléphone</p>
+                <p className="text-sm text-muted-foreground">{employee.phone || "Non renseigné"}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Date d'embauche</p>
+                <p className="text-sm text-muted-foreground">{formatDate(employee.joinDate)}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Manager</p>
+                <p className="text-sm text-muted-foreground">{employee.manager || "Non renseigné"}</p>
+              </div>
+            </div>
+            {employee.skills && employee.skills.length > 0 && (
+              <div className="mt-4">
+                <p className="text-sm font-medium mb-2">Compétences</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {employee.skills.map((skill, index) => (
+                    <Badge
+                      key={index}
+                      variant="outline"
+                      className="text-xs font-normal bg-muted/50"
+                    >
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            <DialogFooter className="mt-6">
+              <Button variant="outline" onClick={() => setIsProfileDialogOpen(false)}>
+                Fermer
+              </Button>
+              <Button onClick={handleSendEmail}>
+                <Mail className="mr-2 h-4 w-4" />
+                Contacter
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isProjectsDialogOpen} onOpenChange={setIsProjectsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8">
+              <Briefcase className="mr-2 h-4 w-4" />
+              Projects
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[550px]">
+            <DialogHeader>
+              <DialogTitle>Projets de {employee.name}</DialogTitle>
+              <DialogDescription>
+                Liste des projets actuels et passés
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <div className="space-y-4">
+                {employee.projects.length > 0 ? (
+                  employee.projects.map((project) => (
+                    <div key={project.id} className="flex items-start p-3 border rounded-md">
+                      <div className="flex-1">
+                        <div className="flex items-center">
+                          <h4 className="font-medium">{project.name}</h4>
+                          <Badge 
+                            variant={project.status === "active" ? "default" : 
+                                   project.status === "completed" ? "outline" : "secondary"} 
+                            className="ml-2"
+                          >
+                            {project.status === "active" ? "Actif" : 
+                             project.status === "completed" ? "Terminé" : "En attente"}
+                          </Badge>
+                        </div>
+                        {project.client && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Client: {project.client}
+                          </p>
+                        )}
+                        {project.category && (
+                          <Badge variant="outline" className="mt-2">
+                            {project.category}
+                          </Badge>
+                        )}
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          toast.success(`Détails du projet ${project.name} affichés`);
+                        }}
+                      >
+                        Détails
+                      </Button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-muted-foreground py-8">
+                    Aucun projet associé à cette ressource
+                  </p>
+                )}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsProjectsDialogOpen(false)}>
+                Fermer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardFooter>
     </Card>
   );

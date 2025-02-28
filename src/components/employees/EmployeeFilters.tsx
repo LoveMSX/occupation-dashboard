@@ -41,7 +41,7 @@ export function EmployeeFilters({
           <SelectValue placeholder="Department" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All Departments</SelectItem>
+          <SelectItem key="all-departments" value="">All Departments</SelectItem>
           {departments.map((dept) => (
             <SelectItem key={dept} value={dept}>
               {dept}
@@ -56,7 +56,7 @@ export function EmployeeFilters({
           <SelectValue placeholder="Location" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All Locations</SelectItem>
+          <SelectItem key="all-locations" value="">All Locations</SelectItem>
           {locations.map((location) => (
             <SelectItem key={location} value={location}>
               {location}
@@ -71,7 +71,7 @@ export function EmployeeFilters({
           <SelectValue placeholder="Skill" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All Skills</SelectItem>
+          <SelectItem key="all-skills" value="">All Skills</SelectItem>
           {skills.map((skill) => (
             <SelectItem key={skill} value={skill}>
               {skill}

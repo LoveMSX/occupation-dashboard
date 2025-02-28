@@ -4,7 +4,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Mail, Phone, MapPin, Tag, Building, User } from "lucide-react";
+import { 
+  Briefcase, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Tag, 
+  Building, 
+  User, 
+  MoreVertical,
+  Edit,
+  Trash2,
+  Loader2
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import {
@@ -16,6 +28,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { employeeApi } from "@/services/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export interface EmployeeData {
@@ -48,6 +78,22 @@ interface EmployeeCardProps {
 export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps) {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [isProjectsDialogOpen, setIsProjectsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  // Mutation pour supprimer un employé
+  const deleteEmployeeMutation = useMutation({
+    mutationFn: (id: number) => employeeApi.deleteEmployee(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      toast.success(`${employee.name} a été supprimé avec succès`);
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`Erreur lors de la suppression: ${error.message}`);
+    }
+  });
 
   // Function to determine color based on occupancy rate
   const getOccupancyColor = (rate: number) => {
@@ -76,6 +122,17 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
   // Fonction pour envoyer un email
   const handleSendEmail = () => {
     window.location.href = `mailto:${employee.email}`;
+  };
+
+  // Fonction pour supprimer un employé
+  const handleDeleteEmployee = () => {
+    deleteEmployeeMutation.mutate(employee.id);
+  };
+
+  // Fonction pour éditer un employé (à implémenter)
+  const handleEditEmployee = () => {
+    toast.info(`Fonction d'édition pour ${employee.name} à implémenter`);
+    // Ouvrir un dialogue d'édition ici
   };
   
   if (viewMode === "list") {
@@ -153,7 +210,7 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
             </div>
           </div>
           
-          <div className="ml-4 flex">
+          <div className="ml-4 flex space-x-1">
             <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8">
@@ -302,6 +359,55 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleEditEmployee}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Modifier
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Supprimer
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette ressource?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Cette action est irréversible. Cela supprimera définitivement {employee.name} et toutes les données associées.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogAction 
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={handleDeleteEmployee}
+                    disabled={deleteEmployeeMutation.isPending}
+                  >
+                    {deleteEmployeeMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Suppression...
+                      </>
+                    ) : (
+                      "Supprimer"
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </Card>
@@ -310,7 +416,28 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
   
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
-      <CardHeader className="pb-0">
+      <CardHeader className="pb-0 relative">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="absolute top-2 right-2 h-8 w-8 p-0">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleEditEmployee}>
+              <Edit className="mr-2 h-4 w-4" />
+              Modifier
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              className="text-destructive focus:text-destructive"
+              onClick={() => setIsDeleteDialogOpen(true)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Supprimer
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
         <div className="flex justify-between items-start">
           <Avatar className="h-16 w-16 border-2 border-background shadow-sm">
             <AvatarImage src={employee.avatar} alt={employee.name} />
@@ -321,7 +448,7 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end mr-8">
             <Badge variant={getOccupancyBadgeVariant(employee.occupancyRate)}>
               {employee.occupancyRate}% Occupied
             </Badge>
@@ -549,6 +676,34 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette ressource?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Cette action est irréversible. Cela supprimera définitivement {employee.name} et toutes les données associées.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction 
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={handleDeleteEmployee}
+                disabled={deleteEmployeeMutation.isPending}
+              >
+                {deleteEmployeeMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Suppression...
+                  </>
+                ) : (
+                  "Supprimer"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardFooter>
     </Card>
   );

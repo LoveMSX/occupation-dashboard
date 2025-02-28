@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -19,7 +19,8 @@ import {
   CalendarDaysIcon,
   ListIcon,
   PlusIcon,
-  Mail
+  Mail,
+  Loader2
 } from "lucide-react";
 import {
   Dialog,
@@ -53,8 +54,30 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { employeeApi, EmployeeRequest } from "@/services/api";
+import { EmployeeData } from "@/components/employees/EmployeeCard";
 
-// Définissons un type pour l'employé conforme aux attentes du système
+// Créer un client de requête pour React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
+
+// Composant wrapper avec le provider de React Query
+export default function EmployeesPageWrapper() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <EmployeesPage />
+    </QueryClientProvider>
+  );
+}
+
+// Interface pour le nouvel employé conforme aux attentes du système
 interface NewEmployeeData {
   id: number;
   name: string;
@@ -66,7 +89,7 @@ interface NewEmployeeData {
   location: string;
   joinDate: string;
   manager?: string;
-  skills: string[]; // Définir skills comme obligatoire
+  skills: string[];
   occupancyRate: number;
   projects: { 
     id: number; 
@@ -85,10 +108,11 @@ const EmployeesPage = () => {
   const [locationFilter, setLocationFilter] = useState("all");
   const [skillFilter, setSkillFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [employees, setEmployees] = useState([...enhancedEmployeesData]);
+  
+  const queryClient = useQueryClient();
 
-  const [newEmployee, setNewEmployee] = useState({
-    id: 0,
+  // État pour le nouvel employé
+  const [newEmployee, setNewEmployee] = useState<EmployeeRequest>({
     name: "",
     position: "",
     department: "Engineering",
@@ -99,10 +123,32 @@ const EmployeesPage = () => {
     manager: "",
     skills: [] as string[],
     occupancyRate: 85,
-    avatar: "",
   });
   
-  const filteredEmployees = employees.filter((employee) => {
+  // Requête pour charger les employés depuis l'API
+  const { data: employees, isLoading, error } = useQuery({
+    queryKey: ['employees'],
+    queryFn: employeeApi.getAllEmployees,
+    initialData: enhancedEmployeesData, // Utiliser les données statiques comme fallback
+  });
+
+  // Mutation pour ajouter un nouvel employé
+  const addEmployeeMutation = useMutation({
+    mutationFn: (employee: EmployeeRequest) => employeeApi.createEmployee(employee),
+    onSuccess: () => {
+      // Rafraîchir la liste des employés après l'ajout
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      toast.success("Ressource ajoutée avec succès");
+      setIsAddDialogOpen(false);
+      resetNewEmployeeForm();
+    },
+    onError: (error) => {
+      toast.error(`Erreur lors de l'ajout de la ressource: ${error.message}`);
+    }
+  });
+  
+  // Filtrer les employés selon les critères de recherche et de filtrage
+  const filteredEmployees = employees?.filter((employee) => {
     const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -111,43 +157,25 @@ const EmployeesPage = () => {
     const matchesSkill = skillFilter === "all" || employee.skills?.includes(skillFilter);
     
     return matchesSearch && matchesLocation && matchesSkill;
-  });
+  }) || [];
 
-  // Calculate data for department chart
-  const departmentChartData = () => {
-    const departmentCounts: Record<string, number> = {};
-    
-    employees.forEach(employee => {
-      if (departmentCounts[employee.department]) {
-        departmentCounts[employee.department]++;
-      } else {
-        departmentCounts[employee.department] = 1;
-      }
+  // Réinitialiser le formulaire d'ajout d'employé
+  const resetNewEmployeeForm = () => {
+    setNewEmployee({
+      name: "",
+      position: "",
+      department: "Engineering",
+      email: "",
+      phone: "",
+      location: "Madagascar",
+      joinDate: new Date().toISOString().split("T")[0],
+      manager: "",
+      skills: [],
+      occupancyRate: 85,
     });
-    
-    return Object.entries(departmentCounts).map(([name, value]) => ({ name, value }));
   };
 
-  // Calculate data for skills chart
-  const skillsChartData = () => {
-    const skillCounts: Record<string, number> = {};
-    
-    employees.forEach(employee => {
-      employee.skills?.forEach(skill => {
-        if (skillCounts[skill]) {
-          skillCounts[skill]++;
-        } else {
-          skillCounts[skill] = 1;
-        }
-      });
-    });
-    
-    return Object.entries(skillCounts)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 10); // Top 10 skills
-  };
-
+  // Gérer l'ajout d'un nouvel employé
   const handleAddEmployee = () => {
     if (!newEmployee.name || !newEmployee.position || !newEmployee.email) {
       toast.error("Veuillez remplir les champs obligatoires");
@@ -161,52 +189,55 @@ const EmployeesPage = () => {
       return;
     }
 
-    const newId = Math.max(...employees.map(emp => emp.id)) + 1;
-    const skillsList = newEmployee.skills.length > 0 ? newEmployee.skills : 
-                      ["React", "TypeScript"].slice(0, Math.floor(Math.random() * 2) + 1);
-    
-    // Create a sample project for the new employee
-    const randomProject = {
-      id: Math.floor(Math.random() * 100) + 1,
-      name: `Project ${Math.floor(Math.random() * 1000) + 1}`,
-      status: ["active", "pending", "completed"][Math.floor(Math.random() * 3)],
-      client: "TechCorp Industries",
-      category: ["Forfait", "TMA", "Regie"][Math.floor(Math.random() * 3)]
-    };
-    
-    // Créer un nouvel employé avec le type attendu par le système
-    const completeEmployee: NewEmployeeData = {
+    // Ajouter un avatar par défaut si non spécifié
+    const employeeToAdd: EmployeeRequest = {
       ...newEmployee,
-      id: newId,
-      skills: skillsList,
-      projects: [randomProject],
-      occupancyRate: newEmployee.occupancyRate,
-      joinDate: newEmployee.joinDate,
       avatar: newEmployee.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(newEmployee.name)}&background=random`,
     };
 
-    setEmployees([completeEmployee, ...employees]);
-    setIsAddDialogOpen(false);
-    setNewEmployee({
-      id: 0,
-      name: "",
-      position: "",
-      department: "Engineering",
-      email: "",
-      phone: "",
-      location: "Madagascar",
-      joinDate: new Date().toISOString().split("T")[0],
-      manager: "",
-      skills: [],
-      occupancyRate: 85,
-      avatar: "",
-    });
-    toast.success("Ressource ajoutée avec succès");
+    // Lancer la mutation pour ajouter l'employé
+    addEmployeeMutation.mutate(employeeToAdd);
   };
 
+  // Gérer le changement des compétences
   const handleSkillChange = (skillInput: string) => {
     const skills = skillInput.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0);
     setNewEmployee({ ...newEmployee, skills });
+  };
+
+  // Calculer les données pour le graphique de départements
+  const departmentChartData = () => {
+    const departmentCounts: Record<string, number> = {};
+    
+    employees?.forEach(employee => {
+      if (departmentCounts[employee.department]) {
+        departmentCounts[employee.department]++;
+      } else {
+        departmentCounts[employee.department] = 1;
+      }
+    });
+    
+    return Object.entries(departmentCounts).map(([name, value]) => ({ name, value }));
+  };
+
+  // Calculer les données pour le graphique de compétences
+  const skillsChartData = () => {
+    const skillCounts: Record<string, number> = {};
+    
+    employees?.forEach(employee => {
+      employee.skills?.forEach(skill => {
+        if (skillCounts[skill]) {
+          skillCounts[skill]++;
+        } else {
+          skillCounts[skill] = 1;
+        }
+      });
+    });
+    
+    return Object.entries(skillCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 10); // Top 10 skills
   };
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#8dd1e1', '#a4de6c', '#d0ed57'];
@@ -277,7 +308,7 @@ const EmployeesPage = () => {
               
               <div className="flex flex-wrap gap-2">
                 <EmployeeFilters
-                  employees={employees}
+                  employees={employees || []}
                   locationFilter={locationFilter}
                   setLocationFilter={setLocationFilter}
                   skillFilter={skillFilter}
@@ -442,84 +473,110 @@ const EmployeesPage = () => {
                           id="manager"
                           placeholder="Nom du manager"
                           className="col-span-3"
-                          value={newEmployee.manager}
+                          value={newEmployee.manager || ""}
                           onChange={(e) => setNewEmployee({ ...newEmployee, manager: e.target.value })}
                         />
                       </div>
                     </div>
                     <DialogFooter>
-                      <Button type="submit" onClick={handleAddEmployee}>
-                        Ajouter la ressource
-                      </Button>
+                      {addEmployeeMutation.isPending ? (
+                        <Button disabled>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Chargement...
+                        </Button>
+                      ) : (
+                        <Button type="submit" onClick={handleAddEmployee}>
+                          Ajouter la ressource
+                        </Button>
+                      )}
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
               </div>
             </div>
             
-            {currentView === "table" && (
-              <EmployeeGrid 
-                employees={filteredEmployees}
-                viewMode={viewMode}
-              />
-            )}
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-2">Chargement des ressources...</span>
+              </div>
+            ) : error ? (
+              <div className="flex flex-col justify-center items-center h-64">
+                <p className="text-red-500 mb-2">Erreur lors du chargement des ressources</p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => queryClient.invalidateQueries({ queryKey: ['employees'] })}
+                >
+                  Réessayer
+                </Button>
+              </div>
+            ) : (
+              <>
+                {currentView === "table" && (
+                  <EmployeeGrid 
+                    employees={filteredEmployees}
+                    viewMode={viewMode}
+                  />
+                )}
 
-            {currentView === "department" && (
-              <Card className="p-4">
-                <CardContent className="pt-4">
-                  <h2 className="text-xl font-bold mb-4">Répartition par département</h2>
-                  <div className="h-96">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={departmentChartData()}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          outerRadius={140}
-                          fill="#8884d8"
-                          dataKey="value"
-                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        >
-                          {departmentChartData().map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip formatter={(value) => [`${value} ressources`, 'Nombre']} />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                {currentView === "department" && (
+                  <Card className="p-4">
+                    <CardContent className="pt-4">
+                      <h2 className="text-xl font-bold mb-4">Répartition par département</h2>
+                      <div className="h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={departmentChartData()}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={false}
+                              outerRadius={140}
+                              fill="#8884d8"
+                              dataKey="value"
+                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                            >
+                              {departmentChartData().map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                              ))}
+                            </Pie>
+                            <Tooltip formatter={(value) => [`${value} ressources`, 'Nombre']} />
+                            <Legend />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
-            {currentView === "skills" && (
-              <Card className="p-4">
-                <CardContent className="pt-4">
-                  <h2 className="text-xl font-bold mb-4">Top 10 des compétences</h2>
-                  <div className="h-96">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={skillsChartData()}
-                        layout="vertical"
-                        margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                        <XAxis type="number" />
-                        <YAxis type="category" dataKey="name" width={100} />
-                        <Tooltip formatter={(value) => [`${value} ressources`, 'Nombre']} />
-                        <Legend />
-                        <Bar dataKey="value" name="Nombre de ressources" fill="#8884d8" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
+                {currentView === "skills" && (
+                  <Card className="p-4">
+                    <CardContent className="pt-4">
+                      <h2 className="text-xl font-bold mb-4">Top 10 des compétences</h2>
+                      <div className="h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={skillsChartData()}
+                            layout="vertical"
+                            margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                            <XAxis type="number" />
+                            <YAxis type="category" dataKey="name" width={100} />
+                            <Tooltip formatter={(value) => [`${value} ressources`, 'Nombre']} />
+                            <Legend />
+                            <Bar dataKey="value" name="Nombre de ressources" fill="#8884d8" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
             )}
 
             <div className="mt-4 text-sm text-muted-foreground">
-              {filteredEmployees.length} ressources sur {employees.length} au total
+              {filteredEmployees.length} ressources sur {employees?.length || 0} au total
             </div>
           </main>
         </div>
@@ -527,5 +584,3 @@ const EmployeesPage = () => {
     </ThemeProvider>
   );
 };
-
-export default EmployeesPage;

@@ -15,7 +15,15 @@ import ProjectsAnalytics from "./pages/analytics/ProjectsAnalytics";
 import SalesPage from "./pages/SalesPage";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+// Créer une instance du queryClient pour React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

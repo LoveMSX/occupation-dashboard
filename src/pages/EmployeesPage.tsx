@@ -53,7 +53,29 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { EmployeeData } from "@/components/employees/EmployeeCard";
+
+// Définissons un type pour l'employé conforme aux attentes du système
+interface NewEmployeeData {
+  id: number;
+  name: string;
+  position: string;
+  department: string;
+  email: string;
+  phone: string;
+  avatar?: string;
+  location: string;
+  joinDate: string;
+  manager?: string;
+  skills: string[]; // Définir skills comme obligatoire
+  occupancyRate: number;
+  projects: { 
+    id: number; 
+    name: string; 
+    status: string;
+    client?: string;
+    category?: string;
+  }[];
+}
 
 const EmployeesPage = () => {
   const { t } = useLanguage();
@@ -154,7 +176,8 @@ const EmployeesPage = () => {
       category: ["Forfait", "TMA", "Regie"][Math.floor(Math.random() * 3)]
     };
     
-    const completeEmployee: EmployeeData = {
+    // Créer un nouvel employé avec le type attendu par le système
+    const completeEmployee: NewEmployeeData = {
       ...newEmployee,
       id: newId,
       skills: skillsList,

@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { CSVImportForm } from "@/components/import/CSVImportForm";
 import { NotionIntegration } from "@/components/import/NotionIntegration";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 const ImportPage = () => {
   return (
@@ -16,8 +17,8 @@ const ImportPage = () => {
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
           <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in">
-            <div className="max-w-4xl mx-auto">
-              <h1 className="text-2xl font-bold mb-6">Import Employee & Project Data</h1>
+            <div className="max-w-5xl mx-auto">
+              <h1 className="text-2xl font-bold mb-6">Import & Manage Data</h1>
               
               <Tabs defaultValue="csv" className="mb-8">
                 <TabsList className="mb-4">
@@ -32,13 +33,16 @@ const ImportPage = () => {
                 </TabsContent>
               </Tabs>
               
+              <Separator className="my-8" />
+              
               <div className="bg-muted p-4 rounded-lg">
                 <h3 className="font-medium mb-2">Data Format Requirements</h3>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc pl-5">
-                  <li>CSV files must include headers for Employee ID, Name, Position, etc.</li>
+                  <li>CSV files must include headers that match the database fields</li>
                   <li>Date formats should be in YYYY-MM-DD format</li>
-                  <li>Project assignments should reference employee ID</li>
-                  <li>Occupancy rates should be provided as percentages (0-100)</li>
+                  <li>For related data (like project assignments), use IDs to reference other records</li>
+                  <li>Text fields should use UTF-8 encoding</li>
+                  <li>Numeric values should not contain currency symbols or thousand separators</li>
                 </ul>
               </div>
             </div>

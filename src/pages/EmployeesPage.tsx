@@ -203,7 +203,7 @@ const EmployeesPage = () => {
       occupancyRate: 85,
       avatar: "",
     });
-    toast.success("Employé ajouté avec succès");
+    toast.success("Ressource ajoutée avec succès");
   };
 
   const handleSkillChange = (skillInput: string) => {
@@ -223,7 +223,7 @@ const EmployeesPage = () => {
           <Header />
           <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold mb-4 md:mb-0">{t('employees')}</h1>
+              <h1 className="text-2xl font-bold mb-4 md:mb-0">{t('resources')}</h1>
               
               <div className="flex flex-wrap gap-2">
                 <Button
@@ -299,14 +299,14 @@ const EmployeesPage = () => {
                   <DialogTrigger asChild>
                     <Button>
                       <PlusIcon className="h-4 w-4 mr-2" />
-                      Nouvel employé
+                      Nouvelle ressource
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
-                      <DialogTitle>Ajouter un nouvel employé</DialogTitle>
+                      <DialogTitle>Ajouter une nouvelle ressource</DialogTitle>
                       <DialogDescription>
-                        Veuillez remplir les informations pour créer un nouvel employé
+                        Veuillez remplir les informations pour créer une nouvelle ressource
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -453,7 +453,7 @@ const EmployeesPage = () => {
                     </div>
                     <DialogFooter>
                       <Button type="submit" onClick={handleAddEmployee}>
-                        Ajouter l'employé
+                        Ajouter la ressource
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -489,7 +489,7 @@ const EmployeesPage = () => {
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip formatter={(value) => [`${value} employés`, 'Nombre']} />
+                        <Tooltip formatter={(value) => [`${value} ressources`, 'Nombre']} />
                         <Legend />
                       </PieChart>
                     </ResponsiveContainer>
@@ -512,9 +512,9 @@ const EmployeesPage = () => {
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                         <XAxis type="number" />
                         <YAxis type="category" dataKey="name" width={100} />
-                        <Tooltip formatter={(value) => [`${value} employés`, 'Nombre']} />
+                        <Tooltip formatter={(value) => [`${value} ressources`, 'Nombre']} />
                         <Legend />
-                        <Bar dataKey="value" name="Nombre d'employés" fill="#8884d8" />
+                        <Bar dataKey="value" name="Nombre de ressources" fill="#8884d8" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -523,7 +523,7 @@ const EmployeesPage = () => {
             )}
 
             <div className="mt-4 text-sm text-muted-foreground">
-              {filteredEmployees.length} employés sur {employees.length} au total
+              {filteredEmployees.length} ressources sur {employees.length} au total
             </div>
           </main>
         </div>

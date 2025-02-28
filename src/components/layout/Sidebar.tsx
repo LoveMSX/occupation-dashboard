@@ -128,7 +128,7 @@ export function Sidebar() {
         />
         <NavItem
           icon={<Users size={18} />}
-          label={t('employees')}
+          label={t('resources')}
           path="/employees"
           active={location.pathname === "/employees"}
         />

@@ -18,6 +18,7 @@ const translations = {
     'app.name': 'MSX Dashboard',
     'dashboard': 'Dashboard',
     'employees': 'Employees',
+    'resources': 'Resources',
     'projects': 'Projects',
     'analytics': 'Analytics',
     'import': 'Import Data',
@@ -30,7 +31,7 @@ const translations = {
     'yearly': 'Yearly',
     
     // Dashboard
-    'total.employees': 'Total Employees',
+    'total.employees': 'Total Resources',
     'active.projects': 'Active Projects',
     'avg.occupancy': 'Avg. Occupancy',
     'utilization': 'Utilization',
@@ -53,8 +54,8 @@ const translations = {
     // Projects
     'project.distribution.by.type': 'Project Distribution by Type',
     'breakdown.projects.category': 'Breakdown of projects by category',
-    'employee.distribution.projects': 'Employee Distribution Across Projects',
-    'employee.allocation.projects': 'Employee allocation across major projects',
+    'employee.distribution.projects': 'Resource Distribution Across Projects',
+    'employee.allocation.projects': 'Resource allocation across major projects',
     'project.allocation.department': 'Project Allocation By Department',
     'heatmap.projects.departments': 'Heatmap of projects across departments',
     'project.duration.distribution': 'Project Duration Distribution',
@@ -82,6 +83,7 @@ const translations = {
     'app.name': 'Tableau de Bord MSX',
     'dashboard': 'Tableau de Bord',
     'employees': 'Employés',
+    'resources': 'Ressources',
     'projects': 'Projets',
     'analytics': 'Analyses',
     'import': 'Importer des Données',
@@ -94,7 +96,7 @@ const translations = {
     'yearly': 'Annuel',
     
     // Dashboard
-    'total.employees': 'Total des Employés',
+    'total.employees': 'Total des Ressources',
     'active.projects': 'Projets Actifs',
     'avg.occupancy': 'Occupation Moyenne',
     'utilization': 'Utilisation',
@@ -117,8 +119,8 @@ const translations = {
     // Projects
     'project.distribution.by.type': 'Répartition des Projets par Type',
     'breakdown.projects.category': 'Répartition des projets par catégorie',
-    'employee.distribution.projects': 'Répartition des Employés par Projet',
-    'employee.allocation.projects': 'Allocation des employés sur les principaux projets',
+    'employee.distribution.projects': 'Répartition des Ressources par Projet',
+    'employee.allocation.projects': 'Allocation des ressources sur les principaux projets',
     'project.allocation.department': 'Allocation des Projets par Département',
     'heatmap.projects.departments': 'Carte thermique des projets par département',
     'project.duration.distribution': 'Répartition par Durée de Projet',

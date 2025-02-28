@@ -150,8 +150,8 @@ export function OccupancyChart() {
             >
               <defs>
                 <linearGradient id="occupancyFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.8} />
-                  <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0.3} />
+                  <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.8} />
+                  <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0.3} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />

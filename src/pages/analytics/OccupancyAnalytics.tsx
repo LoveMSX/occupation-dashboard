@@ -124,12 +124,12 @@ const OccupancyAnalytics = () => {
                           }}
                         />
                         <Legend />
-                        <Bar dataKey="occupancy" name="Occupancy" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="occupancy" name="Occupancy" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
                         <Line
                           type="monotone"
                           dataKey="utilization"
                           name="Utilization"
-                          stroke="var(--success)"
+                          stroke="#10B981"
                           strokeWidth={2}
                           dot={{ r: 4 }}
                           activeDot={{ r: 6 }}
@@ -138,7 +138,7 @@ const OccupancyAnalytics = () => {
                           type="monotone"
                           dataKey="target"
                           name="Target"
-                          stroke="var(--warning)"
+                          stroke="#F97316"
                           strokeWidth={2}
                           strokeDasharray="5 5"
                           dot={false}
@@ -183,7 +183,7 @@ const OccupancyAnalytics = () => {
                           }}
                         />
                         <Legend />
-                        <Bar dataKey="occupancy" name="Occupancy" fill="var(--info)" radius={[0, 4, 4, 0]} />
+                        <Bar dataKey="occupancy" name="Occupancy" fill="#3B82F6" radius={[0, 4, 4, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -234,7 +234,7 @@ const OccupancyAnalytics = () => {
                           yAxisId="left"
                           dataKey="occupancy"
                           name="Occupancy"
-                          fill="var(--primary)"
+                          fill="#8B5CF6"
                           radius={[4, 4, 0, 0]}
                         />
                         <Line
@@ -242,7 +242,7 @@ const OccupancyAnalytics = () => {
                           type="monotone"
                           dataKey="headcount"
                           name="Headcount"
-                          stroke="var(--danger)"
+                          stroke="#EF4444"
                           strokeWidth={2}
                           dot={{ r: 4 }}
                         />
@@ -285,7 +285,7 @@ const OccupancyAnalytics = () => {
                           type="monotone"
                           dataKey="current"
                           name="Current Quarter"
-                          stroke="var(--primary)"
+                          stroke="#3B82F6"
                           strokeWidth={2}
                           dot={{ r: 4 }}
                           activeDot={{ r: 6 }}
@@ -294,7 +294,7 @@ const OccupancyAnalytics = () => {
                           type="monotone"
                           dataKey="previous"
                           name="Previous Quarter"
-                          stroke="var(--muted-foreground)"
+                          stroke="#8E9196"
                           strokeWidth={2}
                           strokeDasharray="5 5"
                           dot={{ r: 3 }}

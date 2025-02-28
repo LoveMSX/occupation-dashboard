@@ -48,25 +48,25 @@ const processProjectTypeData = () => {
     let color = "";
     switch(category) {
       case "TMA":
-        color = "hsl(221.2, 83.2%, 53.3%)"; // blue
+        color = "#9b87f5"; // purple
         break;
       case "Forfait":
-        color = "hsl(142, 76%, 36%)"; // green
+        color = "#10B981"; // green
         break;
       case "Regie":
-        color = "hsl(38, 92%, 50%)"; // orange
+        color = "#F97316"; // orange
         break;
       case "FORMATION":
-        color = "hsl(0, 84%, 60%)"; // red
+        color = "#EF4444"; // red
         break;
       case "EDITION":
-        color = "hsl(217, 91%, 60%)"; // azure blue
+        color = "#3B82F6"; // azure blue
         break;
       case "SUPPORT":
-        color = "hsl(271, 91%, 65%)"; // purple
+        color = "#8B5CF6"; // purple
         break;
       default:
-        color = "hsl(261, 81%, 56%)"; // indigo
+        color = "#6366F1"; // indigo
     }
     
     return { name: category, value: percentage, color };
@@ -122,10 +122,10 @@ const processProjectDuration = () => {
   });
   
   const durationColors = {
-    "< 3 months": "#8884d8", 
-    "3-6 months": "#83a6ed",
-    "6-12 months": "#8dd1e1",
-    "> 12 months": "#82ca9d"
+    "< 3 months": "#8B5CF6", 
+    "3-6 months": "#3B82F6",
+    "6-12 months": "#0EA5E9",
+    "> 12 months": "#10B981"
   };
   
   return Object.entries(durations).map(([name, count]) => ({
@@ -165,15 +165,15 @@ const projectAllocationData = processProjectAllocation();
 
 // Color mapping for departments
 const DEPARTMENT_COLORS = {
-  "Information Technology": "#0088FE",
-  "Design": "#00C49F",
-  "Development": "#FFBB28",
-  "Project Management": "#FF8042",
-  "Operations": "#8884D8",
-  "Business Analysis": "#83A6ED"
+  "Information Technology": "#3B82F6", // blue
+  "Design": "#10B981", // green
+  "Development": "#F97316", // orange
+  "Project Management": "#EF4444", // red
+  "Operations": "#8B5CF6", // purple
+  "Business Analysis": "#0EA5E9" // light blue
 };
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#83A6ED"];
+const COLORS = ["#3B82F6", "#10B981", "#F97316", "#EF4444", "#8B5CF6", "#0EA5E9"];
 
 const ProjectsAnalytics = () => {
   const [selectedView, setSelectedView] = useState("distribution");
@@ -293,19 +293,19 @@ const ProjectsAnalytics = () => {
                             dataKey="underAllocated" 
                             name="Under Allocated" 
                             stackId="a" 
-                            fill="var(--warning)" 
+                            fill="#F97316" 
                           />
                           <Bar 
                             dataKey="optimal" 
                             name="Optimal Allocation" 
                             stackId="a" 
-                            fill="var(--success)" 
+                            fill="#10B981" 
                           />
                           <Bar 
                             dataKey="overAllocated" 
                             name="Over Allocated" 
                             stackId="a" 
-                            fill="var(--danger)" 
+                            fill="#EF4444" 
                           />
                         </BarChart>
                       </ResponsiveContainer>

@@ -77,21 +77,21 @@ export function ProjectStatusByClient() {
                 dataKey="ongoing" 
                 name="ongoing" 
                 stackId="a" 
-                fill="var(--blue-500)" 
+                fill="#0EA5E9" 
                 radius={[4, 4, 0, 0]} 
               />
               <Bar 
                 dataKey="completed" 
                 name="completed" 
                 stackId="a" 
-                fill="var(--green-500)" 
+                fill="#10B981" 
                 radius={[4, 4, 0, 0]} 
               />
               <Bar 
                 dataKey="standby" 
                 name="standby" 
                 stackId="a" 
-                fill="var(--amber-500)" 
+                fill="#F97316" 
                 radius={[4, 4, 0, 0]} 
               />
             </BarChart>

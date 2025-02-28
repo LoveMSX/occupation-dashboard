@@ -744,7 +744,7 @@ export function NotionIntegration() {
                               ? value.join(", ") 
                               : typeof value === "boolean" 
                                 ? value ? "Oui" : "Non"
-                                : value}
+                                : String(value) /* Conversion explicite en chaîne pour résoudre l'erreur */}
                           </TableCell>
                         ))}
                       </TableRow>

@@ -82,7 +82,6 @@ const EmployeesPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentView, setCurrentView] = useState<"table" | "chart" | "cards" | "department" | "skills">("table");
   const [searchTerm, setSearchTerm] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [skillFilter, setSkillFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -108,11 +107,10 @@ const EmployeesPage = () => {
       employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesDepartment = departmentFilter === "all" || employee.department === departmentFilter;
     const matchesLocation = locationFilter === "all" || employee.location === locationFilter;
     const matchesSkill = skillFilter === "all" || employee.skills?.includes(skillFilter);
     
-    return matchesSearch && matchesDepartment && matchesLocation && matchesSkill;
+    return matchesSearch && matchesLocation && matchesSkill;
   });
 
   // Calculate data for department chart
@@ -280,8 +278,6 @@ const EmployeesPage = () => {
               <div className="flex flex-wrap gap-2">
                 <EmployeeFilters
                   employees={employees}
-                  departmentFilter={departmentFilter}
-                  setDepartmentFilter={setDepartmentFilter}
                   locationFilter={locationFilter}
                   setLocationFilter={setLocationFilter}
                   skillFilter={skillFilter}

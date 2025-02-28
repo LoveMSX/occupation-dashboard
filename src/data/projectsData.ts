@@ -232,8 +232,8 @@ export const projectsData: ProjectData[] = [
     description: "Implémentation des projets locaux",
     status: "ongoing",
     client: "Etech",
-    category: "FORMATION",
-    location: "Interne",
+    category: "Other", // Changed from "FORMATION" to "Other" to match allowed types
+    location: "Local", // Changed from "Interne" to "Local" to match allowed types
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 90,

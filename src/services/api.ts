@@ -34,16 +34,31 @@ export interface ProjectRequest {
   team?: Array<{ id: number; name: string; avatar?: string; role?: string }>;
 }
 
-// Interface pour les opérations de vente
+// Interface pour les opérations de vente (avant-vente)
 export interface SalesOperationRequest {
-  name: string;
+  projectName: string;
   client: string;
-  status: string;
-  value: number;
-  startDate: string;
-  endDate?: string;
-  employeeId?: number;
+  receptionDate: string;
+  tjm?: number;
+  budget?: string | number;
+  status: "Envoyé" | "En cours" | "Gagné" | "Perdu" | "Attente élément";
+  commercial?: string;
   description?: string;
+}
+
+// Interface pour les réponses d'opérations de vente
+export interface SalesOperationResponse {
+  id: number;
+  projectName: string;
+  client: string;
+  receptionDate: string;
+  tjm: number;
+  budget: string | number;
+  status: "Envoyé" | "En cours" | "Gagné" | "Perdu" | "Attente élément";
+  commercial: string;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Service API pour les employés
@@ -246,14 +261,14 @@ export const projectApi = {
   }
 };
 
-// Service API pour les opérations de vente
+// Service API pour les opérations de vente (avant-vente)
 export const salesApi = {
   // Récupérer toutes les opérations de vente
-  async getAllSalesOperations() {
+  async getAllSalesOperations(): Promise<SalesOperationResponse[]> {
     try {
       const response = await fetch(`${API_URL}/sales-operations`);
       if (!response.ok) {
-        throw new Error('Erreur lors de la récupération des opérations de vente');
+        throw new Error('Erreur lors de la récupération des opportunités commerciales');
       }
       return await response.json();
     } catch (error) {
@@ -263,11 +278,11 @@ export const salesApi = {
   },
 
   // Récupérer une opération de vente par son ID
-  async getSalesOperationById(id: number) {
+  async getSalesOperationById(id: number): Promise<SalesOperationResponse> {
     try {
       const response = await fetch(`${API_URL}/sales-operations/${id}`);
       if (!response.ok) {
-        throw new Error(`Erreur lors de la récupération de l'opération de vente ${id}`);
+        throw new Error(`Erreur lors de la récupération de l'opportunité commerciale ${id}`);
       }
       return await response.json();
     } catch (error) {
@@ -277,7 +292,7 @@ export const salesApi = {
   },
 
   // Créer une nouvelle opération de vente
-  async createSalesOperation(operation: SalesOperationRequest) {
+  async createSalesOperation(operation: SalesOperationRequest): Promise<SalesOperationResponse> {
     try {
       const response = await fetch(`${API_URL}/sales-operations`, {
         method: 'POST',
@@ -287,7 +302,7 @@ export const salesApi = {
         body: JSON.stringify(operation),
       });
       if (!response.ok) {
-        throw new Error("Erreur lors de la création de l'opération de vente");
+        throw new Error("Erreur lors de la création de l'opportunité commerciale");
       }
       return await response.json();
     } catch (error) {
@@ -297,7 +312,7 @@ export const salesApi = {
   },
 
   // Mettre à jour une opération de vente existante
-  async updateSalesOperation(id: number, operation: Partial<SalesOperationRequest>) {
+  async updateSalesOperation(id: number, operation: Partial<SalesOperationRequest>): Promise<SalesOperationResponse> {
     try {
       const response = await fetch(`${API_URL}/sales-operations/${id}`, {
         method: 'PUT',
@@ -307,7 +322,7 @@ export const salesApi = {
         body: JSON.stringify(operation),
       });
       if (!response.ok) {
-        throw new Error("Erreur lors de la mise à jour de l'opération de vente");
+        throw new Error("Erreur lors de la mise à jour de l'opportunité commerciale");
       }
       return await response.json();
     } catch (error) {
@@ -323,7 +338,7 @@ export const salesApi = {
         method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error("Erreur lors de la suppression de l'opération de vente");
+        throw new Error("Erreur lors de la suppression de l'opportunité commerciale");
       }
     } catch (error) {
       console.error('API error:', error);
@@ -331,12 +346,26 @@ export const salesApi = {
     }
   },
 
-  // Récupérer les opérations de vente d'un employé
-  async getSalesOperationsByEmployeeId(employeeId: number) {
+  // Récupérer les opérations de vente d'un employé (commercial)
+  async getSalesOperationsByEmployeeId(employeeId: number): Promise<SalesOperationResponse[]> {
     try {
       const response = await fetch(`${API_URL}/sales-operations/employee/${employeeId}`);
       if (!response.ok) {
-        throw new Error(`Erreur lors de la récupération des opérations de vente de l'employé ${employeeId}`);
+        throw new Error(`Erreur lors de la récupération des opportunités du commercial ${employeeId}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('API error:', error);
+      throw error;
+    }
+  },
+  
+  // Récupérer les opérations de vente par statut
+  async getSalesOperationsByStatus(status: string): Promise<SalesOperationResponse[]> {
+    try {
+      const response = await fetch(`${API_URL}/sales-operations?status=${status}`);
+      if (!response.ok) {
+        throw new Error(`Erreur lors de la récupération des opportunités avec le statut ${status}`);
       }
       return await response.json();
     } catch (error) {

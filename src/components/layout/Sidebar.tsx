@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -100,44 +101,45 @@ const NavItem = ({ icon, label, path, active, onClick, subItems }: NavItemProps)
 
 export function Sidebar() {
   const location = useLocation();
+  const { t } = useLanguage();
   
   return (
     <div className="flex h-screen flex-col border-r bg-card px-2 py-4 shadow-sm animate-fade-in">
       <div className="flex items-center px-4 py-2 mb-8">
-        <h1 className="text-xl font-semibold text-primary">OccupyTracker</h1>
+        <h1 className="text-xl font-semibold text-primary">{t('app.name')}</h1>
       </div>
       <nav className="flex-1 space-y-1 px-2">
         <NavItem
           icon={<Home size={18} />}
-          label="Dashboard"
+          label={t('dashboard')}
           path="/"
           active={location.pathname === "/"}
         />
         <NavItem
           icon={<BarChart3 size={18} />}
-          label="Analytics"
+          label={t('analytics')}
           path="/analytics"
           active={location.pathname === "/analytics"}
           subItems={[
-            { label: "Occupancy Rate", path: "/analytics/occupancy" },
-            { label: "Project Distribution", path: "/analytics/projects" },
+            { label: t('occupancy.rate'), path: "/analytics/occupancy" },
+            { label: t('project.distribution'), path: "/analytics/projects" },
           ]}
         />
         <NavItem
           icon={<Users size={18} />}
-          label="Employees"
+          label={t('employees')}
           path="/employees"
           active={location.pathname === "/employees"}
         />
         <NavItem
           icon={<Briefcase size={18} />}
-          label="Projects"
+          label={t('projects')}
           path="/projects"
           active={location.pathname === "/projects"}
         />
         <NavItem
           icon={<FileUp size={18} />}
-          label="Import Data"
+          label={t('import')}
           path="/import"
           active={location.pathname === "/import"}
         />
@@ -145,13 +147,13 @@ export function Sidebar() {
       <div className="mt-auto px-2 space-y-1">
         <NavItem
           icon={<Settings size={18} />}
-          label="Settings"
+          label={t('settings')}
           path="/settings"
           active={location.pathname === "/settings"}
         />
         <NavItem
           icon={<LogOut size={18} />}
-          label="Logout"
+          label={t('logout')}
           path="/logout"
           onClick={() => console.log("Logout clicked")}
         />

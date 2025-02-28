@@ -11,17 +11,19 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 import { toast } from "sonner";
-import { AlertCircle, CheckCircle, Cloud, Database, Key, Lock, Moon, Save, Sun, UserCog } from "lucide-react";
+import { AlertCircle, CheckCircle, Cloud, Database, Globe, Key, Lock, Moon, Save, Sun, UserCog } from "lucide-react";
 
 const SettingsPage = () => {
+  const { language, setLanguage, t } = useLanguage();
   const [activeTab, setActiveTab] = useState("account");
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [dataRetention, setDataRetention] = useState("90");
   
   const handleSave = () => {
-    toast.success("Settings saved successfully");
+    toast.success(t('changes.saved'));
   };
   
   return (
@@ -34,25 +36,29 @@ const SettingsPage = () => {
           <Header />
           <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in">
             <div className="max-w-5xl mx-auto">
-              <h1 className="text-2xl font-bold mb-6">Settings</h1>
+              <h1 className="text-2xl font-bold mb-6">{t('settings')}</h1>
               
               <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
-                <TabsList className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                <TabsList className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-2">
                   <TabsTrigger value="account" className="flex items-center gap-2">
                     <UserCog className="h-4 w-4" />
-                    <span className="hidden sm:inline">Account</span>
+                    <span className="hidden sm:inline">{t('account.information').split(' ')[0]}</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="language" className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    <span className="hidden sm:inline">{t('language')}</span>
                   </TabsTrigger>
                   <TabsTrigger value="appearance" className="flex items-center gap-2">
                     <Sun className="h-4 w-4" />
-                    <span className="hidden sm:inline">Appearance</span>
+                    <span className="hidden sm:inline">{t('appearance')}</span>
                   </TabsTrigger>
                   <TabsTrigger value="security" className="flex items-center gap-2">
                     <Lock className="h-4 w-4" />
-                    <span className="hidden sm:inline">Security</span>
+                    <span className="hidden sm:inline">{t('security.settings').split(' ')[0]}</span>
                   </TabsTrigger>
                   <TabsTrigger value="data" className="flex items-center gap-2">
                     <Database className="h-4 w-4" />
-                    <span className="hidden sm:inline">Data</span>
+                    <span className="hidden sm:inline">{t('data.management').split(' ')[0]}</span>
                   </TabsTrigger>
                   <TabsTrigger value="api" className="flex items-center gap-2">
                     <Key className="h-4 w-4" />
@@ -63,9 +69,9 @@ const SettingsPage = () => {
                 <TabsContent value="account" className="space-y-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Account Information</CardTitle>
+                      <CardTitle>{t('account.information')}</CardTitle>
                       <CardDescription>
-                        Update your account details and preferences
+                        {t('update.account.details')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -121,7 +127,41 @@ const SettingsPage = () => {
                     <CardFooter className="flex justify-end">
                       <Button className="w-full sm:w-auto" onClick={handleSave}>
                         <Save className="mr-2 h-4 w-4" />
-                        Save Changes
+                        {t('save.changes')}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="language" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{t('language')}</CardTitle>
+                      <CardDescription>
+                        Choose your preferred language
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="language-select">Display Language</Label>
+                        <Select value={language} onValueChange={(value) => setLanguage(value as 'en' | 'fr')}>
+                          <SelectTrigger id="language-select">
+                            <SelectValue placeholder="Select Language" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">{t('english')}</SelectItem>
+                            <SelectItem value="fr">{t('french')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          This will change the language across the entire application
+                        </p>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex justify-end">
+                      <Button className="w-full sm:w-auto" onClick={handleSave}>
+                        <Save className="mr-2 h-4 w-4" />
+                        {t('save.changes')}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -130,9 +170,9 @@ const SettingsPage = () => {
                 <TabsContent value="appearance" className="space-y-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Appearance</CardTitle>
+                      <CardTitle>{t('appearance')}</CardTitle>
                       <CardDescription>
-                        Customize how the dashboard looks and feels
+                        {t('customize.dashboard')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -179,7 +219,7 @@ const SettingsPage = () => {
                     <CardFooter className="flex justify-end">
                       <Button className="w-full sm:w-auto" onClick={handleSave}>
                         <Save className="mr-2 h-4 w-4" />
-                        Save Changes
+                        {t('save.changes')}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -188,9 +228,9 @@ const SettingsPage = () => {
                 <TabsContent value="security" className="space-y-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Security Settings</CardTitle>
+                      <CardTitle>{t('security.settings')}</CardTitle>
                       <CardDescription>
-                        Manage your password and account security
+                        {t('manage.password.security')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -228,7 +268,7 @@ const SettingsPage = () => {
                     <CardFooter className="flex justify-end">
                       <Button className="w-full sm:w-auto" onClick={handleSave}>
                         <Save className="mr-2 h-4 w-4" />
-                        Update Security
+                        {t('save.changes')}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -237,9 +277,9 @@ const SettingsPage = () => {
                 <TabsContent value="data" className="space-y-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Data Management</CardTitle>
+                      <CardTitle>{t('data.management')}</CardTitle>
                       <CardDescription>
-                        Configure data storage and retention policies
+                        {t('configure.data.storage')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -292,7 +332,7 @@ const SettingsPage = () => {
                     <CardFooter className="flex justify-end">
                       <Button className="w-full sm:w-auto" onClick={handleSave}>
                         <Save className="mr-2 h-4 w-4" />
-                        Save Changes
+                        {t('save.changes')}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -301,9 +341,9 @@ const SettingsPage = () => {
                 <TabsContent value="api" className="space-y-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>API Access</CardTitle>
+                      <CardTitle>{t('api.access')}</CardTitle>
                       <CardDescription>
-                        Manage API keys and integrations
+                        {t('manage.api.keys')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -366,7 +406,7 @@ const SettingsPage = () => {
                     <CardFooter className="flex justify-end">
                       <Button className="w-full sm:w-auto" onClick={handleSave}>
                         <Save className="mr-2 h-4 w-4" />
-                        Save Changes
+                        {t('save.changes')}
                       </Button>
                     </CardFooter>
                   </Card>

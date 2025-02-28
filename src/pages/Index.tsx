@@ -13,7 +13,7 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { useState } from "react";
 import { ProjectStats } from "@/components/dashboard/ProjectStats";
 import { RecentProjects } from "@/components/dashboard/RecentProjects";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProjectStatusByClient } from "@/components/dashboard/ProjectStatusByClient";
 
 const Dashboard = () => {
   const { t } = useLanguage();
@@ -76,21 +76,7 @@ const Dashboard = () => {
                   <ProjectsDistributionChart />
                 </div>
                 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Statut des Projets par Client</CardTitle>
-                    <CardDescription>Vue d'ensemble de l'état des projets par client</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[400px]">
-                      {/* Ce composant pourrait être développé ultérieurement pour afficher 
-                          un graphique plus détaillé des projets par client */}
-                      <p className="text-center py-16 text-muted-foreground">
-                        Graphique détaillé des projets par client à développer
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ProjectStatusByClient />
               </TabsContent>
             </Tabs>
           </main>

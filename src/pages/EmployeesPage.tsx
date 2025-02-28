@@ -17,8 +17,29 @@ import {
   LayoutGridIcon, 
   PieChartIcon, 
   CalendarDaysIcon,
-  ListIcon
+  ListIcon,
+  PlusIcon,
+  Mail
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 import {
   PieChart,
   Pie,
@@ -41,8 +62,25 @@ const EmployeesPage = () => {
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [skillFilter, setSkillFilter] = useState("all");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [employees, setEmployees] = useState([...enhancedEmployeesData]);
+
+  const [newEmployee, setNewEmployee] = useState({
+    id: 0,
+    name: "",
+    position: "",
+    department: "Engineering",
+    email: "",
+    phone: "",
+    location: "Madagascar",
+    startDate: new Date().toISOString().split("T")[0],
+    status: "active",
+    skills: [] as string[],
+    availability: 100,
+    avatar: "",
+  });
   
-  const filteredEmployees = enhancedEmployeesData.filter((employee) => {
+  const filteredEmployees = employees.filter((employee) => {
     const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -58,7 +96,7 @@ const EmployeesPage = () => {
   const departmentChartData = () => {
     const departmentCounts: Record<string, number> = {};
     
-    enhancedEmployeesData.forEach(employee => {
+    employees.forEach(employee => {
       if (departmentCounts[employee.department]) {
         departmentCounts[employee.department]++;
       } else {
@@ -73,7 +111,7 @@ const EmployeesPage = () => {
   const skillsChartData = () => {
     const skillCounts: Record<string, number> = {};
     
-    enhancedEmployeesData.forEach(employee => {
+    employees.forEach(employee => {
       employee.skills?.forEach(skill => {
         if (skillCounts[skill]) {
           skillCounts[skill]++;
@@ -87,6 +125,54 @@ const EmployeesPage = () => {
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 10); // Top 10 skills
+  };
+
+  const handleAddEmployee = () => {
+    if (!newEmployee.name || !newEmployee.position || !newEmployee.email) {
+      toast.error("Veuillez remplir les champs obligatoires");
+      return;
+    }
+
+    // Valider le format de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmployee.email)) {
+      toast.error("Veuillez entrer une adresse email valide");
+      return;
+    }
+
+    const newId = Math.max(...employees.map(emp => emp.id)) + 1;
+    const skillsList = newEmployee.skills.length > 0 ? newEmployee.skills : 
+                      ["React", "TypeScript"].slice(0, Math.floor(Math.random() * 2) + 1);
+    
+    const completeEmployee = {
+      ...newEmployee,
+      id: newId,
+      skills: skillsList,
+      avatar: newEmployee.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(newEmployee.name)}&background=random`,
+    };
+
+    setEmployees([completeEmployee, ...employees]);
+    setIsAddDialogOpen(false);
+    setNewEmployee({
+      id: 0,
+      name: "",
+      position: "",
+      department: "Engineering",
+      email: "",
+      phone: "",
+      location: "Madagascar",
+      startDate: new Date().toISOString().split("T")[0],
+      status: "active",
+      skills: [],
+      availability: 100,
+      avatar: "",
+    });
+    toast.success("Employé ajouté avec succès");
+  };
+
+  const handleSkillChange = (skillInput: string) => {
+    const skills = skillInput.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0);
+    setNewEmployee({ ...newEmployee, skills });
   };
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#8dd1e1', '#a4de6c', '#d0ed57'];
@@ -157,7 +243,7 @@ const EmployeesPage = () => {
               
               <div className="flex flex-wrap gap-2">
                 <EmployeeFilters
-                  employees={enhancedEmployeesData}
+                  employees={employees}
                   departmentFilter={departmentFilter}
                   setDepartmentFilter={setDepartmentFilter}
                   locationFilter={locationFilter}
@@ -172,6 +258,158 @@ const EmployeesPage = () => {
                     setViewMode={setViewMode}
                   />
                 )}
+
+                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <PlusIcon className="h-4 w-4 mr-2" />
+                      Nouvel employé
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Ajouter un nouvel employé</DialogTitle>
+                      <DialogDescription>
+                        Veuillez remplir les informations pour créer un nouvel employé
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                          Nom complet *
+                        </Label>
+                        <Input
+                          id="name"
+                          placeholder="Nom et prénom"
+                          className="col-span-3"
+                          value={newEmployee.name}
+                          onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="position" className="text-right">
+                          Poste *
+                        </Label>
+                        <Input
+                          id="position"
+                          placeholder="Titre du poste"
+                          className="col-span-3"
+                          value={newEmployee.position}
+                          onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="email" className="text-right">
+                          Email *
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="adresse@email.com"
+                          className="col-span-3"
+                          value={newEmployee.email}
+                          onChange={(e) => setNewEmployee({ ...newEmployee, email: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="phone" className="text-right">
+                          Téléphone
+                        </Label>
+                        <Input
+                          id="phone"
+                          placeholder="+261 XX XXX XX"
+                          className="col-span-3"
+                          value={newEmployee.phone}
+                          onChange={(e) => setNewEmployee({ ...newEmployee, phone: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="department" className="text-right">
+                          Département
+                        </Label>
+                        <Select
+                          value={newEmployee.department}
+                          onValueChange={(val) => setNewEmployee({ ...newEmployee, department: val })}
+                        >
+                          <SelectTrigger id="department" className="col-span-3">
+                            <SelectValue placeholder="Département" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Engineering">Engineering</SelectItem>
+                            <SelectItem value="Design">Design</SelectItem>
+                            <SelectItem value="Product">Product</SelectItem>
+                            <SelectItem value="Marketing">Marketing</SelectItem>
+                            <SelectItem value="Sales">Sales</SelectItem>
+                            <SelectItem value="Support">Support</SelectItem>
+                            <SelectItem value="HR">HR</SelectItem>
+                            <SelectItem value="Finance">Finance</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="location" className="text-right">
+                          Localisation
+                        </Label>
+                        <Select
+                          value={newEmployee.location}
+                          onValueChange={(val) => setNewEmployee({ ...newEmployee, location: val })}
+                        >
+                          <SelectTrigger id="location" className="col-span-3">
+                            <SelectValue placeholder="Localisation" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Madagascar">Madagascar</SelectItem>
+                            <SelectItem value="France">France</SelectItem>
+                            <SelectItem value="Remote">Remote</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="startDate" className="text-right">
+                          Date d'embauche
+                        </Label>
+                        <Input
+                          id="startDate"
+                          type="date"
+                          className="col-span-3"
+                          value={newEmployee.startDate}
+                          onChange={(e) => setNewEmployee({ ...newEmployee, startDate: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="skills" className="text-right">
+                          Compétences
+                        </Label>
+                        <Input
+                          id="skills"
+                          placeholder="React, TypeScript, Node.js (séparés par des virgules)"
+                          className="col-span-3"
+                          value={newEmployee.skills.join(', ')}
+                          onChange={(e) => handleSkillChange(e.target.value)}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="availability" className="text-right">
+                          Disponibilité (%)
+                        </Label>
+                        <Input
+                          id="availability"
+                          type="number"
+                          min="0"
+                          max="100"
+                          className="col-span-3"
+                          value={newEmployee.availability}
+                          onChange={(e) => setNewEmployee({ ...newEmployee, availability: parseInt(e.target.value) || 100 })}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit" onClick={handleAddEmployee}>
+                        Ajouter l'employé
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             
@@ -237,7 +475,7 @@ const EmployeesPage = () => {
             )}
 
             <div className="mt-4 text-sm text-muted-foreground">
-              {filteredEmployees.length} employés sur {enhancedEmployeesData.length} au total
+              {filteredEmployees.length} employés sur {employees.length} au total
             </div>
           </main>
         </div>

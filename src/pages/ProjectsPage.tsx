@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Grid, List, Search, SlidersHorizontal, Building, MapPin, Tag, TableIcon, 
-  BarChart2Icon, LayoutGridIcon, PieChartIcon, CalendarDaysIcon } from "lucide-react";
+  BarChart2Icon, LayoutGridIcon, PieChartIcon, CalendarDaysIcon, PlusIcon, Users } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { projectsData } from "@/data/projectsData";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +20,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import {
   PieChart,
   Pie,
@@ -45,8 +56,23 @@ const ProjectsPage = () => {
   const [clientFilter, setClientFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newProject, setNewProject] = useState({
+    name: "",
+    description: "",
+    status: "ongoing",
+    client: "",
+    category: "TMA",
+    location: "Local",
+    startDate: new Date().toISOString().split("T")[0],
+    endDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split("T")[0],
+    progress: 0,
+    manager: { name: "", id: 0, avatar: "" },
+    team: [],
+  });
+  const [projects, setProjects] = useState(projectsData);
   
-  const filteredProjects = projectsData.filter((project) => {
+  const filteredProjects = projects.filter((project) => {
     const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.client.toLowerCase().includes(searchTerm.toLowerCase());
@@ -60,15 +86,15 @@ const ProjectsPage = () => {
   });
   
   // Get unique clients, categories, and locations for filters
-  const clients = Array.from(new Set(projectsData.map(project => project.client)));
-  const categories = Array.from(new Set(projectsData.map(project => project.category)));
-  const locations = Array.from(new Set(projectsData.map(project => project.location)));
+  const clients = Array.from(new Set(projects.map(project => project.client)));
+  const categories = Array.from(new Set(projects.map(project => project.category)));
+  const locations = Array.from(new Set(projects.map(project => project.location)));
   
   // Get data for status chart
   const statusChartData = () => {
     const statusCounts: Record<string, number> = {};
     
-    projectsData.forEach(project => {
+    projects.forEach(project => {
       if (statusCounts[project.status]) {
         statusCounts[project.status]++;
       } else {
@@ -83,7 +109,7 @@ const ProjectsPage = () => {
   const categoryChartData = () => {
     const categoryCounts: Record<string, number> = {};
     
-    projectsData.forEach(project => {
+    projects.forEach(project => {
       if (categoryCounts[project.category]) {
         categoryCounts[project.category]++;
       } else {
@@ -107,7 +133,7 @@ const ProjectsPage = () => {
     }
     
     // Count projects by start date
-    projectsData.forEach(project => {
+    projects.forEach(project => {
       if (project.startDate) {
         const date = new Date(project.startDate);
         const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
@@ -131,6 +157,36 @@ const ProjectsPage = () => {
   };
   
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+
+  const handleAddProject = () => {
+    if (!newProject.name || !newProject.client) {
+      toast.error("Veuillez remplir les champs obligatoires");
+      return;
+    }
+
+    const newId = Math.max(...projects.map(project => project.id)) + 1;
+    const completeProject = {
+      ...newProject,
+      id: newId,
+    };
+
+    setProjects([completeProject, ...projects]);
+    setIsAddDialogOpen(false);
+    setNewProject({
+      name: "",
+      description: "",
+      status: "ongoing",
+      client: "",
+      category: "TMA",
+      location: "Local",
+      startDate: new Date().toISOString().split("T")[0],
+      endDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split("T")[0],
+      progress: 0,
+      manager: { name: "", id: 0, avatar: "" },
+      team: [],
+    });
+    toast.success("Projet ajouté avec succès");
+  };
   
   return (
     <ThemeProvider>
@@ -291,6 +347,179 @@ const ProjectsPage = () => {
                     </Button>
                   </div>
                 )}
+                
+                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <PlusIcon className="h-4 w-4 mr-2" />
+                      Nouveau projet
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Ajouter un nouveau projet</DialogTitle>
+                      <DialogDescription>
+                        Veuillez remplir les informations pour créer un nouveau projet
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                          Nom du projet *
+                        </Label>
+                        <Input
+                          id="name"
+                          placeholder="Nom du projet"
+                          className="col-span-3"
+                          value={newProject.name}
+                          onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="description" className="text-right">
+                          Description
+                        </Label>
+                        <Input
+                          id="description"
+                          placeholder="Description du projet"
+                          className="col-span-3"
+                          value={newProject.description}
+                          onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="client" className="text-right">
+                          Client *
+                        </Label>
+                        <Input
+                          id="client"
+                          placeholder="Nom du client"
+                          className="col-span-3"
+                          value={newProject.client}
+                          onChange={(e) => setNewProject({ ...newProject, client: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="category" className="text-right">
+                          Catégorie
+                        </Label>
+                        <Select
+                          value={newProject.category}
+                          onValueChange={(val) => setNewProject({ ...newProject, category: val })}
+                        >
+                          <SelectTrigger id="category" className="col-span-3">
+                            <SelectValue placeholder="Catégorie" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="TMA">TMA</SelectItem>
+                            <SelectItem value="Forfait">Forfait</SelectItem>
+                            <SelectItem value="Regie">Régie</SelectItem>
+                            <SelectItem value="Other">Autre</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="status" className="text-right">
+                          Statut
+                        </Label>
+                        <Select
+                          value={newProject.status}
+                          onValueChange={(val) => setNewProject({ ...newProject, status: val })}
+                        >
+                          <SelectTrigger id="status" className="col-span-3">
+                            <SelectValue placeholder="Statut" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ongoing">En cours</SelectItem>
+                            <SelectItem value="completed">Terminé</SelectItem>
+                            <SelectItem value="standby">En attente</SelectItem>
+                            <SelectItem value="planned">Planifié</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="location" className="text-right">
+                          Localisation
+                        </Label>
+                        <Select
+                          value={newProject.location}
+                          onValueChange={(val) => setNewProject({ ...newProject, location: val })}
+                        >
+                          <SelectTrigger id="location" className="col-span-3">
+                            <SelectValue placeholder="Localisation" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Local">Local</SelectItem>
+                            <SelectItem value="Offshore">Offshore</SelectItem>
+                            <SelectItem value="Remote">Remote</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="startDate" className="text-right">
+                          Date de début
+                        </Label>
+                        <Input
+                          id="startDate"
+                          type="date"
+                          className="col-span-3"
+                          value={newProject.startDate}
+                          onChange={(e) => setNewProject({ ...newProject, startDate: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="endDate" className="text-right">
+                          Date de fin
+                        </Label>
+                        <Input
+                          id="endDate"
+                          type="date"
+                          className="col-span-3"
+                          value={newProject.endDate}
+                          onChange={(e) => setNewProject({ ...newProject, endDate: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="progress" className="text-right">
+                          Progression (%)
+                        </Label>
+                        <Input
+                          id="progress"
+                          type="number"
+                          min="0"
+                          max="100"
+                          className="col-span-3"
+                          value={newProject.progress}
+                          onChange={(e) => setNewProject({ ...newProject, progress: parseInt(e.target.value) || 0 })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="manager" className="text-right">
+                          Chef de projet
+                        </Label>
+                        <Input
+                          id="manager"
+                          placeholder="Nom du chef de projet"
+                          className="col-span-3"
+                          value={newProject.manager.name}
+                          onChange={(e) => setNewProject({ 
+                            ...newProject, 
+                            manager: { 
+                              ...newProject.manager,
+                              name: e.target.value,
+                              id: newProject.manager.id || Math.floor(Math.random() * 1000)
+                            } 
+                          })}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit" onClick={handleAddProject}>
+                        Ajouter le projet
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             
@@ -388,7 +617,7 @@ const ProjectsPage = () => {
             )}
             
             <div className="mt-4 text-sm text-muted-foreground">
-              {filteredProjects.length} projets sur {projectsData.length} au total
+              {filteredProjects.length} projets sur {projects.length} au total
             </div>
           </main>
         </div>

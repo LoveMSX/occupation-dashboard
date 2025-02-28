@@ -14,18 +14,18 @@ const EmployeesPage = () => {
   const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
-  const [skillFilter, setSkillFilter] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [skillFilter, setSkillFilter] = useState("all");
   
   const filteredEmployees = employeesData.filter((employee) => {
     const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesDepartment = departmentFilter === "" || employee.department === departmentFilter;
-    const matchesLocation = locationFilter === "" || employee.location === locationFilter;
-    const matchesSkill = skillFilter === "" || employee.skills?.includes(skillFilter);
+    const matchesDepartment = departmentFilter === "all" || employee.department === departmentFilter;
+    const matchesLocation = locationFilter === "all" || employee.location === locationFilter;
+    const matchesSkill = skillFilter === "all" || employee.skills?.includes(skillFilter);
     
     return matchesSearch && matchesDepartment && matchesLocation && matchesSkill;
   });

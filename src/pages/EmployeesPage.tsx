@@ -8,7 +8,7 @@ import { EmployeeSearch } from "@/components/employees/EmployeeSearch";
 import { EmployeeFilters } from "@/components/employees/EmployeeFilters";
 import { ViewModeToggle } from "@/components/employees/ViewModeToggle";
 import { EmployeeGrid } from "@/components/employees/EmployeeGrid";
-import { employeesData } from "@/data/employeesData";
+import { enhancedEmployeesData } from "@/data/employeesData";
 
 const EmployeesPage = () => {
   const { t } = useLanguage();
@@ -18,7 +18,7 @@ const EmployeesPage = () => {
   const [locationFilter, setLocationFilter] = useState("all");
   const [skillFilter, setSkillFilter] = useState("all");
   
-  const filteredEmployees = employeesData.filter((employee) => {
+  const filteredEmployees = enhancedEmployeesData.filter((employee) => {
     const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -50,7 +50,7 @@ const EmployeesPage = () => {
                 
                 <div className="flex flex-wrap gap-2">
                   <EmployeeFilters
-                    employees={employeesData}
+                    employees={enhancedEmployeesData}
                     departmentFilter={departmentFilter}
                     setDepartmentFilter={setDepartmentFilter}
                     locationFilter={locationFilter}

@@ -7,6 +7,7 @@ import { Download, Filter } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { enhancedEmployeesData } from "@/data/employeesData";
 
 // Month abbreviations for headers
 const MONTHS = [
@@ -40,198 +41,67 @@ const WORKING_DAYS = {
   dec: 20,
 };
 
-// Sample data structure based on the provided image
-interface EmployeeAllocation {
-  id: string;
-  name: string;
-  projects: EmployeeProject[];
-  totalProduction: number;
-  utilizationRate: number;
-}
+// Generate allocation data based on real employees
+const generateEmployeeAllocations = () => {
+  return enhancedEmployeesData.slice(0, 10).map(employee => {
+    // Generate random allocations for each month
+    const allocations: Record<string, number> = {};
+    let totalProduction = 0;
+    
+    // Create 1-2 random projects for each employee
+    const projects = employee.projects.map(project => {
+      const projectAllocations: Record<string, number> = {};
+      let projectTotal = 0;
+      
+      MONTHS.forEach(month => {
+        const monthId = month.id as keyof typeof WORKING_DAYS;
+        const workingDays = WORKING_DAYS[monthId];
+        // Generate a random allocation between 0.4 and 0.95 of working days
+        const allocationFactor = 0.4 + Math.random() * 0.55;
+        const daysAllocated = Math.floor(workingDays * allocationFactor);
+        projectAllocations[monthId] = daysAllocated;
+        projectTotal += daysAllocated;
+      });
+      
+      return {
+        id: project.id.toString(),
+        name: project.name,
+        allocations: projectAllocations,
+        total: projectTotal,
+        percentage: Math.round((projectTotal / getTotalWorkingDays()) * 100)
+      };
+    });
+    
+    // Calculate total production days across all projects
+    projects.forEach(project => {
+      totalProduction += project.total;
+    });
+    
+    // Calculate utilization rate based on total production days
+    const utilizationRate = calculateUtilization(totalProduction);
+    
+    return {
+      id: employee.id.toString(),
+      name: employee.name,
+      projects,
+      totalProduction,
+      utilizationRate
+    };
+  });
+};
 
-interface EmployeeProject {
-  id: string;
-  name: string;
-  allocations: Record<string, number>; // Month -> days allocated
-  total: number;
-  percentage: number;
-}
+const getTotalWorkingDays = () => {
+  return Object.values(WORKING_DAYS).reduce((total, days) => total + days, 0);
+};
 
-// Sample data structured from the image
-const employeeData: EmployeeAllocation[] = [
-  {
-    id: "98765",
-    name: "Smith, John",
-    projects: [
-      {
-        id: "P100",
-        name: "Digital Transformation",
-        allocations: {
-          jan: 18,
-          feb: 15,
-          mar: 20,
-          apr: 18,
-          may: 16,
-          jun: 18,
-          jul: 14,
-          aug: 16,
-          sep: 19,
-          oct: 20,
-          nov: 18,
-          dec: 16,
-        },
-        total: 208,
-        percentage: 80,
-      },
-      {
-        id: "P101",
-        name: "IT Infrastructure",
-        allocations: {
-          jan: 4,
-          feb: 5,
-          mar: 3,
-          apr: 3,
-          may: 2,
-          jun: 3,
-          jul: 6,
-          aug: 5,
-          sep: 3,
-          oct: 3,
-          nov: 0,
-          dec: 3,
-        },
-        total: 40,
-        percentage: 15,
-      },
-    ],
-    totalProduction: 248,
-    utilizationRate: 95,
-  },
-  {
-    id: "34567",
-    name: "Garcia, Maria",
-    projects: [
-      {
-        id: "P102",
-        name: "New CRM Implementation",
-        allocations: {
-          jan: 16,
-          feb: 18,
-          mar: 20,
-          apr: 18,
-          may: 18,
-          jun: 16,
-          jul: 8,
-          aug: 16,
-          sep: 19,
-          oct: 18,
-          nov: 15,
-          dec: 12,
-        },
-        total: 194,
-        percentage: 75,
-      },
-      {
-        id: "P103",
-        name: "Data Migration",
-        allocations: {
-          jan: 6,
-          feb: 2,
-          mar: 3,
-          apr: 3,
-          may: 0,
-          jun: 0,
-          jul: 8,
-          aug: 5,
-          sep: 3,
-          oct: 5,
-          nov: 6,
-          dec: 8,
-        },
-        total: 49,
-        percentage: 19,
-      },
-    ],
-    totalProduction: 243,
-    utilizationRate: 93,
-  },
-  {
-    id: "45678",
-    name: "Johnson, David",
-    projects: [
-      {
-        id: "P104",
-        name: "Mobile App Development",
-        allocations: {
-          jan: 22,
-          feb: 20,
-          mar: 22,
-          apr: 20,
-          may: 22,
-          jun: 21,
-          jul: 12,
-          aug: 21,
-          sep: 22,
-          oct: 23,
-          nov: 21,
-          dec: 10,
-        },
-        total: 236,
-        percentage: 90,
-      },
-    ],
-    totalProduction: 236,
-    utilizationRate: 90,
-  },
-  {
-    id: "56789",
-    name: "Chen, Li",
-    projects: [
-      {
-        id: "P105",
-        name: "UI/UX Redesign",
-        allocations: {
-          jan: 15,
-          feb: 16,
-          mar: 18,
-          apr: 15,
-          may: 16,
-          jun: 14,
-          jul: 10,
-          aug: 12,
-          sep: 14,
-          oct: 18,
-          nov: 16,
-          dec: 15,
-        },
-        total: 179,
-        percentage: 68,
-      },
-      {
-        id: "P106",
-        name: "Web Portal",
-        allocations: {
-          jan: 7,
-          feb: 4,
-          mar: 5,
-          apr: 6,
-          may: 6,
-          jun: 5,
-          jul: 4,
-          aug: 5,
-          sep: 6,
-          oct: 5,
-          nov: 5,
-          dec: 5,
-        },
-        total: 63,
-        percentage: 24,
-      },
-    ],
-    totalProduction: 242,
-    utilizationRate: 92,
-  },
-];
+// Calculate total allocation percentage based on working days
+const calculateUtilization = (total: number) => {
+  const allWorkingDays = getTotalWorkingDays();
+  return Math.round((total / allWorkingDays) * 100);
+};
+
+// Generate employee allocation data
+const employeeData = generateEmployeeAllocations();
 
 export function OccupancyTable() {
   const { language, t } = useLanguage();
@@ -242,16 +112,6 @@ export function OccupancyTable() {
       ...prev,
       [employeeId]: !prev[employeeId]
     }));
-  };
-
-  const getTotalWorkingDays = () => {
-    return Object.values(WORKING_DAYS).reduce((total, days) => total + days, 0);
-  };
-
-  // Calculate total allocation percentage based on working days
-  const calculateUtilization = (total: number) => {
-    const allWorkingDays = getTotalWorkingDays();
-    return Math.round((total / allWorkingDays) * 100);
   };
 
   return (

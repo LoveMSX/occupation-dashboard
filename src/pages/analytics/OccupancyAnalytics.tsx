@@ -19,59 +19,124 @@ import {
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
-
-// Mock data for charts
-const monthlyData = [
-  { name: "Jan", occupancy: 65, utilization: 72, target: 85 },
-  { name: "Feb", occupancy: 72, utilization: 78, target: 85 },
-  { name: "Mar", occupancy: 80, utilization: 84, target: 85 },
-  { name: "Apr", occupancy: 78, utilization: 82, target: 85 },
-  { name: "May", occupancy: 85, utilization: 88, target: 85 },
-  { name: "Jun", occupancy: 90, utilization: 92, target: 85 },
-  { name: "Jul", occupancy: 88, utilization: 91, target: 85 },
-  { name: "Aug", occupancy: 83, utilization: 87, target: 85 },
-  { name: "Sep", occupancy: 87, utilization: 90, target: 85 },
-  { name: "Oct", occupancy: 91, utilization: 93, target: 85 },
-  { name: "Nov", occupancy: 92, utilization: 94, target: 85 },
-  { name: "Dec", occupancy: 89, utilization: 91, target: 85 },
-];
-
-const departmentData = [
-  { name: "Engineering", occupancy: 92, headcount: 45 },
-  { name: "Design", occupancy: 88, headcount: 12 },
-  { name: "Product", occupancy: 85, headcount: 8 },
-  { name: "Marketing", occupancy: 75, headcount: 15 },
-  { name: "Sales", occupancy: 70, headcount: 20 },
-  { name: "HR", occupancy: 65, headcount: 5 },
-  { name: "Finance", occupancy: 60, headcount: 10 },
-];
-
-const seniorityData = [
-  { name: "Junior", occupancy: 75, headcount: 30 },
-  { name: "Mid-level", occupancy: 85, headcount: 48 },
-  { name: "Senior", occupancy: 95, headcount: 35 },
-  { name: "Lead", occupancy: 90, headcount: 12 },
-  { name: "Manager", occupancy: 80, headcount: 8 },
-];
-
-const trendData = [
-  { name: "Week 1", current: 82, previous: 78 },
-  { name: "Week 2", current: 84, previous: 77 },
-  { name: "Week 3", current: 85, previous: 79 },
-  { name: "Week 4", current: 86, previous: 80 },
-  { name: "Week 5", current: 88, previous: 82 },
-  { name: "Week 6", current: 87, previous: 83 },
-  { name: "Week 7", current: 89, previous: 85 },
-  { name: "Week 8", current: 90, previous: 86 },
-  { name: "Week 9", current: 92, previous: 88 },
-  { name: "Week 10", current: 93, previous: 89 },
-  { name: "Week 11", current: 91, previous: 90 },
-  { name: "Week 12", current: 92, previous: 91 },
-];
+import { useState, useMemo } from "react";
+import { enhancedEmployeesData } from "@/data/employeesData";
+import { positionDepartmentMap } from "@/data/employeesData";
 
 const OccupancyAnalytics = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState("quarterly");
+  
+  // Grouper les données d'occupation par mois (simulation)
+  const monthlyData = useMemo(() => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    // Simuler des données d'occupation mensuelle basées sur les données réelles
+    // En pratique, cette donnée viendrait d'une API avec historique
+    return months.map((name, index) => {
+      const baseOccupancy = Math.round(
+        enhancedEmployeesData.reduce((sum, emp) => sum + emp.occupancyRate, 0) / 
+        enhancedEmployeesData.length
+      );
+      
+      // Ajouter une variation pour simuler des changements mensuels
+      const monthVariation = Math.sin(index / 2) * 10;
+      const occupancy = Math.min(Math.max(baseOccupancy + monthVariation, 60), 95);
+      const utilization = occupancy + Math.random() * 5 + 2; // Utilisation légèrement supérieure
+      
+      return {
+        name,
+        occupancy: Math.round(occupancy),
+        utilization: Math.round(utilization),
+        target: 85
+      };
+    });
+  }, []);
+  
+  // Calculer les données d'occupation par département en utilisant les données réelles
+  const departmentData = useMemo(() => {
+    const departmentMap: Record<string, { occupancy: number, count: number, headcount: number }> = {};
+    
+    // Regrouper par département
+    enhancedEmployeesData.forEach(employee => {
+      const dept = employee.department;
+      
+      if (!departmentMap[dept]) {
+        departmentMap[dept] = { occupancy: 0, count: 0, headcount: 0 };
+      }
+      
+      departmentMap[dept].occupancy += employee.occupancyRate;
+      departmentMap[dept].count += 1;
+      departmentMap[dept].headcount += 1; // Un employé = 1 headcount
+    });
+    
+    // Calculer les moyennes et formater pour le graphique
+    return Object.entries(departmentMap)
+      .map(([name, data]) => ({
+        name,
+        occupancy: Math.round(data.occupancy / data.count),
+        headcount: data.headcount
+      }))
+      .sort((a, b) => b.occupancy - a.occupancy); // Trier par occupation décroissante
+  }, []);
+  
+  // Calculer les données d'occupation par niveau de séniorité (simulation basée sur position)
+  const seniorityData = useMemo(() => {
+    const seniorityMap: Record<string, { employees: typeof enhancedEmployeesData, totalOccupancy: number }> = {
+      "Junior": { employees: [], totalOccupancy: 0 },
+      "Mid-level": { employees: [], totalOccupancy: 0 },
+      "Senior": { employees: [], totalOccupancy: 0 },
+      "Lead": { employees: [], totalOccupancy: 0 },
+      "Manager": { employees: [], totalOccupancy: 0 }
+    };
+    
+    // Attribuer un niveau de séniorité basé sur la position (simulation)
+    enhancedEmployeesData.forEach(employee => {
+      let seniority = "Mid-level"; // Par défaut
+      
+      if (employee.position === "TL" || employee.position === "DP") {
+        seniority = "Manager";
+      } else if (employee.position === "RT" || employee.position === "CPS") {
+        seniority = "Senior";
+      } else if (employee.position === "AL" || employee.position === "CPC") {
+        seniority = "Lead";
+      } else if (employee.position === "IDS" && Math.random() > 0.5) {
+        seniority = "Junior";
+      }
+      
+      seniorityMap[seniority].employees.push(employee);
+      seniorityMap[seniority].totalOccupancy += employee.occupancyRate;
+    });
+    
+    // Calculer les moyennes et formater pour le graphique
+    return Object.entries(seniorityMap)
+      .filter(([_, data]) => data.employees.length > 0) // Supprimer les catégories sans employés
+      .map(([name, data]) => ({
+        name,
+        occupancy: Math.round(data.totalOccupancy / data.employees.length),
+        headcount: data.employees.length
+      }))
+      .sort((a, b) => a.occupancy - b.occupancy); // Trier par occupation croissante
+  }, []);
+  
+  // Données de tendance - Simulation de semaines
+  const trendData = useMemo(() => {
+    const baseOccupancy = Math.round(
+      enhancedEmployeesData.reduce((sum, emp) => sum + emp.occupancyRate, 0) / 
+      enhancedEmployeesData.length
+    );
+    
+    return Array.from({ length: 12 }, (_, index) => {
+      const weekVariation = Math.sin(index / 3) * 5;
+      const current = baseOccupancy + weekVariation;
+      const previous = current - 4 + Math.random() * 6; // Simuler le trimestre précédent
+      
+      return {
+        name: `Week ${index + 1}`,
+        current: Math.round(Math.min(Math.max(current, 75), 95)),
+        previous: Math.round(Math.min(Math.max(previous, 70), 90))
+      };
+    });
+  }, []);
   
   return (
     <ThemeProvider>
@@ -83,16 +148,16 @@ const OccupancyAnalytics = () => {
           <Header />
           <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold mb-4 md:mb-0">Occupancy Rate Analytics</h1>
+              <h1 className="text-2xl font-bold mb-4 md:mb-0">Analyse des Taux d'Occupation</h1>
               
               <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Timeframe" />
+                  <SelectValue placeholder="Période" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
-                  <SelectItem value="yearly">Yearly</SelectItem>
+                  <SelectItem value="monthly">Mensuel</SelectItem>
+                  <SelectItem value="quarterly">Trimestriel</SelectItem>
+                  <SelectItem value="yearly">Annuel</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -100,9 +165,9 @@ const OccupancyAnalytics = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Monthly Occupancy Trend</CardTitle>
+                  <CardTitle>Évolution Mensuelle du Taux d'Occupation</CardTitle>
                   <CardDescription>
-                    Occupancy rate vs. utilization over the past year
+                    Taux d'occupation vs. utilisation sur l'année écoulée
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -124,11 +189,11 @@ const OccupancyAnalytics = () => {
                           }}
                         />
                         <Legend />
-                        <Bar dataKey="occupancy" name="Occupancy" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="occupancy" name="Occupation" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
                         <Line
                           type="monotone"
                           dataKey="utilization"
-                          name="Utilization"
+                          name="Utilisation"
                           stroke="#10B981"
                           strokeWidth={2}
                           dot={{ r: 4 }}
@@ -137,7 +202,7 @@ const OccupancyAnalytics = () => {
                         <Line
                           type="monotone"
                           dataKey="target"
-                          name="Target"
+                          name="Objectif"
                           stroke="#F97316"
                           strokeWidth={2}
                           strokeDasharray="5 5"
@@ -151,9 +216,9 @@ const OccupancyAnalytics = () => {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Occupancy by Department</CardTitle>
+                  <CardTitle>Occupation par Département</CardTitle>
                   <CardDescription>
-                    Average occupancy rate across different departments
+                    Taux d'occupation moyen par département
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -173,17 +238,22 @@ const OccupancyAnalytics = () => {
                         <YAxis
                           type="category"
                           dataKey="name"
-                          width={70}
+                          width={80}
                         />
                         <Tooltip
-                          formatter={(value) => [`${value}%`, undefined]}
+                          formatter={(value, name) => [
+                            name === 'occupancy' ? `${value}%` : value,
+                            name === 'occupancy' ? 'Occupation' : 'Effectif'
+                          ]}
                           contentStyle={{ 
                             borderRadius: 'var(--radius)',
                             border: '1px solid var(--border)'
                           }}
                         />
-                        <Legend />
-                        <Bar dataKey="occupancy" name="Occupancy" fill="#3B82F6" radius={[0, 4, 4, 0]} />
+                        <Legend 
+                          formatter={(value) => (value === 'occupancy' ? 'Occupation' : 'Effectif')}
+                        />
+                        <Bar dataKey="occupancy" name="occupancy" fill="#3B82F6" radius={[0, 4, 4, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -194,9 +264,9 @@ const OccupancyAnalytics = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Occupancy by Seniority</CardTitle>
+                  <CardTitle>Occupation par Niveau</CardTitle>
                   <CardDescription>
-                    Occupancy rates across different seniority levels
+                    Taux d'occupation selon les niveaux de séniorité
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -222,18 +292,20 @@ const OccupancyAnalytics = () => {
                         <Tooltip
                           formatter={(value, name) => [
                             name === 'occupancy' ? `${value}%` : value,
-                            name === 'occupancy' ? 'Occupancy' : 'Headcount'
+                            name === 'occupancy' ? 'Occupation' : 'Effectif'
                           ]}
                           contentStyle={{ 
                             borderRadius: 'var(--radius)',
                             border: '1px solid var(--border)'
                           }}
                         />
-                        <Legend />
+                        <Legend 
+                          formatter={(value) => (value === 'occupancy' ? 'Occupation' : 'Effectif')}
+                        />
                         <Bar
                           yAxisId="left"
                           dataKey="occupancy"
-                          name="Occupancy"
+                          name="occupancy"
                           fill="#8B5CF6"
                           radius={[4, 4, 0, 0]}
                         />
@@ -241,7 +313,7 @@ const OccupancyAnalytics = () => {
                           yAxisId="right"
                           type="monotone"
                           dataKey="headcount"
-                          name="Headcount"
+                          name="headcount"
                           stroke="#EF4444"
                           strokeWidth={2}
                           dot={{ r: 4 }}
@@ -254,9 +326,9 @@ const OccupancyAnalytics = () => {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Current vs. Previous Quarter</CardTitle>
+                  <CardTitle>Trimestre Actuel vs. Précédent</CardTitle>
                   <CardDescription>
-                    Comparison of occupancy trends between quarters
+                    Comparaison des tendances d'occupation entre trimestres
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -280,11 +352,16 @@ const OccupancyAnalytics = () => {
                             border: '1px solid var(--border)'
                           }}
                         />
-                        <Legend />
+                        <Legend 
+                          formatter={(value) => (
+                            value === 'current' ? 'Trimestre Actuel' : 
+                            value === 'previous' ? 'Trimestre Précédent' : value
+                          )}
+                        />
                         <Line
                           type="monotone"
                           dataKey="current"
-                          name="Current Quarter"
+                          name="current"
                           stroke="#3B82F6"
                           strokeWidth={2}
                           dot={{ r: 4 }}
@@ -293,7 +370,7 @@ const OccupancyAnalytics = () => {
                         <Line
                           type="monotone"
                           dataKey="previous"
-                          name="Previous Quarter"
+                          name="previous"
                           stroke="#8E9196"
                           strokeWidth={2}
                           strokeDasharray="5 5"

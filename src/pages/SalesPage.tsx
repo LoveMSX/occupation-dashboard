@@ -51,6 +51,9 @@ import {
   CalendarDaysIcon,
   LineChart,
   User,
+  FileDown,
+  FileCog,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { salesOpportunities, SalesOpportunity } from "@/data/salesData";
@@ -69,6 +72,8 @@ import {
   LineChart as RechartLineChart,
   Line,
 } from "recharts";
+import { convertToCSV, downloadCSV } from "@/utils/csvExport";
+import { useLanguage } from "@/components/LanguageProvider";
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -80,6 +85,7 @@ const formatDate = (dateString: string) => {
 };
 
 const SalesPage = () => {
+  const { t } = useLanguage();
   const [opportunities, setOpportunities] = useState<SalesOpportunity[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -237,6 +243,33 @@ const SalesPage = () => {
   const getSortIndicator = (key: keyof SalesOpportunity) => {
     if (sortConfig.key !== key) return null;
     return sortConfig.direction === 'ascending' ? ' ↑' : ' ↓';
+  };
+
+  // Fonction d'export CSV
+  const handleExportCSV = () => {
+    // Définir les colonnes et leurs noms pour l'export
+    const columns: (keyof SalesOpportunity)[] = [
+      'id', 'projectName', 'client', 'receptionDate', 'tjm', 'budget', 'status', 'commercial'
+    ];
+    
+    const columnNames = [
+      'ID', 'Nom du Projet', 'Client', 'Date de Réception', 'TJM', 'Budget', 'Statut', 'Commercial'
+    ];
+    
+    // Convertir les données en CSV
+    const csvContent = convertToCSV(
+      // Utiliser les données filtrées actuellement affichées
+      sortedOpportunities, 
+      columns,
+      columnNames
+    );
+    
+    // Télécharger le fichier CSV
+    const date = new Date().toISOString().slice(0, 10);
+    downloadCSV(csvContent, `opportunites-commerciales-${date}.csv`);
+    
+    // Notifier l'utilisateur
+    toast.success("Export CSV réalisé avec succès");
   };
 
   // Data for status chart
@@ -902,8 +935,14 @@ const SalesPage = () => {
                   {filteredOpportunities.length} opportunités sur {opportunities.length} au total
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    Exporter
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleExportCSV}
+                    className="flex items-center"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Exporter en CSV
                   </Button>
                   <Button variant="outline" size="sm">
                     Imprimer

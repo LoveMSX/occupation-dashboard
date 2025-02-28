@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import {
   CalendarIcon,
   ChevronDownIcon,
@@ -49,9 +49,26 @@ import {
   LayoutGridIcon,
   PieChartIcon,
   CalendarDaysIcon,
+  LineChart,
+  User,
 } from "lucide-react";
 import { toast } from "sonner";
 import { salesOpportunities, SalesOpportunity } from "@/data/salesData";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  LineChart as RechartLineChart,
+  Line,
+} from "recharts";
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -222,6 +239,96 @@ const SalesPage = () => {
     return sortConfig.direction === 'ascending' ? ' ↑' : ' ↓';
   };
 
+  // Data for status chart
+  const getStatusChartData = () => {
+    const statusCounts: Record<string, number> = {};
+    
+    opportunities.forEach(opportunity => {
+      statusCounts[opportunity.status] = (statusCounts[opportunity.status] || 0) + 1;
+    });
+    
+    return Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
+  };
+
+  // Data for commercial chart
+  const getCommercialChartData = () => {
+    const commercialCounts: Record<string, number> = {};
+    
+    opportunities.forEach(opportunity => {
+      if (opportunity.commercial) {
+        commercialCounts[opportunity.commercial] = (commercialCounts[opportunity.commercial] || 0) + 1;
+      }
+    });
+    
+    return Object.entries(commercialCounts)
+      .filter(([name]) => name) // Filter out empty commercial names
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value); // Sort by count descending
+  };
+
+  // Data for timeline chart
+  const getTimelineChartData = () => {
+    const timeData: Record<string, number> = {};
+    
+    // Initialize last 12 months
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthYear = `${d.toLocaleString('fr-FR', { month: 'short' })} ${d.getFullYear()}`;
+      timeData[monthYear] = 0;
+    }
+    
+    // Count opportunities by reception date
+    opportunities.forEach(opportunity => {
+      const date = new Date(opportunity.receptionDate);
+      const monthYear = `${date.toLocaleString('fr-FR', { month: 'short' })} ${date.getFullYear()}`;
+      
+      // Only count if it's in our time range
+      if (timeData[monthYear] !== undefined) {
+        timeData[monthYear]++;
+      }
+    });
+    
+    return Object.entries(timeData).map(([name, value]) => ({ name, value }));
+  };
+
+  // Budget size chart
+  const getBudgetSizeChartData = () => {
+    // Group budgets into size categories
+    const categories = {
+      "< 10 JH": 0,
+      "10-50 JH": 0,
+      "50-100 JH": 0,
+      "100-200 JH": 0,
+      "> 200 JH": 0,
+      "Autres": 0
+    };
+    
+    opportunities.forEach(opportunity => {
+      if (typeof opportunity.budget === 'number') {
+        if (opportunity.budget < 10) {
+          categories["< 10 JH"]++;
+        } else if (opportunity.budget >= 10 && opportunity.budget < 50) {
+          categories["10-50 JH"]++;
+        } else if (opportunity.budget >= 50 && opportunity.budget < 100) {
+          categories["50-100 JH"]++;
+        } else if (opportunity.budget >= 100 && opportunity.budget < 200) {
+          categories["100-200 JH"]++;
+        } else if (opportunity.budget >= 200) {
+          categories["> 200 JH"]++;
+        }
+      } else {
+        categories["Autres"]++;
+      }
+    });
+    
+    return Object.entries(categories)
+      .filter(([, value]) => value > 0) // Only show categories with data
+      .map(([name, value]) => ({ name, value }));
+  };
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
+
   return (
     <ThemeProvider>
       <div className="flex h-screen bg-background">
@@ -257,7 +364,7 @@ const SalesPage = () => {
                     onClick={() => setCurrentView("chart")}
                   >
                     <BarChart2Icon className="h-4 w-4 mr-2" />
-                    Graphique
+                    Par commercial
                   </Button>
                   <Button
                     variant="outline"
@@ -284,7 +391,16 @@ const SalesPage = () => {
                     onClick={() => setCurrentView("period")}
                   >
                     <CalendarDaysIcon className="h-4 w-4 mr-2" />
-                    Par periode
+                    Chronologie
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={currentView === "budget" ? "bg-accent" : ""}
+                    onClick={() => setCurrentView("budget")}
+                  >
+                    <LineChart className="h-4 w-4 mr-2" />
+                    Budget
                   </Button>
                 </div>
               </div>
@@ -603,12 +719,179 @@ const SalesPage = () => {
                 </div>
               )}
 
-              {currentView !== "table" && (
+              {currentView === "cards" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sortedOpportunities.length > 0 ? (
+                    sortedOpportunities.map((opportunity) => (
+                      <Card key={opportunity.id} className="overflow-hidden">
+                        <CardHeader className="pb-2">
+                          <CardTitle>{opportunity.projectName}</CardTitle>
+                          <CardDescription>{opportunity.client}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Date réception:</span>
+                            <span>{formatDate(opportunity.receptionDate)}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">TJM:</span>
+                            <span>{opportunity.tjm || "N/A"}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Budget:</span>
+                            <span>{opportunity.budget || "N/A"}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Statut:</span>
+                            {getStatusBadge(opportunity.status)}
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Commercial:</span>
+                            <div className="flex items-center">
+                              <User className="h-4 w-4 mr-1 text-muted-foreground" />
+                              <span>{opportunity.commercial || "Non assigné"}</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                        <CardFooter className="flex justify-end pt-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                                Actions
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => console.log("Edit", opportunity.id)}>
+                                Modifier
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleStatusChange(opportunity.id, "Gagné")}
+                              >
+                                Marquer comme Gagné
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleStatusChange(opportunity.id, "Perdu")}
+                              >
+                                Marquer comme Perdu
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-red-600"
+                                onClick={() => handleDelete(opportunity.id)}
+                              >
+                                Supprimer
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </CardFooter>
+                      </Card>
+                    ))
+                  ) : (
+                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                      <p className="text-lg font-medium">Aucune opportunité trouvée</p>
+                      <p className="text-muted-foreground">
+                        Essayez d'ajuster votre recherche ou vos filtres
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {currentView === "status" && (
                 <Card className="p-4">
-                  <CardContent className="pt-4 flex justify-center items-center min-h-[300px]">
-                    <div className="text-center text-muted-foreground">
-                      <h3 className="text-lg font-medium mb-2">Vue {currentView}</h3>
-                      <p>Cette vue est en cours de développement</p>
+                  <CardContent className="pt-4">
+                    <h2 className="text-xl font-bold mb-4">Répartition par statut</h2>
+                    <div className="h-96">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={getStatusChartData()}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={true}
+                            outerRadius={140}
+                            fill="#8884d8"
+                            dataKey="value"
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          >
+                            {getStatusChartData().map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(value) => [`${value} opportunités`, 'Nombre']} />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {currentView === "chart" && (
+                <Card className="p-4">
+                  <CardContent className="pt-4">
+                    <h2 className="text-xl font-bold mb-4">Opportunités par commercial</h2>
+                    <div className="h-96">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={getCommercialChartData()}
+                          layout="vertical"
+                          margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                          <XAxis type="number" />
+                          <YAxis dataKey="name" type="category" width={100} />
+                          <Tooltip formatter={(value) => [`${value} opportunités`, 'Nombre']} />
+                          <Legend />
+                          <Bar dataKey="value" name="Nombre d'opportunités" fill="#82ca9d" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {currentView === "period" && (
+                <Card className="p-4">
+                  <CardContent className="pt-4">
+                    <h2 className="text-xl font-bold mb-4">Évolution des opportunités</h2>
+                    <div className="h-96">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartLineChart
+                          data={getTimelineChartData()}
+                          margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" angle={-45} textAnchor="end" height={70} />
+                          <YAxis />
+                          <Tooltip formatter={(value) => [`${value} opportunités`, 'Nombre']} />
+                          <Legend />
+                          <Line type="monotone" dataKey="value" name="Nombre d'opportunités" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        </RechartLineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {currentView === "budget" && (
+                <Card className="p-4">
+                  <CardContent className="pt-4">
+                    <h2 className="text-xl font-bold mb-4">Répartition par taille de budget</h2>
+                    <div className="h-96">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={getBudgetSizeChartData()}
+                          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip formatter={(value) => [`${value} opportunités`, 'Nombre']} />
+                          <Legend />
+                          <Bar dataKey="value" name="Nombre d'opportunités" fill="#FF8042" />
+                        </BarChart>
+                      </ResponsiveContainer>
                     </div>
                   </CardContent>
                 </Card>

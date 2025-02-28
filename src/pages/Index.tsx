@@ -2,7 +2,6 @@
 import { BarChart2, Briefcase, Users, TrendingUp } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
-import { StatCard } from "@/components/dashboard/StatCard";
 import { OccupancyChart } from "@/components/dashboard/OccupancyChart";
 import { ProjectsDistributionChart } from "@/components/dashboard/ProjectsDistributionChart";
 import { TopEmployeesTable } from "@/components/dashboard/TopEmployeesTable";
@@ -12,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useState } from "react";
+import { ProjectStats } from "@/components/dashboard/ProjectStats";
+import { RecentProjects } from "@/components/dashboard/RecentProjects";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Dashboard = () => {
   const { t } = useLanguage();
@@ -31,40 +33,14 @@ const Dashboard = () => {
                 <TabsList>
                   <TabsTrigger value="overview">{t('dashboard')}</TabsTrigger>
                   <TabsTrigger value="occupancy">{t('occupancy.rate')}</TabsTrigger>
+                  <TabsTrigger value="projects">Projets</TabsTrigger>
                 </TabsList>
                 <Button variant="outline" size="sm">Q3 2025</Button>
               </div>
               
               <TabsContent value="overview" className="mt-0 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <StatCard
-                    title={t('total.employees')}
-                    value="128"
-                    percentageChange={5.2}
-                    icon={<Users className="h-5 w-5" />}
-                    variant="primary"
-                  />
-                  <StatCard
-                    title={t('active.projects')}
-                    value="42"
-                    percentageChange={12.5}
-                    icon={<Briefcase className="h-5 w-5" />}
-                    variant="info"
-                  />
-                  <StatCard
-                    title={t('avg.occupancy')}
-                    value="86.7%"
-                    percentageChange={3.8}
-                    icon={<BarChart2 className="h-5 w-5" />}
-                    variant="success"
-                  />
-                  <StatCard
-                    title={t('utilization')}
-                    value="92.3%"
-                    percentageChange={-1.5}
-                    icon={<TrendingUp className="h-5 w-5" />}
-                    variant="warning"
-                  />
+                  <ProjectStats />
                 </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -76,13 +52,45 @@ const Dashboard = () => {
                   </div>
                 </div>
                 
-                <div>
-                  <TopEmployeesTable />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className="lg:col-span-2">
+                    <TopEmployeesTable />
+                  </div>
+                  <div>
+                    <RecentProjects />
+                  </div>
                 </div>
               </TabsContent>
               
               <TabsContent value="occupancy" className="mt-0 space-y-6">
                 <OccupancyTable />
+              </TabsContent>
+              
+              <TabsContent value="projects" className="mt-0 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <ProjectStats />
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <RecentProjects />
+                  <ProjectsDistributionChart />
+                </div>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Statut des Projets par Client</CardTitle>
+                    <CardDescription>Vue d'ensemble de l'état des projets par client</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[400px]">
+                      {/* Ce composant pourrait être développé ultérieurement pour afficher 
+                          un graphique plus détaillé des projets par client */}
+                      <p className="text-center py-16 text-muted-foreground">
+                        Graphique détaillé des projets par client à développer
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </main>

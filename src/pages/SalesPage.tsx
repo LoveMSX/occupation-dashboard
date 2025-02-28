@@ -120,27 +120,21 @@ const SalesPage = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    let color: "default" | "secondary" | "destructive" | "outline" | "primary" | "success" | "warning" = "default";
-
+    // Using only the supported variants: "default", "destructive", "outline", or "secondary"
     switch (status) {
       case "Envoyé":
-        color = "primary";
-        break;
+        return <Badge variant="secondary" className="bg-blue-500 hover:bg-blue-600 text-white">{status}</Badge>;
       case "En cours":
-        color = "warning";
-        break;
+        return <Badge variant="secondary" className="bg-amber-500 hover:bg-amber-600 text-white">{status}</Badge>;
       case "Gagné":
-        color = "success";
-        break;
+        return <Badge variant="secondary" className="bg-green-500 hover:bg-green-600 text-white">{status}</Badge>;
       case "Perdu":
-        color = "destructive";
-        break;
+        return <Badge variant="destructive">{status}</Badge>;
       case "Attente élément":
-        color = "secondary";
-        break;
+        return <Badge variant="secondary" className="bg-purple-500 hover:bg-purple-600 text-white">{status}</Badge>;
+      default:
+        return <Badge variant="default">{status}</Badge>;
     }
-
-    return <Badge variant={color}>{status}</Badge>;
   };
 
   const handleAddOpportunity = () => {

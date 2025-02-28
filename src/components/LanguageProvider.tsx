@@ -25,6 +25,9 @@ const translations = {
     'logout': 'Logout',
     'search': 'Search...',
     'notifications': 'Notifications',
+    'monthly': 'Monthly',
+    'quarterly': 'Quarterly',
+    'yearly': 'Yearly',
     
     // Dashboard
     'total.employees': 'Total Employees',
@@ -86,6 +89,9 @@ const translations = {
     'logout': 'Déconnexion',
     'search': 'Rechercher...',
     'notifications': 'Notifications',
+    'monthly': 'Mensuel',
+    'quarterly': 'Trimestriel',
+    'yearly': 'Annuel',
     
     // Dashboard
     'total.employees': 'Total des Employés',

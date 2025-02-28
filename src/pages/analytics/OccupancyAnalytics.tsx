@@ -22,8 +22,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState, useMemo } from "react";
 import { enhancedEmployeesData } from "@/data/employeesData";
 import { positionDepartmentMap } from "@/data/employeesData";
+import { useLanguage } from "@/components/LanguageProvider";
 
 const OccupancyAnalytics = () => {
+  const { t } = useLanguage();
   const [selectedTimeframe, setSelectedTimeframe] = useState("quarterly");
   
   // Grouper les données d'occupation par mois (simulation)
@@ -148,16 +150,16 @@ const OccupancyAnalytics = () => {
           <Header />
           <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold mb-4 md:mb-0">Analyse des Taux d'Occupation</h1>
+              <h1 className="text-2xl font-bold mb-4 md:mb-0">{t('occupancy.rate.analytics')}</h1>
               
               <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Période" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="monthly">Mensuel</SelectItem>
-                  <SelectItem value="quarterly">Trimestriel</SelectItem>
-                  <SelectItem value="yearly">Annuel</SelectItem>
+                  <SelectItem value="monthly">{t('monthly')}</SelectItem>
+                  <SelectItem value="quarterly">{t('quarterly')}</SelectItem>
+                  <SelectItem value="yearly">{t('yearly')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -165,9 +167,9 @@ const OccupancyAnalytics = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Évolution Mensuelle du Taux d'Occupation</CardTitle>
+                  <CardTitle>{t('monthly.occupancy.trend')}</CardTitle>
                   <CardDescription>
-                    Taux d'occupation vs. utilisation sur l'année écoulée
+                    {t('occupancy.vs.utilization')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -188,12 +190,17 @@ const OccupancyAnalytics = () => {
                             border: '1px solid var(--border)'
                           }}
                         />
-                        <Legend />
-                        <Bar dataKey="occupancy" name="Occupation" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                        <Legend formatter={(value) => {
+                          if (value === 'occupancy') return t('occupancy.rate');
+                          if (value === 'utilization') return t('utilization');
+                          if (value === 'target') return 'Objectif';
+                          return value;
+                        }} />
+                        <Bar dataKey="occupancy" name="occupancy" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
                         <Line
                           type="monotone"
                           dataKey="utilization"
-                          name="Utilisation"
+                          name="utilization"
                           stroke="#10B981"
                           strokeWidth={2}
                           dot={{ r: 4 }}
@@ -202,7 +209,7 @@ const OccupancyAnalytics = () => {
                         <Line
                           type="monotone"
                           dataKey="target"
-                          name="Objectif"
+                          name="target"
                           stroke="#F97316"
                           strokeWidth={2}
                           strokeDasharray="5 5"
@@ -216,9 +223,9 @@ const OccupancyAnalytics = () => {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Occupation par Département</CardTitle>
+                  <CardTitle>{t('occupancy.by.department')}</CardTitle>
                   <CardDescription>
-                    Taux d'occupation moyen par département
+                    {t('avg.occupancy.departments')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -243,7 +250,7 @@ const OccupancyAnalytics = () => {
                         <Tooltip
                           formatter={(value, name) => [
                             name === 'occupancy' ? `${value}%` : value,
-                            name === 'occupancy' ? 'Occupation' : 'Effectif'
+                            name === 'occupancy' ? t('occupancy.rate') : 'Effectif'
                           ]}
                           contentStyle={{ 
                             borderRadius: 'var(--radius)',
@@ -251,7 +258,7 @@ const OccupancyAnalytics = () => {
                           }}
                         />
                         <Legend 
-                          formatter={(value) => (value === 'occupancy' ? 'Occupation' : 'Effectif')}
+                          formatter={(value) => (value === 'occupancy' ? t('occupancy.rate') : 'Effectif')}
                         />
                         <Bar dataKey="occupancy" name="occupancy" fill="#3B82F6" radius={[0, 4, 4, 0]} />
                       </BarChart>
@@ -264,9 +271,9 @@ const OccupancyAnalytics = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Occupation par Niveau</CardTitle>
+                  <CardTitle>{t('occupancy.by.seniority')}</CardTitle>
                   <CardDescription>
-                    Taux d'occupation selon les niveaux de séniorité
+                    {t('occupancy.seniority.levels')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -292,7 +299,7 @@ const OccupancyAnalytics = () => {
                         <Tooltip
                           formatter={(value, name) => [
                             name === 'occupancy' ? `${value}%` : value,
-                            name === 'occupancy' ? 'Occupation' : 'Effectif'
+                            name === 'occupancy' ? t('occupancy.rate') : 'Effectif'
                           ]}
                           contentStyle={{ 
                             borderRadius: 'var(--radius)',
@@ -300,7 +307,7 @@ const OccupancyAnalytics = () => {
                           }}
                         />
                         <Legend 
-                          formatter={(value) => (value === 'occupancy' ? 'Occupation' : 'Effectif')}
+                          formatter={(value) => (value === 'occupancy' ? t('occupancy.rate') : 'Effectif')}
                         />
                         <Bar
                           yAxisId="left"
@@ -326,9 +333,9 @@ const OccupancyAnalytics = () => {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Trimestre Actuel vs. Précédent</CardTitle>
+                  <CardTitle>{t('current.vs.previous')}</CardTitle>
                   <CardDescription>
-                    Comparaison des tendances d'occupation entre trimestres
+                    {t('comparison.quarters')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

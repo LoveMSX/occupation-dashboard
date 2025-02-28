@@ -12,6 +12,7 @@ import ImportPage from "./pages/ImportPage";
 import SettingsPage from "./pages/SettingsPage";
 import OccupancyAnalytics from "./pages/analytics/OccupancyAnalytics";
 import ProjectsAnalytics from "./pages/analytics/ProjectsAnalytics";
+import SalesPage from "./pages/SalesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/analytics/occupancy" element={<OccupancyAnalytics />} />
             <Route path="/analytics/projects" element={<ProjectsAnalytics />} />
+            <Route path="/sales" element={<SalesPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -50,42 +50,24 @@ const projectDurationData = [
   { name: "> 12 months", count: 4, color: "#82ca9d" },
 ];
 
+// Fixed Treemap data structure - flattened for recharts compatibility
 const projectAllocationData = [
-  {
-    name: "Engineering",
-    children: [
-      { name: "Project A", size: 12 },
-      { name: "Project B", size: 8 },
-      { name: "Project C", size: 5 },
-    ],
-  },
-  {
-    name: "Design",
-    children: [
-      { name: "Project A", size: 4 },
-      { name: "Project D", size: 6 },
-    ],
-  },
-  {
-    name: "Product",
-    children: [
-      { name: "Project B", size: 3 },
-      { name: "Project E", size: 7 },
-    ],
-  },
-  {
-    name: "Marketing",
-    children: [
-      { name: "Project F", size: 5 },
-    ],
-  },
+  { name: "Engineering / Project A", size: 12, department: "Engineering", project: "Project A" },
+  { name: "Engineering / Project B", size: 8, department: "Engineering", project: "Project B" },
+  { name: "Engineering / Project C", size: 5, department: "Engineering", project: "Project C" },
+  { name: "Design / Project A", size: 4, department: "Design", project: "Project A" },
+  { name: "Design / Project D", size: 6, department: "Design", project: "Project D" },
+  { name: "Product / Project B", size: 3, department: "Product", project: "Project B" },
+  { name: "Product / Project E", size: 7, department: "Product", project: "Project E" },
+  { name: "Marketing / Project F", size: 5, department: "Marketing", project: "Project F" },
 ];
 
-const formatTreemapData = (data: any) => {
-  return {
-    name: "Projects",
-    children: data,
-  };
+// Color mapping for departments
+const DEPARTMENT_COLORS = {
+  "Engineering": "#0088FE",
+  "Design": "#00C49F",
+  "Product": "#FFBB28",
+  "Marketing": "#FF8042"
 };
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#83A6ED"];
@@ -243,7 +225,7 @@ const ProjectsAnalytics = () => {
                     <div className="h-96">
                       <ResponsiveContainer width="100%" height="100%">
                         <Treemap
-                          data={formatTreemapData(projectAllocationData)}
+                          data={projectAllocationData}
                           dataKey="size"
                           aspectRatio={4 / 3}
                           stroke="#fff"
@@ -258,6 +240,12 @@ const ProjectsAnalytics = () => {
                               return [`${value} employees`, name];
                             }}
                           />
+                          {projectAllocationData.map((entry, index) => (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={DEPARTMENT_COLORS[entry.department as keyof typeof DEPARTMENT_COLORS] || '#8884d8'} 
+                            />
+                          ))}
                         </Treemap>
                       </ResponsiveContainer>
                     </div>

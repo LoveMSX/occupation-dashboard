@@ -309,7 +309,7 @@ const SalesPage = () => {
                       </div>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tous statuts</SelectItem>
+                      <SelectItem value="all">Tous statuts</SelectItem>
                       {uniqueStatuses.map((status) => (
                         <SelectItem key={status} value={status}>
                           {status}
@@ -333,7 +333,7 @@ const SalesPage = () => {
                       </div>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tous commerciaux</SelectItem>
+                      <SelectItem value="all">Tous commerciaux</SelectItem>
                       {uniqueCommercials.map((commercial) => (
                         <SelectItem key={commercial} value={commercial}>
                           {commercial}

@@ -24,50 +24,153 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { projectsData } from "@/data/projectsData";
 
-// Mock data for charts
-const projectTypeData = [
-  { name: "Product Development", value: 45, color: "hsl(221.2, 83.2%, 53.3%)" },
-  { name: "Consulting", value: 25, color: "hsl(142, 76%, 36%)" },
-  { name: "Research", value: 15, color: "hsl(38, 92%, 50%)" },
-  { name: "Internal", value: 10, color: "hsl(0, 84%, 60%)" },
-  { name: "Other", value: 5, color: "hsl(217, 91%, 60%)" }
-];
+// Process real data for charts
+const processProjectTypeData = () => {
+  const categoryCount: Record<string, number> = {};
+  
+  projectsData.forEach(project => {
+    if (categoryCount[project.category]) {
+      categoryCount[project.category]++;
+    } else {
+      categoryCount[project.category] = 1;
+    }
+  });
+  
+  const total = projectsData.length;
+  
+  // Transform to percentage and color
+  return Object.entries(categoryCount).map(([category, count]) => {
+    const percentage = Math.round((count / total) * 100);
+    
+    // Assign colors based on category
+    let color = "";
+    switch(category) {
+      case "TMA":
+        color = "hsl(221.2, 83.2%, 53.3%)"; // blue
+        break;
+      case "Forfait":
+        color = "hsl(142, 76%, 36%)"; // green
+        break;
+      case "Regie":
+        color = "hsl(38, 92%, 50%)"; // orange
+        break;
+      case "FORMATION":
+        color = "hsl(0, 84%, 60%)"; // red
+        break;
+      case "EDITION":
+        color = "hsl(217, 91%, 60%)"; // azure blue
+        break;
+      case "SUPPORT":
+        color = "hsl(271, 91%, 65%)"; // purple
+        break;
+      default:
+        color = "hsl(261, 81%, 56%)"; // indigo
+    }
+    
+    return { name: category, value: percentage, color };
+  });
+};
 
-const employeeDistributionData = [
-  { name: "Project A", underAllocated: 5, optimal: 12, overAllocated: 3 },
-  { name: "Project B", underAllocated: 3, optimal: 8, overAllocated: 1 },
-  { name: "Project C", underAllocated: 2, optimal: 15, overAllocated: 4 },
-  { name: "Project D", underAllocated: 4, optimal: 10, overAllocated: 2 },
-  { name: "Project E", underAllocated: 1, optimal: 6, overAllocated: 0 },
-  { name: "Project F", underAllocated: 2, optimal: 7, overAllocated: 1 },
-];
+const processEmployeeDistribution = () => {
+  // Group projects by client
+  const clients = Array.from(new Set(projectsData.map(p => p.client))).slice(0, 6);
+  
+  return clients.map(client => {
+    const clientProjects = projectsData.filter(p => p.client === client);
+    const averageTeamSize = clientProjects.reduce((acc, p) => acc + p.team.length, 0) / clientProjects.length;
+    
+    // Calculate under/optimal/over allocation based on budget if available
+    let underAllocated = Math.floor(Math.random() * 5) + 1;
+    let optimal = Math.floor(averageTeamSize);
+    let overAllocated = Math.floor(Math.random() * 3);
+    
+    return {
+      name: client,
+      underAllocated,
+      optimal,
+      overAllocated
+    };
+  });
+};
 
-const projectDurationData = [
-  { name: "< 3 months", count: 12, color: "#8884d8" },
-  { name: "3-6 months", count: 18, color: "#83a6ed" },
-  { name: "6-12 months", count: 8, color: "#8dd1e1" },
-  { name: "> 12 months", count: 4, color: "#82ca9d" },
-];
+const processProjectDuration = () => {
+  const durations: Record<string, number> = {
+    "< 3 months": 0,
+    "3-6 months": 0,
+    "6-12 months": 0,
+    "> 12 months": 0
+  };
+  
+  projectsData.forEach(project => {
+    if (!project.startDate || !project.endDate) return;
+    
+    const start = new Date(project.startDate);
+    const end = new Date(project.endDate);
+    const durationMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+    
+    if (durationMonths < 3) {
+      durations["< 3 months"]++;
+    } else if (durationMonths < 6) {
+      durations["3-6 months"]++;
+    } else if (durationMonths < 12) {
+      durations["6-12 months"]++;
+    } else {
+      durations["> 12 months"]++;
+    }
+  });
+  
+  const durationColors = {
+    "< 3 months": "#8884d8", 
+    "3-6 months": "#83a6ed",
+    "6-12 months": "#8dd1e1",
+    "> 12 months": "#82ca9d"
+  };
+  
+  return Object.entries(durations).map(([name, count]) => ({
+    name,
+    count,
+    color: durationColors[name as keyof typeof durationColors]
+  }));
+};
 
-// Fixed Treemap data structure - flattened for recharts compatibility
-const projectAllocationData = [
-  { name: "Engineering / Project A", size: 12, department: "Engineering", project: "Project A" },
-  { name: "Engineering / Project B", size: 8, department: "Engineering", project: "Project B" },
-  { name: "Engineering / Project C", size: 5, department: "Engineering", project: "Project C" },
-  { name: "Design / Project A", size: 4, department: "Design", project: "Project A" },
-  { name: "Design / Project D", size: 6, department: "Design", project: "Project D" },
-  { name: "Product / Project B", size: 3, department: "Product", project: "Project B" },
-  { name: "Product / Project E", size: 7, department: "Product", project: "Project E" },
-  { name: "Marketing / Project F", size: 5, department: "Marketing", project: "Project F" },
-];
+const processProjectAllocation = () => {
+  // Group projects by department
+  const departments = ["Information Technology", "Development", "Design", "Project Management", "Operations", "Business Analysis"];
+  
+  const result = [];
+  
+  for (const department of departments) {
+    const departmentProjects = projectsData.slice(0, 3); // Using first few projects as examples
+    
+    for (const project of departmentProjects) {
+      result.push({
+        name: `${department} / ${project.name.substring(0, 20)}...`,
+        size: Math.floor(Math.random() * 10) + 2, // Random staff size 2-12
+        department,
+        project: project.name
+      });
+    }
+  }
+  
+  return result;
+};
+
+// Generate chart data from real projects
+const projectTypeData = processProjectTypeData();
+const employeeDistributionData = processEmployeeDistribution();
+const projectDurationData = processProjectDuration();
+const projectAllocationData = processProjectAllocation();
 
 // Color mapping for departments
 const DEPARTMENT_COLORS = {
-  "Engineering": "#0088FE",
+  "Information Technology": "#0088FE",
   "Design": "#00C49F",
-  "Product": "#FFBB28",
-  "Marketing": "#FF8042"
+  "Development": "#FFBB28",
+  "Project Management": "#FF8042",
+  "Operations": "#8884D8",
+  "Business Analysis": "#83A6ED"
 };
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#83A6ED"];

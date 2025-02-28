@@ -196,20 +196,20 @@ const ProjectsPage = () => {
   const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [clientFilter, setClientFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [clientFilter, setClientFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
   
   const filteredProjects = projectsData.filter((project) => {
     const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.client.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === "" || project.status === statusFilter;
-    const matchesClient = clientFilter === "" || project.client === clientFilter;
-    const matchesCategory = categoryFilter === "" || project.category === categoryFilter;
-    const matchesLocation = locationFilter === "" || project.location === locationFilter;
+    const matchesStatus = statusFilter === "all" || project.status === statusFilter;
+    const matchesClient = clientFilter === "all" || project.client === clientFilter;
+    const matchesCategory = categoryFilter === "all" || project.category === categoryFilter;
+    const matchesLocation = locationFilter === "all" || project.location === locationFilter;
     
     return matchesSearch && matchesStatus && matchesClient && matchesCategory && matchesLocation;
   });
@@ -250,7 +250,7 @@ const ProjectsPage = () => {
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Statuses</SelectItem>
+                      <SelectItem value="all">All Statuses</SelectItem>
                       <SelectItem value="ongoing">Ongoing</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
                       <SelectItem value="standby">Stand By</SelectItem>
@@ -264,7 +264,7 @@ const ProjectsPage = () => {
                       <SelectValue placeholder="Client" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Clients</SelectItem>
+                      <SelectItem value="all">All Clients</SelectItem>
                       {clients.map((client) => (
                         <SelectItem key={client} value={client}>
                           {client}
@@ -279,7 +279,7 @@ const ProjectsPage = () => {
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Categories</SelectItem>
+                      <SelectItem value="all">All Categories</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
@@ -294,7 +294,7 @@ const ProjectsPage = () => {
                       <SelectValue placeholder="Location" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Locations</SelectItem>
+                      <SelectItem value="all">All Locations</SelectItem>
                       {locations.map((location) => (
                         <SelectItem key={location} value={location}>
                           {location}

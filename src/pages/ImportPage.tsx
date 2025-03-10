@@ -1,3 +1,4 @@
+
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -5,8 +6,15 @@ import { CSVImportForm } from "@/components/import/CSVImportForm";
 import { NotionIntegration } from "@/components/import/NotionIntegration";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { useState } from "react";
 
 const ImportPage = () => {
+  const [isOpen, setIsOpen] = useState(true);
+  
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+  
   return (
     <ThemeProvider>
       <div className="flex h-screen bg-background">
@@ -25,7 +33,7 @@ const ImportPage = () => {
                   <TabsTrigger value="notion">Notion Integration</TabsTrigger>
                 </TabsList>
                 <TabsContent value="csv" className="animate-fade-in">
-                  <CSVImportForm onClose={() => {}} />
+                  <CSVImportForm onClose={handleClose} />
                 </TabsContent>
                 <TabsContent value="notion" className="animate-fade-in">
                   <NotionIntegration />

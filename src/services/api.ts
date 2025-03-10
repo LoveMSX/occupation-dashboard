@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 import type { EmployeeData } from "@/components/employees/EmployeeCard";
 
@@ -68,7 +69,7 @@ export const salesApi = {
 
   updateSalesOperation: async (id: number, operation: Partial<SalesOperationRequest>): Promise<SalesOperationResponse> => {
     const response = await axios.patch(`${API_URL}/sales/${id}`, operation);
-    return response.data;
+    return response.data as SalesOperationResponse;
   },
 
   deleteSalesOperation: async (id: number): Promise<void> => {
@@ -92,7 +93,6 @@ export const employeeApi = {
         location: emp.location || '',
         joinDate: emp.date_debauche || emp.joinDate || new Date().toISOString(),
         manager: emp.manager || '',
-        nom_prenom_copie_jira: emp.nom_prenoms_copie_jira,
         skills: Array.isArray(emp.competences_2024) 
           ? emp.competences_2024 
           : typeof emp.competences_2024 === 'string'
@@ -113,7 +113,7 @@ export const employeeApi = {
 
   createEmployee: async (employee: EmployeeRequest): Promise<EmployeeData> => {
     const response = await axios.post(`${API_URL}/employees`, employee);
-    return response.data;
+    return response.data as EmployeeData;
   },
 
   getEmployeeOccupation: (employeeId: number): Promise<OccupationData[]> => {
@@ -123,7 +123,7 @@ export const employeeApi = {
 
   getAllEmployeesOccupation: async (): Promise<OccupationData[]> => {
     const response = await axios.get(`${API_URL}/employees/occupation`);
-    return response.data;
+    return response.data as OccupationData[];
   }
 };
 
@@ -135,23 +135,45 @@ export interface ProjectRequest {
   localite: string;
   date_debut: string;
   date_fin_prevu: string;
+  date_fin_reelle?: string;
+  description_bc: string;
+  tjm: string;
+  charge_vendu_jours: string;
+  cp: string;
+  technologie?: string;
+  secteur?: string;
+  bu: string;
+}
+
+export interface Project {
+  id: number;
+  nom_projet: string;
+  client: string;
+  statut: string;
+  categorie_projet: string;
+  localite: string;
+  date_debut: string;
+  date_fin_prevu: string;
+  date_fin_reelle?: string;
   description_bc: string;
   tjm: string;
   charge_vendu_jours: string;
   cp: string;
   bu: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const projectApi = {
-  getAllProjects: async () => {
+  getAllProjects: async (): Promise<Project[]> => {
     const response = await axios.get(`${API_URL}/projects`);
     return Array.isArray(response.data) ? response.data : [response.data];
   },
-  createProject: async (project: ProjectRequest) => {
+  createProject: async (project: ProjectRequest): Promise<Project> => {
     const response = await axios.post(`${API_URL}/projects`, project);
-    return response.data;
+    return response.data as Project;
   },
-  deleteProject: async (id: number) => {
+  deleteProject: async (id: number): Promise<void> => {
     const response = await axios.delete(`${API_URL}/projects/${id}`);
     return response.data;
   }

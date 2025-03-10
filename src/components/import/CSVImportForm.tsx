@@ -99,8 +99,12 @@ export const CSVImportForm = ({ onClose }: CSVImportFormProps) => {
           setIsLoading(false);
         }
       },
-      error: (error: Error) => {
-        toast.error(`Erreur lors de la lecture du fichier CSV: ${error.message}`);
+      error: (error) => {
+        if (error instanceof Error) {
+          toast.error(`Erreur lors de la lecture du fichier CSV: ${error.message}`);
+        } else {
+          toast.error("Une erreur inattendue s'est produite lors de la lecture du fichier");
+        }
         setIsLoading(false);
       }
     });

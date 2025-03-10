@@ -1,4 +1,3 @@
-
 import { EmployeeData } from "@/components/employees/EmployeeCard";
 
 // Real employee data from the provided excel sheet
@@ -7,7 +6,6 @@ export const employeesData: EmployeeData[] = [
     id: 84,
     name: "Jocelyn ANDRIANOTAHIANA",
     position: "IDS",
-    department: "Information Technology",
     email: "j.andrianotahiana@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -22,7 +20,6 @@ export const employeesData: EmployeeData[] = [
     id: 155,
     name: "Randriamanantena Hermann",
     position: "AL",
-    department: "Information Technology",
     email: "h.randriamanantena@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -37,7 +34,6 @@ export const employeesData: EmployeeData[] = [
     id: 205,
     name: "Toky Rajaona",
     position: "DBU",
-    department: "Database",
     email: "t.rajaona@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -52,7 +48,6 @@ export const employeesData: EmployeeData[] = [
     id: 214,
     name: "Fanirisoa Andriamahenimana",
     position: "CPC",
-    department: "Development",
     email: "f.andriamahenimana@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -67,7 +62,6 @@ export const employeesData: EmployeeData[] = [
     id: 340,
     name: "Rindra Lalao RAKOTOHARINTSALAMA",
     position: "RT",
-    department: "Development",
     email: "r.rakotoharintsalama@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -82,7 +76,6 @@ export const employeesData: EmployeeData[] = [
     id: 383,
     name: "RAHERINIRINA Maminiaina Edwige",
     position: "DP",
-    department: "Project Management",
     email: "m.raherinirina@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -97,7 +90,6 @@ export const employeesData: EmployeeData[] = [
     id: 393,
     name: "Navalona RAJAONAMARO",
     position: "DevOps",
-    department: "Operations",
     email: "n.rajaonamaro@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -112,7 +104,6 @@ export const employeesData: EmployeeData[] = [
     id: 397,
     name: "Emmanuel RAKOTOSON",
     position: "CPS",
-    department: "Development",
     email: "r.emmanuel@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -127,7 +118,6 @@ export const employeesData: EmployeeData[] = [
     id: 401,
     name: "Jean Olivier RAZAFINANDRASANA",
     position: "RT",
-    department: "Development",
     email: "o.razafinandrasana@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -142,7 +132,6 @@ export const employeesData: EmployeeData[] = [
     id: 439,
     name: "Andriamaholy Matoa",
     position: "TL",
-    department: "Team Lead",
     email: "m.andriamaholy@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -157,7 +146,6 @@ export const employeesData: EmployeeData[] = [
     id: 471,
     name: "RAHARISON Nomenjanahary Ambinintsoa Ravaka",
     position: "CPC",
-    department: "Development",
     email: "r.raharison@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -172,7 +160,6 @@ export const employeesData: EmployeeData[] = [
     id: 577,
     name: "FANOMEZANTSOA Sitrakiniaina Natacha",
     position: "TL",
-    department: "Team Lead",
     email: "n.fanomezantsoa@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -187,7 +174,6 @@ export const employeesData: EmployeeData[] = [
     id: 622,
     name: "Frederic TOJOHERISOA",
     position: "RT",
-    department: "Development",
     email: "f.tojoherisoa@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -202,7 +188,6 @@ export const employeesData: EmployeeData[] = [
     id: 678,
     name: "Manitra Berthon RAOILISON",
     position: "RT",
-    department: "Development",
     email: "m.raoilison@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -217,7 +202,6 @@ export const employeesData: EmployeeData[] = [
     id: 681,
     name: "Andriniaina Emmanuel RABOTOSON",
     position: "IDS",
-    department: "Information Technology",
     email: "a.rabotoson@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -232,7 +216,6 @@ export const employeesData: EmployeeData[] = [
     id: 748,
     name: "Kanto Tsiafoy RANDRIANANTENAINA",
     position: "IDS",
-    department: "Information Technology",
     email: "k.randrianantenaina@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -247,7 +230,6 @@ export const employeesData: EmployeeData[] = [
     id: 856,
     name: "Fanasinaina Narindranjanahary VALITERA",
     position: "IDS",
-    department: "Information Technology",
     email: "f.valitera@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -262,7 +244,6 @@ export const employeesData: EmployeeData[] = [
     id: 946,
     name: "Tanjonanirina Ria RABEMIANDRISA",
     position: "CPC",
-    department: "Development",
     email: "t.rabemiandrisa@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -277,7 +258,6 @@ export const employeesData: EmployeeData[] = [
     id: 981,
     name: "Christiana Cathy RABEARIFETRA",
     position: "BAS",
-    department: "Business Analysis",
     email: "c.rabearifetra@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -292,7 +272,6 @@ export const employeesData: EmployeeData[] = [
     id: 1040,
     name: "Mirado Fahendrena RABENJAMINA",
     position: "IDS",
-    department: "Information Technology",
     email: "m.rabenjamina@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -307,7 +286,6 @@ export const employeesData: EmployeeData[] = [
     id: 1106,
     name: "Nick Manohisoa RATOBISON",
     position: "IDS",
-    department: "Information Technology",
     email: "m.ratobison@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -322,7 +300,6 @@ export const employeesData: EmployeeData[] = [
     id: 1126,
     name: "Nambinina Liantsoa RAKOTOSON",
     position: "BAS",
-    department: "Business Analysis",
     email: "l.rakotoson@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -337,7 +314,6 @@ export const employeesData: EmployeeData[] = [
     id: 1165,
     name: "Hasina Fabrice ANDRIANARISO",
     position: "IDC",
-    department: "Design",
     email: "f.andrianariso@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -352,7 +328,6 @@ export const employeesData: EmployeeData[] = [
     id: 1177,
     name: "Valisoa Irina Harinosy RASAMOELINA",
     position: "IDC",
-    department: "Design",
     email: "h.rasamoelina@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -367,7 +342,6 @@ export const employeesData: EmployeeData[] = [
     id: 1178,
     name: "Harijaona Miora Vatosoa RANDRIANARIMALALA",
     position: "BAC",
-    department: "Business Analysis",
     email: "m.randrianarimalala@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -382,7 +356,6 @@ export const employeesData: EmployeeData[] = [
     id: 1186,
     name: "Ny Tsanta RASOLOHERY",
     position: "IDC",
-    department: "Design",
     email: "t.rasolohery@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -397,7 +370,6 @@ export const employeesData: EmployeeData[] = [
     id: 1217,
     name: "RAMANANTSOA Tiananaina Anitah Randria",
     position: "IDC",
-    department: "Design",
     email: "t.ramanantsoa@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -412,7 +384,6 @@ export const employeesData: EmployeeData[] = [
     id: 1237,
     name: "Philibert Hemmy RAMANANJATO",
     position: "IDC",
-    department: "Design",
     email: "h.ramananjato@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -427,7 +398,6 @@ export const employeesData: EmployeeData[] = [
     id: 1241,
     name: "ANDRIAMALAZAHARIZAKA Tianilaiko Rakotoarisoa",
     position: "IDS",
-    department: "Information Technology",
     email: "r.andriamalazaharizaka@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -442,7 +412,6 @@ export const employeesData: EmployeeData[] = [
     id: 1273,
     name: "RANDRIANARIVELY Manoa Loic",
     position: "IDC",
-    department: "Design",
     email: "m.randrianarively@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -457,7 +426,6 @@ export const employeesData: EmployeeData[] = [
     id: 1280,
     name: "RASOLOARISON Ambinintsoa Michaël",
     position: "IDC",
-    department: "Design",
     email: "a.rasoloarison@etechconsulting-mg.com",
     phone: "",
     avatar: "",
@@ -513,8 +481,11 @@ export const getDepartmentSkills = (department: string): string[] => {
 // Add skills to employees based on their department
 export const enhanceEmployeesData = () => {
   return employeesData.map(employee => {
+    // Get department from position
+    const dept = positionDepartmentMap[employee.position] || "Other";
+    
     // Generate random skills from department
-    const departmentSkills = getDepartmentSkills(employee.department);
+    const departmentSkills = getDepartmentSkills(dept);
     const randomSkillCount = Math.floor(Math.random() * 3) + 1; // 1-3 skills
     const selectedSkills: string[] = [];
     
@@ -561,3 +532,4 @@ export const enhanceEmployeesData = () => {
 
 // Export the enhanced data
 export const enhancedEmployeesData = enhanceEmployeesData();
+

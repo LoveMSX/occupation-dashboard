@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,20 @@ import { salesApi, SalesOperationRequest } from "@/services/api";
 
 interface SalesCSVImportFormProps {
   onClose: () => void;
+}
+
+interface CSVRow {
+  "Nom du projet"?: string;
+  Client?: string;
+  "Date réception"?: string;
+  TJM?: string;
+  "Chiffrage JH"?: string;
+  Statut?: string;
+  Commerciale?: string;
+  "Personne en charge MSX"?: string;
+  "Type projet"?: string;
+  Remarques?: string;
+  URL?: string;
 }
 
 export const SalesCSVImportForm = ({ onClose }: SalesCSVImportFormProps) => {
@@ -28,35 +43,21 @@ export const SalesCSVImportForm = ({ onClose }: SalesCSVImportFormProps) => {
 
     setIsLoading(true);
 
-    Papa.parse(file, {
+    Papa.parse<CSVRow>(file, {
       header: true,
       complete: async (results) => {
-        interface CSVRow {
-          "Nom du projet"?: string;
-          Client?: string;
-          "Date réception"?: string;
-          TJM?: string;
-          "Chiffrage JH"?: string;
-          Statut?: string;
-          Commerciale?: string;
-          "Personne en charge MSX"?: string;
-          "Type projet"?: string;
-          Remarques?: string;
-          URL?: string;
-        }
-
-        const sales: SalesOperationRequest[] = results.data.map((row: CSVRow) => ({
+        const sales: SalesOperationRequest[] = results.data.map((row) => ({
           nom_du_projet: row["Nom du projet"] || "",
           client: row.Client || "",
           date_reception: row["Date réception"] || new Date().toISOString().split("T")[0],
-          tjm: row.TJM || undefined,
-          chiffrage_jh: row["Chiffrage JH"] || undefined,
-          statut: row.Statut as "en_cours" | "envoye" | "gagne" | "perdu" | "en_attente" || "en_cours",
-          commerciale: row.Commerciale || undefined,
-          personne_en_charge_msx: row["Personne en charge MSX"] || undefined,
-          type_projet: row["Type projet"] || undefined,
-          remarques: row.Remarques || undefined,
-          url: row.URL || undefined
+          tjm: row.TJM,
+          chiffrage_jh: row["Chiffrage JH"],
+          statut: (row.Statut?.toLowerCase() as "en_cours" | "envoye" | "gagne" | "perdu" | "en_attente") || "en_cours",
+          commerciale: row.Commerciale,
+          personne_en_charge_msx: row["Personne en charge MSX"],
+          type_projet: row["Type projet"],
+          remarques: row.Remarques,
+          url: row.URL
         }));
 
         try {
@@ -69,13 +70,21 @@ export const SalesCSVImportForm = ({ onClose }: SalesCSVImportFormProps) => {
           toast.success(`${sales.length} opportunités importées avec succès`);
           onClose();
         } catch (error) {
-          toast.error(`Erreur lors de l'importation: ${error.message}`);
+          if (error instanceof Error) {
+            toast.error(`Erreur lors de l'importation: ${error.message}`);
+          } else {
+            toast.error("Une erreur inattendue s'est produite");
+          }
         } finally {
           setIsLoading(false);
         }
       },
       error: (error) => {
-        toast.error(`Erreur lors de la lecture du fichier CSV: ${error.message}`);
+        if (error instanceof Error) {
+          toast.error(`Erreur lors de la lecture du fichier CSV: ${error.message}`);
+        } else {
+          toast.error("Une erreur inattendue s'est produite lors de la lecture du fichier");
+        }
         setIsLoading(false);
       }
     });

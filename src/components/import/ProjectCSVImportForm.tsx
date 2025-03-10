@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,24 @@ import { projectApi, ProjectRequest } from "@/services/api";
 
 interface ProjectCSVImportFormProps {
   onClose: () => void;
+}
+
+interface CSVRow {
+  "Nom du projet"?: string;
+  Client?: string;
+  Statut?: string;
+  "Catégorie"?: string;
+  Localisation?: string;
+  "Date début"?: string;
+  "Date fin prévue"?: string;
+  "Date fin réelle"?: string;
+  Description?: string;
+  TJM?: string;
+  "Charge vendue"?: string;
+  CP?: string;
+  Technologie?: string;
+  Secteur?: string;
+  BU?: string;
 }
 
 export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => {
@@ -56,28 +75,10 @@ export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => 
 
     setIsLoading(true);
 
-    Papa.parse(file, {
+    Papa.parse<CSVRow>(file, {
       header: true,
       complete: async (results) => {
-        interface CSVRow {
-          "Nom du projet"?: string;
-          Client?: string;
-          Statut?: string;
-          "Catégorie"?: string;
-          Localisation?: string;
-          "Date début"?: string;
-          "Date fin prévue"?: string;
-          "Date fin réelle"?: string;
-          Description?: string;
-          TJM?: string;
-          "Charge vendue"?: string;
-          CP?: string;
-          Technologie?: string;
-          Secteur?: string;
-          BU?: string;
-        }
-
-        const projects: ProjectRequest[] = results.data.map((row: CSVRow) => ({
+        const projects: ProjectRequest[] = results.data.map((row) => ({
           nom_projet: row["Nom du projet"] || "",
           client: row.Client || "",
           statut: row.Statut || "ongoing",
@@ -85,7 +86,7 @@ export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => 
           localite: row.Localisation || "Local",
           date_debut: row["Date début"] || new Date().toISOString().split("T")[0],
           date_fin_prevu: row["Date fin prévue"] || new Date().toISOString().split("T")[0],
-          date_fin_reelle: row["Date fin réelle"] || undefined,
+          date_fin_reelle: row["Date fin réelle"],
           description_bc: row.Description || "",
           tjm: row.TJM || "0",
           charge_vendu_jours: row["Charge vendue"] || "0",
@@ -105,13 +106,21 @@ export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => 
           toast.success(`${projects.length} projets importés avec succès`);
           onClose();
         } catch (error) {
-          toast.error(`Erreur lors de l'importation: ${error.message}`);
+          if (error instanceof Error) {
+            toast.error(`Erreur lors de l'importation: ${error.message}`);
+          } else {
+            toast.error("Une erreur inattendue s'est produite");
+          }
         } finally {
           setIsLoading(false);
         }
       },
       error: (error) => {
-        toast.error(`Erreur lors de la lecture du fichier CSV: ${error.message}`);
+        if (error instanceof Error) {
+          toast.error(`Erreur lors de la lecture du fichier CSV: ${error.message}`);
+        } else {
+          toast.error("Une erreur inattendue s'est produite lors de la lecture du fichier");
+        }
         setIsLoading(false);
       }
     });

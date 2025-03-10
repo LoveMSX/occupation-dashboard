@@ -1,0 +1,7 @@
+{
+  "loading": "Chargement...",
+  "error.loading.data": "Erreur lors du chargement des données",
+  "no.data.available": "Aucune donnée disponible",
+  "retry": "Réessayer",
+  "refresh.data": "Actualiser les données"
+}

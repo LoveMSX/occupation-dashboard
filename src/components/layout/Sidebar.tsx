@@ -10,7 +10,8 @@ import {
   LogOut,
   ChevronDown,
   ChevronRight,
-  CreditCard
+  CreditCard,
+  Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -143,6 +144,12 @@ export function Sidebar() {
           label="Avant vente"
           path="/sales"
           active={location.pathname === "/sales"}
+        />
+        <NavItem
+          icon={<Search size={18} />}
+          label="AI Analyze"
+          path="/ai-analyze"
+          active={location.pathname === "/ai-analyze"}
         />
         <NavItem
           icon={<FileUp size={18} />}

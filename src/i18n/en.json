@@ -1,6 +1,11 @@
+
 {
   "skills": "Skills",
   "skills.summary": "Skills Summary",
   "resources": "resources",
-  "count": "Count"
+  "count": "Count",
+  "ai.analyze": "AI Analyze",
+  "ai.analyze.prompt": "Ask me about your data...",
+  "ai.analyze.welcome": "Hello! I'm your AI assistant. Ask me to analyze data or generate visualizations for you.",
+  "ai.analyze.configuration": "AI Configuration"
 }

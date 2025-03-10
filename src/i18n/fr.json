@@ -1,6 +1,11 @@
+
 {
   "skills": "Compétences",
   "skills.summary": "Résumé des compétences",
   "resources": "ressources",
-  "count": "Nombre"
+  "count": "Nombre",
+  "ai.analyze": "Analyse IA",
+  "ai.analyze.prompt": "Posez-moi des questions sur vos données...",
+  "ai.analyze.welcome": "Bonjour ! Je suis votre assistant IA. Demandez-moi d'analyser des données ou de générer des visualisations pour vous.",
+  "ai.analyze.configuration": "Configuration IA"
 }

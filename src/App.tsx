@@ -13,6 +13,7 @@ import SettingsPage from "./pages/SettingsPage";
 import OccupancyAnalytics from "./pages/analytics/OccupancyAnalytics";
 import ProjectsAnalytics from "./pages/analytics/ProjectsAnalytics";
 import SalesPage from "./pages/SalesPage";
+import AIAnalyzePage from "./pages/AIAnalyzePage";
 import NotFound from "./pages/NotFound";
 
 // Créer une instance du queryClient pour React Query
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/analytics/occupancy" element={<OccupancyAnalytics />} />
             <Route path="/analytics/projects" element={<ProjectsAnalytics />} />
             <Route path="/sales" element={<SalesPage />} />
+            <Route path="/ai-analyze" element={<AIAnalyzePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

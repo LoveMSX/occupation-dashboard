@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +28,7 @@ export const AIConfig: React.FC<AIConfigProps> = ({
         </p>
       </div>
 
-      <Alert variant="outline" className="bg-blue-50 dark:bg-blue-950">
+      <Alert className="bg-blue-50 dark:bg-blue-950">
         <Info className="h-4 w-4" />
         <AlertDescription>
           Your API key is stored only in your browser and is never sent to our servers.

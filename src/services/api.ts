@@ -7,7 +7,14 @@ export interface EmployeeRequest {
   appelation: string;
   poste: string;
   email: string;
-  // Add other properties as needed
+  phone?: string;
+  location?: string;
+  date_debauche?: string;
+  manager?: string;
+  occupancyRate?: number;
+  competences_2024?: string[];
+  nom_prenoms_copie_jira?: string;
+  projects?: any[];
 }
 
 export interface SalesOperationRequest {
@@ -30,10 +37,28 @@ export interface SalesOperationResponse extends SalesOperationRequest {
   updated_at: string;
 }
 
+export interface OccupationData {
+  employee_id: number;
+  project_id: number;
+  january?: number;
+  february?: number;
+  march?: number;
+  april?: number;
+  may?: number;
+  june?: number;
+  july?: number;
+  august?: number;
+  september?: number;
+  october?: number;
+  november?: number;
+  december?: number;
+}
+
 export const salesApi = {
   getAllSalesOperations: async (): Promise<SalesOperationResponse[]> => {
     const response = await axios.get(`${API_URL}/sales`);
-    return Array.isArray(response.data) ? response.data : [response.data];
+    const data = response.data as SalesOperationResponse[];
+    return Array.isArray(data) ? data : [data];
   },
 
   createSalesOperation: async (operation: SalesOperationRequest): Promise<SalesOperationResponse> => {
@@ -57,7 +82,7 @@ export const employeeApi = {
       const response = await axios.get(`${API_URL}/employees`);
       const employees = Array.isArray(response.data) ? response.data : [response.data];
       
-      return employees.map(emp => ({
+      return employees.map((emp: any) => ({
         id: emp.id,
         name: emp.appelation || emp.nom_prenoms_copie_jira || 'Unknown',
         position: emp.poste || emp.position || '',
@@ -67,6 +92,7 @@ export const employeeApi = {
         location: emp.location || '',
         joinDate: emp.date_debauche || emp.joinDate || new Date().toISOString(),
         manager: emp.manager || '',
+        nom_prenom_copie_jira: emp.nom_prenoms_copie_jira,
         skills: Array.isArray(emp.competences_2024) 
           ? emp.competences_2024 
           : typeof emp.competences_2024 === 'string'
@@ -93,20 +119,10 @@ export const employeeApi = {
   getEmployeeOccupation: (employeeId: number): Promise<OccupationData[]> => {
     return fetch(`/api/employees/${employeeId}/occupation`)
       .then(res => res.json());
-  }
-};
+  },
 
-export const projectApi = {
-  getAllProjects: async () => {
-    const response = await axios.get(`${API_URL}/projects`);
-    return Array.isArray(response.data) ? response.data : [response.data];
-  },
-  createProject: async (project: ProjectRequest) => {
-    const response = await axios.post(`${API_URL}/projects`, project);
-    return response.data;
-  },
-  deleteProject: async (id: number) => {
-    const response = await axios.delete(`${API_URL}/projects/${id}`);
+  getAllEmployeesOccupation: async (): Promise<OccupationData[]> => {
+    const response = await axios.get(`${API_URL}/employees/occupation`);
     return response.data;
   }
 };
@@ -125,3 +141,18 @@ export interface ProjectRequest {
   cp: string;
   bu: string;
 }
+
+export const projectApi = {
+  getAllProjects: async () => {
+    const response = await axios.get(`${API_URL}/projects`);
+    return Array.isArray(response.data) ? response.data : [response.data];
+  },
+  createProject: async (project: ProjectRequest) => {
+    const response = await axios.post(`${API_URL}/projects`, project);
+    return response.data;
+  },
+  deleteProject: async (id: number) => {
+    const response = await axios.delete(`${API_URL}/projects/${id}`);
+    return response.data;
+  }
+};

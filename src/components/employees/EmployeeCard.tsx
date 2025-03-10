@@ -56,16 +56,15 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recha
 
 export interface EmployeeData {
   id: number;
-  name: string; // mapped from appelation
-  position: string; // mapped from poste
-  appelation?: string;
-  poste?: string;
+  name: string;
+  position: string;
   email: string;
   phone: string;
   avatar?: string;
   location: string;
   joinDate: string;
   manager?: string;
+  nom_prenom_copie_jira?: string;
   skills?: string[];
   competences_2024?: string[];
   occupancyRate: number;

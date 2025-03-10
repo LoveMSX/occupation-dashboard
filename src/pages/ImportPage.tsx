@@ -1,4 +1,3 @@
-
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -26,7 +25,7 @@ const ImportPage = () => {
                   <TabsTrigger value="notion">Notion Integration</TabsTrigger>
                 </TabsList>
                 <TabsContent value="csv" className="animate-fade-in">
-                  <CSVImportForm />
+                  <CSVImportForm onClose={() => {}} />
                 </TabsContent>
                 <TabsContent value="notion" className="animate-fade-in">
                   <NotionIntegration />

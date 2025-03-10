@@ -213,6 +213,14 @@ const TableView: React.FC<TableViewProps> = ({ opportunities, onStatusChange, on
   </div>
 );
 
+const StatusBadgeVariant = {
+  "en_cours": "default",
+  "envoye": "secondary",
+  "gagne": "success",
+  "perdu": "destructive",
+  "en_attente": "warning"
+} as const;
+
 const SalesPage = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
@@ -361,18 +369,8 @@ const SalesPage = () => {
     addSalesOpMutation.mutate(newOpportunity);
   };
 
-  const handleStatusChange = (opportunityId: number, newStatus: SalesOperationRequest["statut"]) => {
-    // Find current opportunity to preserve other fields
-    const currentOpp = opportunities.find(opp => opp.id === opportunityId);
-    if (!currentOpp) return;
-    
-    updateSalesOpMutation.mutate({ 
-      id: opportunityId,
-      operation: {
-        ...currentOpp,
-        statut: newStatus
-      }
-    });
+  const handleStatusChange = (id: number, newStatus: SalesOperationRequest["statut"]) => {
+    updateSalesOperation.mutate({ id, operation: { statut: newStatus } });
   };
 
   const handleDelete = (opportunityId: number) => {
@@ -399,7 +397,6 @@ const SalesPage = () => {
   const isLoading = isLoadingOpps || isLoadingEmployees;
   const error = oppsError;
 
-  // Get unique responsables from employees
   const responsablesMSX = Array.from(new Set(
     (employees as EmployeeData[]).map(emp => emp.name)
   )).sort();
@@ -467,8 +464,11 @@ const SalesPage = () => {
     const totalOpportunities = opportunities.length;
     if (totalOpportunities === 0) return 0;
     
-    const wonOpportunities = opportunities.filter(opp => opp.statut === "Gagné").length;
-    return Math.round((wonOpportunities / totalOpportunities) * 100);
+    const won = opportunities.filter(opp => opp.statut === "gagne").length;
+    const lost = opportunities.filter(opp => opp.statut === "perdu").length;
+    const pending = opportunities.filter(opp => opp.statut === "en_attente").length;
+
+    return Math.round((won / totalOpportunities) * 100);
   };
 
   return (

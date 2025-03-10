@@ -1,14 +1,26 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Papa from "papaparse";
-import { employeeApi } from "@/services/api";
-import { EmployeeRequest } from "@/services/api";
+import { employeeApi, EmployeeRequest } from "@/services/api";
 
 interface CSVImportFormProps {
   onClose: () => void;
+}
+
+interface CSVRow {
+  Appelation?: string;
+  Poste?: string;
+  Email?: string;
+  Téléphone?: string;
+  Compétences?: string;
+  Location?: string;
+  "Date entrée"?: string;
+  Manager?: string;
+  "Taux d'occupation"?: string;
 }
 
 export const CSVImportForm = ({ onClose }: CSVImportFormProps) => {
@@ -51,27 +63,15 @@ export const CSVImportForm = ({ onClose }: CSVImportFormProps) => {
 
     setIsLoading(true);
 
-    Papa.parse(file, {
+    Papa.parse<CSVRow>(file, {
       header: true,
       complete: async (results) => {
-        interface CSVRow {
-          Appelation?: string;
-          Poste?: string;
-          Email?: string;
-          Téléphone?: string;
-          Compétences?: string;
-          Location?: string;
-          "Date entrée"?: string;
-          Manager?: string;
-          "Taux d'occupation"?: string;
-        }
-
-        const employees: EmployeeRequest[] = results.data.map((row: CSVRow) => ({
+        const employees: EmployeeRequest[] = results.data.map((row) => ({
           appelation: row.Appelation || "",
           poste: row.Poste || "",
           email: row.Email || "",
           phone: row.Téléphone || "",
-          competences_2024: row.Compétences ? row.Compétences.split(",").map((s: string) => s.trim()) : [],
+          competences_2024: row.Compétences ? row.Compétences.split(",").map(s => s.trim()) : [],
           nom_prenoms_copie_jira: row.Appelation || "",
           location: row.Location || "Madagascar",
           date_debauche: row["Date entrée"] || new Date().toISOString().split("T")[0],
@@ -90,12 +90,16 @@ export const CSVImportForm = ({ onClose }: CSVImportFormProps) => {
           toast.success(`${employees.length} ressources importées avec succès`);
           onClose();
         } catch (error) {
-          toast.error(`Erreur lors de l'importation: ${error.message}`);
+          if (error instanceof Error) {
+            toast.error(`Erreur lors de l'importation: ${error.message}`);
+          } else {
+            toast.error("Une erreur inattendue s'est produite");
+          }
         } finally {
           setIsLoading(false);
         }
       },
-      error: (error) => {
+      error: (error: Error) => {
         toast.error(`Erreur lors de la lecture du fichier CSV: ${error.message}`);
         setIsLoading(false);
       }

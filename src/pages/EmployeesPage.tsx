@@ -45,6 +45,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/LanguageProvider";
+import { EmployeeData } from "@/types/employee";
 
 type ViewMode = "grid" | "list";
 
@@ -86,7 +87,7 @@ export default function EmployeesPage() {
 
   // Extract unique skills and locations from employees
   const allSkills = Array.from(new Set(
-    employees.flatMap(emp => emp.competences_2024 || [])
+    employees.flatMap(emp => emp.skills || [])
   )).sort();
   
   const allLocations = Array.from(new Set(
@@ -105,7 +106,7 @@ export default function EmployeesPage() {
     // Skills filter
     const matchesSkills = activeSkills.length === 0 || 
       activeSkills.every(skill => 
-        employee.competences_2024?.includes(skill)
+        employee.skills?.includes(skill)
       );
     
     // Location filter

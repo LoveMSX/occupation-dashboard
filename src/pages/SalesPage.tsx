@@ -173,7 +173,7 @@ const TableView: React.FC<TableViewProps> = ({ opportunities, onStatusChange, on
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   {opp.url && (
-                    <DropdownMenuItem onClick={() => window.open(opp.url, '_blank')}>
+                    <DropdownMenuItem onClick={() => window.open(opp.url || '', '_blank')}>
                       Voir les documents
                     </DropdownMenuItem>
                   )}
@@ -615,7 +615,7 @@ const SalesPage = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               {opp.url && (
-                                <DropdownMenuItem onClick={() => window.open(opp.url, '_blank')}>
+                                <DropdownMenuItem onClick={() => window.open(opp.url || '', '_blank')}>
                                   Voir les documents
                                 </DropdownMenuItem>
                               )}
@@ -751,7 +751,7 @@ const SalesPage = () => {
                       <PaginationItem>
                         <PaginationPrevious 
                           onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                          disabled={currentPage === 1}
+                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                         />
                       </PaginationItem>
                       
@@ -769,7 +769,7 @@ const SalesPage = () => {
                       <PaginationItem>
                         <PaginationNext
                           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                          disabled={currentPage === totalPages}
+                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                         />
                       </PaginationItem>
                     </PaginationContent>
@@ -932,10 +932,12 @@ const SalesPage = () => {
                       Importez des opportunités commerciales à partir d'un fichier CSV
                     </DialogDescription>
                   </DialogHeader>
-                  <SalesCSVImportForm onSuccess={() => {
-                    setIsImportDialogOpen(false);
-                    queryClient.invalidateQueries({ queryKey: ['sales'] });
-                  }} />
+                  <SalesCSVImportForm />
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
+                      Annuler
+                    </Button>
+                  </DialogFooter>
                 </DialogContent>
               </Dialog>
 

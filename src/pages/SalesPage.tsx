@@ -431,7 +431,6 @@ const SalesPage = () => {
     );
   }
 
-  // Calculate pagination values
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredOpportunities.slice(indexOfFirstItem, indexOfLastItem);

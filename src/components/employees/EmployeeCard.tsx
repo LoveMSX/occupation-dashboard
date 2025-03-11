@@ -53,28 +53,23 @@ import {
 } from "@/components/ui/table";
 import { useLanguage } from "@/components/LanguageProvider";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { ProjectReference } from "@/types/employee";
 
 export interface EmployeeData {
   id: number;
   name: string;
   position: string;
   email: string;
-  phone: string;
+  phone?: string;
   avatar?: string;
-  location: string;
+  location?: string;
   joinDate: string;
   manager?: string;
   nom_prenom_copie_jira?: string;
   skills?: string[];
   competences_2024?: string[];
   occupancyRate: number;
-  projects: { 
-    id: number; 
-    name: string; 
-    status: string;
-    client?: string;
-    category?: string;
-  }[];
+  projects?: ProjectReference[];
 }
 
 interface OccupationData {
@@ -99,9 +94,7 @@ interface EmployeeCardProps {
   viewMode?: "grid" | "list";
 }
 
-// Add a helper function to safely create initials
 const getInitials = (name: string | undefined, nom_prenom_copie_jira?: string): string => {
-  // First try to get initials from nom_prenom_copie_jira if available
   if (nom_prenom_copie_jira) {
     return nom_prenom_copie_jira
       .split(' ')
@@ -109,7 +102,6 @@ const getInitials = (name: string | undefined, nom_prenom_copie_jira?: string): 
       .join('')
       .toUpperCase();
   }
-  // Fallback to regular name
   if (!name) return '';
   return name
     .split(' ')
@@ -142,26 +134,22 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
     }
   });
 
-  // Récupérer les données d'occupation pour l'employé
-  const { data: occupationData, isLoading: isLoadingOccupation } = useQuery<OccupationData[]>({    queryKey: ['employee-occupation', employee.id],
+  const { data: occupationData, isLoading: isLoadingOccupation } = useQuery<OccupationData[]>({
+    queryKey: ['employee-occupation', employee.id],
     queryFn: () => employeeApi.getEmployeeOccupation(employee.id),
-    // Retirer enabled: isOccupationDialogOpen pour que la requête soit toujours active
   });
-  
-  // Ajouter cette requête pour récupérer les projets
+
   const { data: projects } = useQuery({
     queryKey: ['projects'],
     queryFn: () => projectApi.getAllProjects(),
     enabled: isOccupationDialogOpen,
   });
 
-  // Fonction pour obtenir le nom du projet
   const getProjectName = (projectId: number) => {
     const project = projects?.find(p => p.id === projectId);
     return project?.name || 'N/A';
   };
 
-  // Fonction helper pour calculer le total d'un mois
   const calculateMonthTotal = (month: 'january' | 'february' | 'march' | 'april' | 'may' | 'june' | 'july' | 'august' | 'september' | 'october' | 'november' | 'december') => {
     return occupationData
       ?.reduce((sum, o) => sum + (Number(o[month]) || 0), 0) || 0;
@@ -182,7 +170,6 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
     december: 20,
   };
 
-  // Ajouter cette fonction pour calculer le taux d'occupation
   const calculateTotalOccupancyRate = () => {
     if (!occupationData) return 0;
 
@@ -197,7 +184,6 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
     return Math.round((totalAllocatedDays / totalWorkingDays) * 100);
   };
 
-  // Calculer le taux d'occupation
   const occupancyRate = calculateTotalOccupancyRate();
 
   const occupationDialog = (
@@ -251,7 +237,6 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
                       <TableCell>{occupation.december || 0}</TableCell>
                     </TableRow>
                   ))}
-                {/* Ligne des totaux */}
                 <TableRow className="font-medium bg-muted/50">
                   <TableCell>{t('total')}</TableCell>
                   <TableCell>{calculateMonthTotal('january')}</TableCell>
@@ -426,7 +411,6 @@ export function EmployeeCard({ employee, viewMode = "grid" }: EmployeeCardProps)
   );
 }
 
-// Function to calculate skills summary from all employees
 const calculateSkillsSummary = (employees: EmployeeData[]) => {
   const skillCounts: Record<string, number> = {};
   
@@ -439,7 +423,7 @@ const calculateSkillsSummary = (employees: EmployeeData[]) => {
   return Object.entries(skillCounts)
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value)
-    .slice(0, 10); // Get top 10 skills
+    .slice(0, 10);
 };
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#8dd1e1', '#a4de6c', '#d0ed57'];
@@ -453,7 +437,6 @@ export function SkillsSummaryPanel({ employees }: { employees: EmployeeData[] })
       <CardContent className="pt-4">
         <h2 className="text-xl font-bold mb-4">{t('skills.summary')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Left side: Skills list */}
           <div className="space-y-2">
             {skillsData.map((skill, index) => (
               <div key={index} className="flex justify-between items-center">
@@ -464,8 +447,6 @@ export function SkillsSummaryPanel({ employees }: { employees: EmployeeData[] })
               </div>
             ))}
           </div>
-          
-          {/* Right side: Pie chart */}
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

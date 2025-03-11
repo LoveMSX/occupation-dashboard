@@ -306,7 +306,7 @@ const SalesPage = () => {
   };
 
   const handleExportCSV = () => {
-    const columns: (keyof SalesOperationResponse)[] = [
+    const columns = [
       'nom_du_projet',
       'client',
       'date_reception',
@@ -318,7 +318,7 @@ const SalesPage = () => {
       'type_projet',
       'remarques',
       'url'
-    ];
+    ] as Array<keyof SalesOperationResponse>;
 
     const columnNames = [
       'Nom du projet',
@@ -334,8 +334,9 @@ const SalesPage = () => {
       'URL Documents'
     ];
 
+    const filteredOpps = opportunities as SalesOperationResponse[];
     const csvContent = convertToCSV(
-      filteredOpportunities.map(opp => ({
+      filteredOpps.map(opp => ({
         ...opp,
         date_reception: formatDate(opp.date_reception)
       })),
@@ -348,7 +349,7 @@ const SalesPage = () => {
     toast.success("Export CSV réalisé avec succès");
   };
 
-  const filteredOpportunities = opportunities.filter((opp) => {
+  const filteredOpportunities = (opportunities as SalesOperationResponse[]).filter((opp) => {
     const matchesSearch =
       (opp.nom_du_projet?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (opp.client?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||

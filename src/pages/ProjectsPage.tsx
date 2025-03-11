@@ -64,7 +64,6 @@ import {
 import { employeeApi } from "@/services/api";
 import { Link } from "react-router-dom";
 
-// Calculate project progress based on start and end dates
 const calculateProgress = (startDate: string, endDate: string): number => {
   const now = new Date();
   const start = new Date(startDate);
@@ -123,18 +122,7 @@ const ProjectsPage = () => {
     queryKey: ['projects'],
     queryFn: async () => {
       const data = await projectApi.getAllProjects();
-      return data.map(project => ({
-        ...project,
-        progress: calculateProgress(project.startDate, project.endDate),
-        category: project.category as "TMA" | "Regie" | "Forfait" | "Other",
-        location: project.location as "Local" | "Offshore" | "Hybrid",
-        manager: {
-          id: project.projectManager ? parseInt(project.projectManager) : 0,
-          name: project.projectManager || "Unknown Manager",
-          avatar: undefined
-        },
-        team: []
-      }));
+      return data;
     }
   });
 
@@ -211,7 +199,6 @@ const ProjectsPage = () => {
     }
   };
 
-  // Memoized sorting function
   const sortProjects = useCallback((projects: Project[], field: SortField, order: SortOrder) => {
     return [...projects].sort((a, b) => {
       let comparison = 0;
@@ -241,7 +228,6 @@ const ProjectsPage = () => {
     });
   }, []);
 
-  // Memoized filtering function
   const filterProjects = useCallback((projects: Project[], searchTerm: string, filters: FilterOptions) => {
     return projects.filter(project => {
       const matchesSearch = 
@@ -264,13 +250,11 @@ const ProjectsPage = () => {
     });
   }, []);
 
-  // Apply sorting and filtering
   const processedProjects = useMemo(() => {
     const filtered = filterProjects(projects, searchTerm, filters);
     return sortProjects(filtered, sortField, sortOrder);
   }, [projects, searchTerm, filters, sortField, sortOrder, filterProjects, sortProjects]);
 
-  // Calculate analytics
   const analytics = useMemo(() => {
     return {
       totalProjects: projects.length,
@@ -290,7 +274,6 @@ const ProjectsPage = () => {
     };
   }, [projects]);
 
-  // Add Filter Dropdown Component
   const FilterDropdown = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -329,7 +312,6 @@ const ProjectsPage = () => {
     </DropdownMenu>
   );
 
-  // Add Sort Dropdown Component
   const SortDropdown = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -360,14 +342,14 @@ const ProjectsPage = () => {
     setCurrentPage(pageNumber);
   };
 
-  // Move all hooks to the top of the component, before any conditional returns
-  const { data: employees = [] } = useQuery({
+  const { data: employees = [] } = useQuery<EmployeeData[]>({
     queryKey: ['employees'],
     queryFn: employeeApi.getAllEmployees
   });
 
   const getProjectTeam = useCallback((projectId: number) => {
-    return employees.filter(employee => 
+    const typedEmployees = employees as EmployeeData[];
+    return typedEmployees.filter(employee => 
       employee.projects?.some(project => project.id === projectId)
     );
   }, [employees]);
@@ -381,7 +363,6 @@ const ProjectsPage = () => {
 
   const totalPages = Math.ceil(processedProjects.length / itemsPerPage);
 
-  // Composant pour afficher la liste de l'équipe
   const TeamList = ({ projectId }: { projectId: number }) => {
     const team = getProjectTeam(projectId);
     
@@ -417,7 +398,6 @@ const ProjectsPage = () => {
     );
   };
 
-  // Modification du menu d'options du ProjectCard pour inclure l'équipe
   const ProjectOptionsMenu = ({ project, onDelete }: { project: Project; onDelete: () => void }) => {
     const [isTeamDialogOpen, setIsTeamDialogOpen] = useState(false);
 
@@ -542,7 +522,6 @@ const ProjectsPage = () => {
               </div>
             </div>
 
-            {/* Statistics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <div className="bg-card rounded-lg p-4 border">
                 <div className="flex items-center justify-between">
@@ -588,7 +567,6 @@ const ProjectsPage = () => {
               </div>
             </div>
 
-            {/* Charts Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="bg-card p-4 rounded-lg border">
                 <h3 className="font-semibold mb-4">Project Status Distribution</h3>
@@ -661,7 +639,6 @@ const ProjectsPage = () => {
               </div>
             </div>
 
-            {/* Projects Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {processedProjects
                 .slice(indexOfFirstItem, indexOfLastItem)
@@ -669,20 +646,28 @@ const ProjectsPage = () => {
                   <ProjectCard
                     key={project.id}
                     project={{
-                      ...project,
+                      id: project.id,
+                      name: project.name,
+                      description: project.description,
+                      client: project.client,
+                      status: project.status,
+                      startDate: project.startDate,
+                      endDate: project.endDate,
                       progress: calculateProgress(project.startDate, project.endDate),
+                      category: project.category,
+                      location: project.location,
                       manager: project.manager || {
                         id: 0,
                         name: "Unassigned",
                         avatar: ""
-                      }
+                      },
+                      team: []
                     }}
                     onDelete={() => handleDelete(project.id)}
                   />
                 ))}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center gap-2 mt-4">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -724,5 +709,3 @@ const ProjectsPage = () => {
 };
 
 export default ProjectsPage;
-
-

@@ -1,4 +1,3 @@
-
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -25,6 +24,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { projectsData } from "@/data/projectsData";
+
+interface ProjectTeamData {
+  name: string;
+  size: number;
+  department: string;
+  project: string;
+}
 
 // Process real data for charts
 const processProjectTypeData = () => {
@@ -189,7 +195,16 @@ const ProjectsAnalytics = () => {
       </text>
     ) : null;
   };
-  
+
+  // Example data for project team members
+  const projectTeams: ProjectTeamData[] = [
+    { name: "Project A", size: 8, department: "Engineering", project: "Mobile App" },
+    { name: "Project B", size: 5, department: "Design", project: "Website Redesign" },
+    { name: "Project C", size: 12, department: "Engineering", project: "Backend API" },
+    { name: "Project D", size: 6, department: "Marketing", project: "Campaign" },
+    { name: "Project E", size: 3, department: "Engineering", project: "DevOps" },
+  ];
+
   return (
     <ThemeProvider>
       <div className="flex h-screen bg-background">

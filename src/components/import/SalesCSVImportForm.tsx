@@ -1,11 +1,11 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Papa from "papaparse";
-import { salesApi, SalesOperationRequest } from "@/services/api";
+import { salesApi } from "@/services/api";
+import { SalesOperationRequest } from "@/types/sales";
 
 interface SalesCSVImportFormProps {
   onClose: () => void;

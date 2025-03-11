@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import Index from "./pages/Index";
 import EmployeesPage from "./pages/EmployeesPage";
+import ResourcesPage from "./pages/ResourcesPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import ImportPage from "./pages/ImportPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -35,7 +36,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/employees" element={<EmployeesPage />} />
+            <Route path="/employees" element={<ResourcesPage />} />
+            <Route path="/resources" element={<ResourcesPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/import" element={<ImportPage />} />
             <Route path="/settings" element={<SettingsPage />} />

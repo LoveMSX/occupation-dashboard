@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/layout/Header";
@@ -173,7 +172,7 @@ const TableView: React.FC<TableViewProps> = ({ opportunities, onStatusChange, on
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   {opp.url && (
-                    <DropdownMenuItem onClick={() => window.open(opp.url || '', '_blank')}>
+                    <DropdownMenuItem onClick={() => window.open(opp.url ?? '', '_blank')}>
                       Voir les documents
                     </DropdownMenuItem>
                   )}
@@ -615,7 +614,7 @@ const SalesPage = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               {opp.url && (
-                                <DropdownMenuItem onClick={() => window.open(opp.url || '', '_blank')}>
+                                <DropdownMenuItem onClick={() => window.open(opp.url ?? '', '_blank')}>
                                   Voir les documents
                                 </DropdownMenuItem>
                               )}
@@ -932,7 +931,7 @@ const SalesPage = () => {
                       Importez des opportunités commerciales à partir d'un fichier CSV
                     </DialogDescription>
                   </DialogHeader>
-                  <SalesCSVImportForm />
+                  <SalesCSVImportForm onClose={() => setIsImportDialogOpen(false)} />
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
                       Annuler

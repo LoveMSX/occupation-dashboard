@@ -62,7 +62,7 @@ export function TopEmployeesTable() {
                       employee.projects.map((project, index) => (
                         <Badge
                           key={index}
-                          variant={project.status === "active" ? "default" : 
+                          variant={project.status === "ongoing" ? "default" : 
                                   project.status === "completed" ? "outline" : "secondary"}
                           className="text-xs font-normal"
                         >

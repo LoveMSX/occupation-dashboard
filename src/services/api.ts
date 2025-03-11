@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 import type { EmployeeData } from "@/components/employees/EmployeeCard";
 
@@ -15,6 +16,24 @@ export interface EmployeeRequest {
   competences_2024?: string[];
   nom_prenoms_copie_jira?: string;
   projects?: any[];
+}
+
+export interface ProjectRequest {
+  nom_projet: string;
+  client: string;
+  statut: string;
+  categorie_projet: string;
+  localite: string;
+  date_debut: string;
+  date_fin_prevu: string;
+  date_fin_reelle?: string;
+  description_bc: string;
+  tjm: string;
+  charge_vendu_jours: string;
+  cp: string;
+  bu: string;
+  technologie?: string;
+  secteur?: string;
 }
 
 export interface SalesOperationRequest {
@@ -71,6 +90,7 @@ export interface Project {
   bu: string;
   created_at: string;
   updated_at: string;
+  // Mapped properties for compatibility
   name: string;
   description: string;
   status: string;
@@ -84,6 +104,7 @@ export interface Project {
     name: string;
     avatar: string;
   };
+  team?: { id: number; name: string; avatar: string }[];
 }
 
 export interface ResourceRequest {
@@ -182,28 +203,44 @@ export const projectApi = {
     const response = await axios.get(`${API_URL}/projects`);
     return (Array.isArray(response.data) ? response.data : [response.data]).map((project: any) => ({
       ...project,
-      name: project.nom_projet,
-      description: project.description_bc,
-      status: project.statut,
-      category: project.categorie_projet as "TMA" | "Regie" | "Forfait" | "Other",
-      location: project.localite as "Local" | "Offshore" | "Hybrid",
-      startDate: project.date_debut,
-      endDate: project.date_fin_prevu,
+      name: project.nom_projet || '',
+      description: project.description_bc || '',
+      status: project.statut || 'ongoing',
+      category: (project.categorie_projet || 'Other') as "TMA" | "Regie" | "Forfait" | "Other",
+      location: (project.localite || 'Local') as "Local" | "Offshore" | "Hybrid",
+      startDate: project.date_debut || '',
+      endDate: project.date_fin_prevu || '',
       progress: 0,
       manager: {
         id: 0,
-        name: project.cp,
+        name: project.cp || '',
         avatar: "",
-      }
+      },
+      team: []
     }));
   },
   createProject: async (project: ProjectRequest): Promise<Project> => {
     const response = await axios.post(`${API_URL}/projects`, project);
-    return response.data as Project;
+    return {
+      ...response.data,
+      name: response.data.nom_projet || '',
+      description: response.data.description_bc || '',
+      status: response.data.statut || 'ongoing',
+      category: (response.data.categorie_projet || 'Other') as "TMA" | "Regie" | "Forfait" | "Other",
+      location: (response.data.localite || 'Local') as "Local" | "Offshore" | "Hybrid",
+      startDate: response.data.date_debut || '',
+      endDate: response.data.date_fin_prevu || '',
+      progress: 0,
+      manager: {
+        id: 0,
+        name: response.data.cp || '',
+        avatar: "",
+      },
+      team: []
+    };
   },
   deleteProject: async (id: number): Promise<void> => {
-    const response = await axios.delete(`${API_URL}/projects/${id}`);
-    return response.data;
+    await axios.delete(`${API_URL}/projects/${id}`);
   }
 };
 

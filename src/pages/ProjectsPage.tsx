@@ -41,7 +41,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { projectApi, ProjectRequest, Project } from "@/services/api";
+import { projectApi } from "@/services/api";
+import { Project, ProjectRequest } from "@/types/project";
 import { ProjectCSVImportForm } from "@/components/import/ProjectCSVImportForm";
 import { Chart } from "@/components/ui/chart";
 import {
@@ -62,6 +63,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { employeeApi } from "@/services/api";
+import { EmployeeData } from "@/types/employee";
 import { Link } from "react-router-dom";
 
 const calculateProgress = (startDate: string, endDate: string): number => {
@@ -342,9 +344,9 @@ const ProjectsPage = () => {
     setCurrentPage(pageNumber);
   };
 
-  const { data: employees = [] } = useQuery<EmployeeData[]>({
+  const { data: employees = [], isLoading: isLoadingEmployees } = useQuery<EmployeeData[]>({
     queryKey: ['employees'],
-    queryFn: employeeApi.getAllEmployees
+    queryFn: employeeApi.getAllEmployees,
   });
 
   const getProjectTeam = useCallback((projectId: number) => {

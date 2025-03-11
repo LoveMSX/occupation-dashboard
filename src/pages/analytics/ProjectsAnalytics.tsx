@@ -32,7 +32,6 @@ interface ProjectTeamData {
   project: string;
 }
 
-// Process real data for charts
 const processProjectTypeData = () => {
   const categoryCount: Record<string, number> = {};
   
@@ -46,11 +45,9 @@ const processProjectTypeData = () => {
   
   const total = projectsData.length;
   
-  // Transform to percentage and color
   return Object.entries(categoryCount).map(([category, count]) => {
     const percentage = Math.round((count / total) * 100);
     
-    // Assign colors based on category
     let color = "";
     switch(category) {
       case "TMA":
@@ -80,14 +77,12 @@ const processProjectTypeData = () => {
 };
 
 const processEmployeeDistribution = () => {
-  // Group projects by client
   const clients = Array.from(new Set(projectsData.map(p => p.client))).slice(0, 6);
   
   return clients.map(client => {
     const clientProjects = projectsData.filter(p => p.client === client);
     const averageTeamSize = clientProjects.reduce((acc, p) => acc + p.team.length, 0) / clientProjects.length;
     
-    // Calculate under/optimal/over allocation based on budget if available
     let underAllocated = Math.floor(Math.random() * 5) + 1;
     let optimal = Math.floor(averageTeamSize);
     let overAllocated = Math.floor(Math.random() * 3);
@@ -142,18 +137,17 @@ const processProjectDuration = () => {
 };
 
 const processProjectAllocation = () => {
-  // Group projects by department
   const departments = ["Information Technology", "Development", "Design", "Project Management", "Operations", "Business Analysis"];
   
   const result = [];
   
   for (const department of departments) {
-    const departmentProjects = projectsData.slice(0, 3); // Using first few projects as examples
+    const departmentProjects = projectsData.slice(0, 3);
     
     for (const project of departmentProjects) {
       result.push({
         name: `${department} / ${project.name.substring(0, 20)}...`,
-        size: Math.floor(Math.random() * 10) + 2, // Random staff size 2-12
+        size: Math.floor(Math.random() * 10) + 2,
         department,
         project: project.name
       });
@@ -163,14 +157,12 @@ const processProjectAllocation = () => {
   return result;
 };
 
-// Generate chart data from real projects
 const projectTypeData = processProjectTypeData();
 const employeeDistributionData = processEmployeeDistribution();
 const projectDurationData = processProjectDuration();
 const projectAllocationData = processProjectAllocation();
 
-// Color mapping for departments
-const DEPARTMENT_COLORS = {
+const DEPARTMENT_COLORS: Record<string, string> = {
   "Information Technology": "#3B82F6", // blue
   "Design": "#10B981", // green
   "Development": "#F97316", // orange
@@ -196,7 +188,6 @@ const ProjectsAnalytics = () => {
     ) : null;
   };
 
-  // Example data for project team members
   const projectTeams: ProjectTeamData[] = [
     { name: "Project A", size: 8, department: "Engineering", project: "Mobile App" },
     { name: "Project B", size: 5, department: "Design", project: "Website Redesign" },
@@ -343,7 +334,7 @@ const ProjectsAnalytics = () => {
                     <div className="h-96">
                       <ResponsiveContainer width="100%" height="100%">
                         <Treemap
-                          data={projectAllocationData}
+                          data={projectAllocationData as ProjectTeamData[]}
                           dataKey="size"
                           aspectRatio={4 / 3}
                           stroke="#fff"
@@ -358,10 +349,10 @@ const ProjectsAnalytics = () => {
                               return [`${value} employees`, name];
                             }}
                           />
-                          {projectAllocationData.map((entry, index) => (
+                          {(projectAllocationData as ProjectTeamData[]).map((entry, index) => (
                             <Cell 
                               key={`cell-${index}`} 
-                              fill={DEPARTMENT_COLORS[entry.department as keyof typeof DEPARTMENT_COLORS] || '#8884d8'} 
+                              fill={DEPARTMENT_COLORS[entry.department] || '#8884d8'} 
                             />
                           ))}
                         </Treemap>

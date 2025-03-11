@@ -26,7 +26,7 @@ export const projectApi = {
 
   createProject: async (project: ProjectRequest): Promise<Project> => {
     const response = await apiClient.post('/projects', project);
-    const projectData = response.data;
+    const projectData = response.data as any;
     return {
       ...projectData,
       name: projectData.nom_projet || '',

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/layout/Header";
@@ -64,8 +65,9 @@ import {
   Line,
 } from "recharts";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { salesApi, employeeApi, SalesOperationRequest, SalesOperationResponse } from "@/services/api";
-import { EmployeeData } from "@/components/employees/EmployeeCard";
+import { salesApi, employeeApi } from "@/services/api";
+import { SalesOperationRequest, SalesOperationResponse } from "@/types/sales";
+import { EmployeeData } from "@/types/employee";
 import { convertToCSV, downloadCSV } from "@/utils/csvExport";
 import { useLanguage } from "@/components/LanguageProvider";
 import {

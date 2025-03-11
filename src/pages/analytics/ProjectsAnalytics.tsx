@@ -19,6 +19,7 @@ import {
   ComposedChart,
   Area,
   Treemap,
+  TreemapProps,
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -136,10 +137,10 @@ const processProjectDuration = () => {
   }));
 };
 
-const processProjectAllocation = () => {
+const processProjectAllocation = (): ProjectTeamData[] => {
   const departments = ["Information Technology", "Development", "Design", "Project Management", "Operations", "Business Analysis"];
   
-  const result = [];
+  const result: ProjectTeamData[] = [];
   
   for (const department of departments) {
     const departmentProjects = projectsData.slice(0, 3);
@@ -334,7 +335,7 @@ const ProjectsAnalytics = () => {
                     <div className="h-96">
                       <ResponsiveContainer width="100%" height="100%">
                         <Treemap
-                          data={projectAllocationData as ProjectTeamData[]}
+                          data={projectAllocationData}
                           dataKey="size"
                           aspectRatio={4 / 3}
                           stroke="#fff"
@@ -349,7 +350,7 @@ const ProjectsAnalytics = () => {
                               return [`${value} employees`, name];
                             }}
                           />
-                          {(projectAllocationData as ProjectTeamData[]).map((entry, index) => (
+                          {projectAllocationData.map((entry, index) => (
                             <Cell 
                               key={`cell-${index}`} 
                               fill={DEPARTMENT_COLORS[entry.department] || '#8884d8'} 

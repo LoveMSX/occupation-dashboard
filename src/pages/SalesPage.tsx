@@ -409,5 +409,7 @@ const SalesPage = () => {
 
   if (isLoading) {
     return null;
- 
+  }
+};
 
+export default SalesPage;

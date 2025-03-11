@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import type { EmployeeData } from "@/components/employees/EmployeeCard";
 
@@ -53,6 +52,57 @@ export interface OccupationData {
   october?: number;
   november?: number;
   december?: number;
+}
+
+export interface Project {
+  id: number;
+  nom_projet: string;
+  client: string;
+  statut: string;
+  categorie_projet: string;
+  localite: string;
+  date_debut: string;
+  date_fin_prevu: string;
+  date_fin_reelle?: string;
+  description_bc: string;
+  tjm: string;
+  charge_vendu_jours: string;
+  cp: string;
+  bu: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  description: string;
+  status: string;
+  category: "TMA" | "Regie" | "Forfait" | "Other";
+  location: "Local" | "Offshore" | "Hybrid";
+  startDate: string;
+  endDate: string;
+  progress: number;
+  manager: {
+    id: number;
+    name: string;
+    avatar: string;
+  };
+}
+
+export interface ResourceRequest {
+  prenom: string;
+  nom: string;
+  email: string;
+  telephone: string;
+  statut: string;
+  poste: string;
+  bu: string;
+  niveau: string;
+  date_entree: string;
+  date_sortie?: string;
+  salaire_base?: string;
+  prime?: string;
+  type_prime?: string;
+  charge?: string;
+  cout_standard?: string;
+  commentaire: string;
 }
 
 export const salesApi = {
@@ -127,47 +177,25 @@ export const employeeApi = {
   }
 };
 
-export interface ProjectRequest {
-  nom_projet: string;
-  client: string;
-  statut: string;
-  categorie_projet: string;
-  localite: string;
-  date_debut: string;
-  date_fin_prevu: string;
-  date_fin_reelle?: string;
-  description_bc: string;
-  tjm: string;
-  charge_vendu_jours: string;
-  cp: string;
-  technologie?: string;
-  secteur?: string;
-  bu: string;
-}
-
-export interface Project {
-  id: number;
-  nom_projet: string;
-  client: string;
-  statut: string;
-  categorie_projet: string;
-  localite: string;
-  date_debut: string;
-  date_fin_prevu: string;
-  date_fin_reelle?: string;
-  description_bc: string;
-  tjm: string;
-  charge_vendu_jours: string;
-  cp: string;
-  bu: string;
-  created_at: string;
-  updated_at: string;
-}
-
 export const projectApi = {
   getAllProjects: async (): Promise<Project[]> => {
     const response = await axios.get(`${API_URL}/projects`);
-    return Array.isArray(response.data) ? response.data : [response.data];
+    return (Array.isArray(response.data) ? response.data : [response.data]).map((project: any) => ({
+      ...project,
+      name: project.nom_projet,
+      description: project.description_bc,
+      status: project.statut,
+      category: project.categorie_projet as "TMA" | "Regie" | "Forfait" | "Other",
+      location: project.localite as "Local" | "Offshore" | "Hybrid",
+      startDate: project.date_debut,
+      endDate: project.date_fin_prevu,
+      progress: 0,
+      manager: {
+        id: 0,
+        name: project.cp,
+        avatar: "",
+      }
+    }));
   },
   createProject: async (project: ProjectRequest): Promise<Project> => {
     const response = await axios.post(`${API_URL}/projects`, project);
@@ -176,5 +204,11 @@ export const projectApi = {
   deleteProject: async (id: number): Promise<void> => {
     const response = await axios.delete(`${API_URL}/projects/${id}`);
     return response.data;
+  }
+};
+
+export const resourceApi = {
+  createResource: async (resource: ResourceRequest): Promise<void> => {
+    await axios.post(`${API_URL}/resources`, resource);
   }
 };

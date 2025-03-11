@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type Language = 'en' | 'fr';
@@ -77,6 +76,7 @@ const translations = {
     'manage.api.keys': 'Manage API keys and integrations',
     'save.changes': 'Save Changes',
     'changes.saved': 'Changes saved successfully',
+    'count': 'Count'
   },
   fr: {
     // General
@@ -142,9 +142,8 @@ const translations = {
     'manage.api.keys': 'Gérer les clés API et les intégrations',
     'save.changes': 'Sauvegarder les Modifications',
     'changes.saved': 'Modifications enregistrées avec succès',
-    'skills.summary': 'Résumé des compétences',
-    'resources': 'ressources',
-    'count': 'Nombre'
+    'count': 'Nombre',
+    'skills.summary': 'Résumé des compétences'
   }
 };
 

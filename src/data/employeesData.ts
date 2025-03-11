@@ -438,98 +438,42 @@ export const employeesData: EmployeeData[] = [
   }
 ];
 
-// Map position codes to department names for better organization
-export const positionDepartmentMap: Record<string, string> = {
-  "IDS": "Information Technology",
-  "AL": "Information Technology",
-  "DBU": "Database",
-  "CPC": "Development",
-  "RT": "Development",
-  "DP": "Project Management",
-  "DevOps": "Operations",
-  "CPS": "Development",
-  "TL": "Team Lead",
-  "BAS": "Business Analysis",
-  "IDC": "Design",
-  "BAC": "Business Analysis"
-};
-
-// Generate some skills based on department for filtering
-export const getDepartmentSkills = (department: string): string[] => {
-  switch (department) {
-    case "Information Technology":
-      return ["Infrastructure", "Network", "IT Support", "Server Management"];
-    case "Database":
-      return ["SQL", "NoSQL", "Database Design", "Data Migration"];
-    case "Development":
-      return ["JavaScript", "React", "Node.js", "Java", "Python"];
-    case "Project Management":
-      return ["Agile", "Scrum", "Project Planning", "Risk Management"];
-    case "Operations":
-      return ["CI/CD", "DevOps", "Kubernetes", "Docker"];
-    case "Team Lead":
-      return ["Leadership", "Team Management", "Code Review", "Mentoring"];
-    case "Business Analysis":
-      return ["Requirements Analysis", "Business Modeling", "User Stories"];
-    case "Design":
-      return ["UI/UX", "Figma", "Adobe XD", "Graphic Design"];
+// Generate skill sets based on position
+const getSkillsByPosition = (position: string): string[] => {
+  switch (position) {
+    case "IDS":
+      return ["Infrastructure", "Network", "IT Support"];
+    case "AL":
+      return ["Architecture", "System Design", "Leadership"];
+    // ... add more positions as needed
     default:
       return [];
   }
 };
 
-// Add skills to employees based on their department
+// Enhanced employee data generator
 export const enhanceEmployeesData = () => {
   return employeesData.map(employee => {
-    // Get department from position
-    const dept = positionDepartmentMap[employee.position] || "Other";
-    
-    // Generate random skills from department
-    const departmentSkills = getDepartmentSkills(dept);
-    const randomSkillCount = Math.floor(Math.random() * 3) + 1; // 1-3 skills
-    const selectedSkills: string[] = [];
-    
-    for (let i = 0; i < randomSkillCount && i < departmentSkills.length; i++) {
-      const randomIndex = Math.floor(Math.random() * departmentSkills.length);
-      if (!selectedSkills.includes(departmentSkills[randomIndex])) {
-        selectedSkills.push(departmentSkills[randomIndex]);
-      }
-    }
+    const skills = getSkillsByPosition(employee.position);
     
     // Generate random projects (1-3)
-    const randomProjectCount = Math.floor(Math.random() * 3) + 1;
-    const projectCategories = ["Forfait", "TMA", "Regie"];
-    const projectStatuses = ["active", "pending", "completed"];
-    const clients = [
-      "TechCorp Industries", 
-      "FinServe Group", 
-      "Global Retail Inc.", 
-      "HealthPlus Services",
-      "SecureData Solutions", 
-      "EduTech Innovations", 
-      "LogisticsPro"
-    ];
+    const projectTypes = ["TMA", "Regie", "Forfait", "Other"] as const;
+    const statuses = ["ongoing", "completed", "planned", "standby"] as const;
     
-    const projects = [];
-    
-    for (let i = 0; i < randomProjectCount; i++) {
-      projects.push({
-        id: Math.floor(Math.random() * 100) + 1,
-        name: `Project ${Math.floor(Math.random() * 1000) + 1}`,
-        status: projectStatuses[Math.floor(Math.random() * projectStatuses.length)],
-        client: clients[Math.floor(Math.random() * clients.length)],
-        category: projectCategories[Math.floor(Math.random() * projectCategories.length)]
-      });
-    }
+    const projects = Array.from({ length: Math.floor(Math.random() * 3) + 1 }, (_, i) => ({
+      id: Math.floor(Math.random() * 1000) + 1,
+      name: `Project ${i + 1}`,
+      status: statuses[Math.floor(Math.random() * statuses.length)],
+      client: `Client ${i + 1}`,
+      category: projectTypes[Math.floor(Math.random() * projectTypes.length)]
+    }));
     
     return {
       ...employee,
-      skills: selectedSkills,
-      projects: projects
+      skills,
+      projects
     };
   });
 };
 
-// Export the enhanced data
 export const enhancedEmployeesData = enhanceEmployeesData();
-

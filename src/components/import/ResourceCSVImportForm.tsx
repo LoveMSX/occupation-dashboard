@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Papa from "papaparse";
-import { resourceApi, ResourceRequest } from "@/services/api";
+import { resourceApi } from "@/services/resourceApi";
+import { ResourceRequest } from "@/types/resource";
 import type { CSVRow } from "@/types/csv";
 
 interface ResourceCSVImportFormProps {
@@ -32,22 +33,22 @@ export const ResourceCSVImportForm = ({ onClose }: ResourceCSVImportFormProps) =
       "Poste",
       "BU",
       "Niveau",
-      "Date d'entrée",
-      "Date de sortie",
-      "Salaire base",
+      "Date Entrée",
+      "Date Sortie",
+      "Salaire Base",
       "Prime",
-      "Type prime",
+      "Type Prime",
       "Charge",
-      "Coût standard",
+      "Coût Standard",
       "Commentaire"
     ].join(",");
 
-    const csvContent = `${headers}\nJohn,Doe,john.doe@example.com,+33612345678,CDI,Développeur,MSX,Senior,${new Date().toISOString().split("T")[0]},,3500,500,Annuelle,2100,600,Exemple de commentaire`;
+    const csvContent = `${headers}\nJohn,Doe,john.doe@example.com,0612345678,CDI,Développeur,MSX,Senior,${new Date().toISOString().split("T")[0]},,4000,500,Variable,80,350,Nouvel employé`;
     
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "template_resources.csv";
+    link.download = "template_ressources.csv";
     link.click();
   };
 
@@ -62,23 +63,23 @@ export const ResourceCSVImportForm = ({ onClose }: ResourceCSVImportFormProps) =
     Papa.parse(file, {
       header: true,
       complete: async (results) => {
-        const resources: ResourceRequest[] = (results.data as CSVRow[]).map((row: CSVRow) => ({
-          prenom: row["Prénom"] || "",
-          nom: row["Nom"] || "",
-          email: row["Email"] || "",
-          telephone: row["Téléphone"] || "",
-          statut: row["Statut"] || "",
-          poste: row["Poste"] || "",
-          bu: row["BU"] || "MSX",
-          niveau: row["Niveau"] || "",
-          date_entree: row["Date d'entrée"] || new Date().toISOString().split("T")[0],
-          date_sortie: row["Date de sortie"],
-          salaire_base: row["Salaire base"],
-          prime: row["Prime"],
-          type_prime: row["Type prime"],
-          charge: row["Charge"],
-          cout_standard: row["Coût standard"],
-          commentaire: row["Commentaire"] || ""
+        const resources: ResourceRequest[] = results.data.map((row: any) => ({
+          prenom: row.Prénom || "",
+          nom: row.Nom || "",
+          email: row.Email || "",
+          telephone: row.Téléphone || "",
+          statut: row.Statut || "CDI",
+          poste: row.Poste || "",
+          bu: row.BU || "MSX",
+          niveau: row.Niveau || "",
+          date_entree: row["Date Entrée"] || new Date().toISOString().split("T")[0],
+          date_sortie: row["Date Sortie"],
+          salaire_base: row["Salaire Base"],
+          prime: row.Prime,
+          type_prime: row["Type Prime"],
+          charge: row.Charge,
+          cout_standard: row["Coût Standard"],
+          commentaire: row.Commentaire || ""
         }));
 
         try {
@@ -91,15 +92,21 @@ export const ResourceCSVImportForm = ({ onClose }: ResourceCSVImportFormProps) =
           toast.success(`${resources.length} ressources importées avec succès`);
           onClose();
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : "Une erreur inattendue s'est produite";
-          toast.error(`Erreur lors de l'importation: ${errorMessage}`);
+          if (error instanceof Error) {
+            toast.error(`Erreur lors de l'importation: ${error.message}`);
+          } else {
+            toast.error("Une erreur inattendue s'est produite");
+          }
         } finally {
           setIsLoading(false);
         }
       },
       error: (error) => {
-        const errorMessage = error instanceof Error ? error.message : "Une erreur inattendue s'est produite";
-        toast.error(`Erreur lors de la lecture du fichier CSV: ${errorMessage}`);
+        if (error instanceof Error) {
+          toast.error(`Erreur lors de la lecture du fichier CSV: ${error.message}`);
+        } else {
+          toast.error("Une erreur inattendue s'est produite lors de la lecture du fichier");
+        }
         setIsLoading(false);
       }
     });

@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Papa from "papaparse";
-import { employeeApi, EmployeeRequest } from "@/services/api";
+import { employeeApi } from "@/services/employeeApi";
+import { EmployeeRequest } from "@/types/employee";
 
 interface CSVImportFormProps {
   onClose: () => void;

@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { employeeApi } from "@/services/api";
+import { employeeApi } from "@/services/employeeApi";
 import { EmployeeGrid } from "@/components/employees/EmployeeGrid";
 
 type ViewMode = "cards" | "table" | "chart";
@@ -48,4 +49,4 @@ export default function EmployeesPage() {
       />
     </div>
   );
-};
+}

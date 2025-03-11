@@ -1,10 +1,12 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Papa from "papaparse";
-import { projectApi, ProjectRequest } from "@/services/api";
+import { projectApi } from "@/services/projectApi";
+import { ProjectRequest } from "@/types/project";
 import type { CSVRow } from "@/types/csv";
 
 interface ProjectCSVImportFormProps {
@@ -57,10 +59,10 @@ export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => 
 
     setIsLoading(true);
 
-    Papa.parse<CSVRow>(file, {
+    Papa.parse(file, {
       header: true,
       complete: async (results) => {
-        const projects: ProjectRequest[] = results.data.map((row: CSVRow) => ({
+        const projects: ProjectRequest[] = results.data.map((row: any) => ({
           nom_projet: row["Nom du projet"] || "",
           client: row.Client || "",
           statut: row.Statut || "ongoing",

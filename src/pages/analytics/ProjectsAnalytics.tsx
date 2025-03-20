@@ -25,6 +25,33 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { projectsData } from "@/data/projectsData";
 
+// Define types for the project data
+interface ProjectTypeData {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface EmployeeDistributionData {
+  name: string;
+  underAllocated: number;
+  optimal: number;
+  overAllocated: number;
+}
+
+interface ProjectDurationData {
+  name: string;
+  count: number;
+  color: string;
+}
+
+interface ProjectAllocationData {
+  name: string;
+  size: number;
+  department: string;
+  project: string;
+}
+
 const renderCustomizedLabel = ({
   cx,
   cy,
@@ -170,17 +197,17 @@ const processProjectDuration = () => {
 };
 
 // Generate data for project allocation chart
-const processProjectAllocation = () => {
+const processProjectAllocation = (): ProjectAllocationData[] => {
   const departments = ["Information Technology", "Development", "Design", "Project Management", "Operations", "Business Analysis"];
   
-  const result = [];
+  const result: ProjectAllocationData[] = [];
   
   for (const department of departments) {
     const mockProjectsPerDepartment = 3;
     
     for (let i = 0; i < mockProjectsPerDepartment; i++) {
       // Create dummy data for visualization
-      const projectData = {
+      const projectData: ProjectAllocationData = {
         name: `${department} Project ${i+1}`,
         size: Math.floor(Math.random() * 10) + 2, // Random team size between 2-12
         department: department,
@@ -194,10 +221,10 @@ const processProjectAllocation = () => {
   return result;
 };
 
-const projectTypeData = processProjectTypeData();
-const employeeDistributionData = processEmployeeDistribution();
-const projectDurationData = processProjectDuration();
-const projectAllocationData = processProjectAllocation();
+const projectTypeData: ProjectTypeData[] = processProjectTypeData();
+const employeeDistributionData: EmployeeDistributionData[] = processEmployeeDistribution();
+const projectDurationData: ProjectDurationData[] = processProjectDuration();
+const projectAllocationData: ProjectAllocationData[] = processProjectAllocation();
 
 const DEPARTMENT_COLORS: Record<string, string> = {
   "Information Technology": "#3B82F6", // blue
@@ -362,7 +389,7 @@ export default function ProjectsAnalytics() {
                     {projectAllocationData.map((entry, index) => (
                       <Cell 
                         key={`cell-${index}`} 
-                        fill={DEPARTMENT_COLORS[entry.department as keyof typeof DEPARTMENT_COLORS] || '#8884d8'} 
+                        fill={DEPARTMENT_COLORS[entry.department] || '#8884d8'} 
                       />
                     ))}
                   </Treemap>

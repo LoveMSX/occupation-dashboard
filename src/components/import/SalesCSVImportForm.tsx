@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,19 +6,62 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Papa from "papaparse";
 import { salesApi, SalesOperationRequest } from "@/services/api";
+import { useCsvParser } from "@/hooks/use-csv-parser";
 
 interface SalesCSVImportFormProps {
   onClose: () => void;
 }
 
+// Define a type for the CSV row structure
+interface SalesCSVRow {
+  "Nom du projet"?: string;
+  Client?: string;
+  "Date réception"?: string;
+  TJM?: string;
+  "Chiffrage JH"?: string;
+  Statut?: string;
+  Commerciale?: string;
+  "Personne en charge MSX"?: string;
+  "Type projet"?: string;
+  Remarques?: string;
+  URL?: string;
+}
+
 export const SalesCSVImportForm = ({ onClose }: SalesCSVImportFormProps) => {
   const [file, setFile] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { parseCSV, isLoading } = useCsvParser<SalesOperationRequest>();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
     }
+  };
+
+  const transformSalesRow = (row: Record<string, string>): SalesOperationRequest => {
+    // Parse tjm to number or use 0 as default
+    const tjm = row.TJM ? parseFloat(row.TJM.replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
+    
+    // Parse chiffrage_jh to number or use 0 as default
+    const chiffrage_jh = row["Chiffrage JH"] ? 
+      parseFloat(row["Chiffrage JH"].replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
+    
+    // Ensure statut is a valid enum value
+    const validStatus = ['en_cours', 'envoye', 'gagne', 'perdu', 'en_attente'] as const;
+    const status = row.Statut?.toLowerCase() as typeof validStatus[number] || "en_cours";
+    
+    return {
+      nom_du_projet: row["Nom du projet"] || "",
+      client: row.Client || "",
+      date_reception: row["Date réception"] || new Date().toISOString().split("T")[0],
+      tjm: tjm,
+      chiffrage_jh: chiffrage_jh,
+      statut: status,
+      commerciale: row.Commerciale || undefined,
+      personne_en_charge_msx: row["Personne en charge MSX"] || undefined,
+      type_projet: row["Type projet"] || undefined,
+      remarques: row.Remarques || undefined,
+      url: row.URL || undefined
+    };
   };
 
   const handleImport = async () => {
@@ -26,59 +70,28 @@ export const SalesCSVImportForm = ({ onClose }: SalesCSVImportFormProps) => {
       return;
     }
 
-    setIsLoading(true);
-
-    Papa.parse(file, {
-      header: true,
-      complete: async (results) => {
-        interface CSVRow {
-          "Nom du projet"?: string;
-          Client?: string;
-          "Date réception"?: string;
-          TJM?: string;
-          "Chiffrage JH"?: string;
-          Statut?: string;
-          Commerciale?: string;
-          "Personne en charge MSX"?: string;
-          "Type projet"?: string;
-          Remarques?: string;
-          URL?: string;
-        }
-
-        const sales: SalesOperationRequest[] = results.data.map((row: CSVRow) => ({
-          nom_du_projet: row["Nom du projet"] || "",
-          client: row.Client || "",
-          date_reception: row["Date réception"] || new Date().toISOString().split("T")[0],
-          tjm: row.TJM || undefined,
-          chiffrage_jh: row["Chiffrage JH"] || undefined,
-          statut: row.Statut as "en_cours" | "envoye" | "gagne" | "perdu" | "en_attente" || "en_cours",
-          commerciale: row.Commerciale || undefined,
-          personne_en_charge_msx: row["Personne en charge MSX"] || undefined,
-          type_projet: row["Type projet"] || undefined,
-          remarques: row.Remarques || undefined,
-          url: row.URL || undefined
-        }));
-
-        try {
-          // Create sales in batches
-          for (let i = 0; i < sales.length; i += 10) {
-            const batch = sales.slice(i, i + 10);
-            await Promise.all(batch.map(sale => salesApi.createSalesOperation(sale)));
+    try {
+      await parseCSV(file, {
+        transform: transformSalesRow,
+        onComplete: async (salesData) => {
+          try {
+            // Create sales in batches
+            for (let i = 0; i < salesData.length; i += 10) {
+              const batch = salesData.slice(i, i + 10);
+              await Promise.all(batch.map(sale => salesApi.createSalesOperation(sale)));
+            }
+            
+            toast.success(`${salesData.length} opportunités importées avec succès`);
+            onClose();
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            toast.error(`Erreur lors de l'importation: ${errorMessage}`);
           }
-          
-          toast.success(`${sales.length} opportunités importées avec succès`);
-          onClose();
-        } catch (error) {
-          toast.error(`Erreur lors de l'importation: ${error.message}`);
-        } finally {
-          setIsLoading(false);
         }
-      },
-      error: (error) => {
-        toast.error(`Erreur lors de la lecture du fichier CSV: ${error.message}`);
-        setIsLoading(false);
-      }
-    });
+      });
+    } catch (error) {
+      console.error("CSV parsing error:", error);
+    }
   };
 
   const handleDownloadTemplate = () => {

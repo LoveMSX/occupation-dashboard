@@ -1,8 +1,9 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { salesApi } from '@/services/api';
 import { analyzeSalesData, generateSalesInsights } from '@/services/ai/salesAnalyzer';
-import { AIService } from '@/services/ai/AIService';
-import { config } from '@/config';
+import { AIService } from '@/services/ai/aiService';
+import config from '@/config';
 
 export const SalesAnalysis = () => {
   const { data: sales = [] } = useQuery({
@@ -14,7 +15,7 @@ export const SalesAnalysis = () => {
 
   const aiService = new AIService({
     provider: 'openai',
-    apiKey: config.aiApiKey,
+    apiKey: config.aiApiKey || '',
     model: 'gpt-4'
   });
 

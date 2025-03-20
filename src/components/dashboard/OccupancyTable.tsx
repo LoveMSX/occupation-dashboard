@@ -28,18 +28,18 @@ const MONTHS = [
 
 // Working days per month (typical business days)
 const WORKING_DAYS = {
-  jan: 22,
-  feb: 20,
-  mar: 23,
-  apr: 21,
+  january: 22,
+  february: 20,
+  march: 23,
+  april: 21,
   may: 22,
-  jun: 21,
-  jul: 22,
-  aug: 21,
-  sep: 22,
-  oct: 23,
-  nov: 21,
-  dec: 20,
+  june: 21,
+  july: 22,
+  august: 21,
+  september: 22,
+  october: 23,
+  november: 21,
+  december: 20,
 };
 
 // Generate allocation data based on real employees
@@ -50,7 +50,7 @@ const generateEmployeeAllocations = () => {
     let totalProduction = 0;
     
     // Create 1-2 random projects for each employee
-    const projects = employee.projects.map(project => {
+    const projects = employee.projects ? employee.projects.map(project => {
       const projectAllocations: Record<string, number> = {};
       let projectTotal = 0;
       
@@ -65,18 +65,20 @@ const generateEmployeeAllocations = () => {
       });
       
       return {
-        id: project.id.toString(),
-        name: project.name,
+        id: project.id?.toString() || "0",
+        name: project.name || "Unknown Project",
         allocations: projectAllocations,
         total: projectTotal,
         percentage: Math.round((projectTotal / getTotalWorkingDays()) * 100)
       };
-    });
+    }) : [];
     
     // Calculate total production days across all projects
+    let totalProd = 0;
     projects.forEach(project => {
-      totalProduction += project.total;
+      totalProd += project.total;
     });
+    totalProduction = totalProd;
     
     // Calculate utilization rate based on total production days
     const utilizationRate = calculateUtilization(totalProduction);
@@ -139,15 +141,20 @@ export function OccupancyTable() {
     }));
   };
 
-  const getDataTable = async ()=>{
-    const result = await getOccupancyRate();
-    setDataOccupancyRate(result);
+  const getDataTable = async () => {
+    try {
+      const result = await getOccupancyRate();
+      setDataOccupancyRate(result);
+    } catch (error) {
+      console.error('Error fetching occupancy data:', error);
+      setDataOccupancyRate([]);
+    }
   }
 
-  useEffect(()=>{
-    console.log("in occuppancy table")
+  useEffect(() => {
+    console.log("in occupancy table");
     getDataTable();
-  },[]);
+  }, []);
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
@@ -186,15 +193,14 @@ export function OccupancyTable() {
             </TableHeader>
             <TableBody>
               {dataOccupancyRate?.map(employee => (
-                <>
+                <React.Fragment key={employee.employeeId.toString()}>
                   <TableRow 
-                    key={employee.employeeId} 
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => toggleEmployeeExpand(employee.employeeId.toString())}
                   >
                     <TableCell className="font-medium sticky left-0 bg-background z-10">
                       <div className="flex items-center">
-                        <div className={`mr-2 transition-transform ${expandedEmployees[employee.id] ? 'rotate-90' : ''}`}>
+                        <div className={`mr-2 transition-transform ${expandedEmployees[employee.employeeId.toString()] ? 'rotate-90' : ''}`}>
                           ▶
                         </div>
                         {employee.employee_name}
@@ -206,7 +212,7 @@ export function OccupancyTable() {
                     {MONTHS.map(month => {
                       const monthId = month.id as keyof typeof WORKING_DAYS;
                       const workingDays = WORKING_DAYS[monthId];
-                      const utilization = Math.ceil(employee[month.id]);
+                      const utilization = Math.ceil(employee[month.id as keyof OccupancyTableData] as number);
                       
                       return (
                         <TableCell 
@@ -218,7 +224,7 @@ export function OccupancyTable() {
                               utilization > 100 ? "text-danger font-medium" :
                               utilization < 70 ? "text-warning" : ""
                             )}>
-                              {employee.total}
+                              {employee[month.id as keyof OccupancyTableData]}
                             </span>
                             <div className="w-full mt-1">
                               <Progress 
@@ -238,42 +244,8 @@ export function OccupancyTable() {
                     <TableCell className="text-right font-medium">
                       {employee.total}
                     </TableCell>
-                    {/* <TableCell className="text-right">
-                      <span className={cn(
-                        employee.utilizationRate > 95 ? "text-success font-medium" :
-                        employee.utilizationRate < 80 ? "text-warning font-medium" : ""
-                      )}>
-                        {employee.utilizationRate}%
-                      </span>
-                    </TableCell> */}
                   </TableRow>
-                  
-                  {/* Project rows (shown when employee is expanded) */}
-                  {/* {expandedEmployees[employee.id] && employee.projects.map(project => (
-                    <TableRow key={`${employee.id}-${project.id}`} className="bg-muted/10">
-                      <TableCell className="pl-8 sticky left-0 bg-muted/10 z-10">
-                        <span className="font-medium">{project.name}</span>
-                        <span className="ml-2 text-xs text-muted-foreground">
-                          ({project.id})
-                        </span>
-                      </TableCell>
-                      {MONTHS.map(month => (
-                        <TableCell 
-                          key={`${employee.id}-${project.id}-${month.id}`} 
-                          className="text-center text-muted-foreground px-2"
-                        >
-                          {project.allocations[month.id as keyof typeof project.allocations] || 0}
-                        </TableCell>
-                      ))}
-                      <TableCell className="text-right text-muted-foreground">
-                        {project.total}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {project.percentage}%
-                      </TableCell>
-                    </TableRow>
-                  ))} */}
-                </>
+                </React.Fragment>
               ))}
             </TableBody>
           </Table>
@@ -283,12 +255,13 @@ export function OccupancyTable() {
   );
 }
 
+// Update this function to use dashboardApi instead of the undefined api variable
 const fetchEmployeeOccupation = async (employeeId: number) => {
   try {
-    const data = await api.getEmployeeOccupation(employeeId);
-    return data || []; // Assure qu'on retourne toujours un tableau
+    const data = await dashboardApi.getEmployeeOccupation?.(employeeId) || [];
+    return data; // Assure qu'on retourne toujours un tableau
   } catch (error) {
-    window.console.error('Error fetching employee occupation:', error);
+    console.error('Error fetching employee occupation:', error);
     return []; // Retourne un tableau vide en cas d'erreur
   }
 };

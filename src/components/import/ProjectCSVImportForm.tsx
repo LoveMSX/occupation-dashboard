@@ -1,22 +1,120 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import Papa from "papaparse";
 import { projectApi, ProjectRequest } from "@/services/api";
+import { useCsvParser } from "@/hooks/use-csv-parser";
 
 interface ProjectCSVImportFormProps {
   onClose: () => void;
 }
 
+// Define the CSV row structure
+interface ProjectCSVRow {
+  "Nom du projet"?: string;
+  Client?: string;
+  Statut?: string;
+  Catégorie?: string;
+  Localisation?: string;
+  "Date début"?: string;
+  "Date fin prévue"?: string;
+  "Date fin réelle"?: string;
+  Description?: string;
+  TJM?: string;
+  "Charge vendue"?: string;
+  CP?: string;
+  Technologie?: string;
+  Secteur?: string;
+  BU?: string;
+}
+
 export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => {
   const [file, setFile] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { parseCSV, isLoading } = useCsvParser<ProjectRequest>();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
+    }
+  };
+
+  const transformProjectRow = (row: Record<string, string>): ProjectRequest => {
+    // Sanitize numeric values
+    const tjm = row["TJM"] ? 
+      row["TJM"].toString().replace(/[^\d.,]/g, '').replace(',', '.') : "0";
+    
+    const chargeVendue = row["Charge vendue"] ? 
+      row["Charge vendue"].toString().replace(/[^\d.,]/g, '').replace(',', '.') : "0";
+    
+    return {
+      nom_projet: row["Nom du projet"] || "",
+      client: row["Client"] || "",
+      statut: row["Statut"] || "ongoing",
+      categorie_projet: row["Catégorie"] || "TMA",
+      localite: row["Localisation"] || "Local",
+      date_debut: row["Date début"] || new Date().toISOString().split("T")[0],
+      date_fin_prevu: row["Date fin prévue"] || new Date().toISOString().split("T")[0],
+      date_fin_reelle: row["Date fin réelle"] || null,
+      description_bc: row["Description"] || "",
+      tjm: tjm,
+      charge_vendu_jours: chargeVendue,
+      cp: row["CP"] || "",
+      technologie: row["Technologie"] || "",
+      secteur: row["Secteur"] || "",
+      bu: row["BU"] || "MSX"
+    };
+  };
+
+  const handleImport = async () => {
+    if (!file) {
+      toast.error("Veuillez sélectionner un fichier CSV");
+      return;
+    }
+
+    try {
+      await parseCSV(file, {
+        transform: transformProjectRow,
+        onComplete: async (projects) => {
+          try {
+            let successCount = 0;
+            let errorMessages: string[] = [];
+            
+            for (const project of projects) {
+              try {
+                // Skip projects without required fields
+                if (!project.nom_projet || !project.client) {
+                  errorMessages.push(`Projet sans nom ou client: ${project.nom_projet || "Sans nom"}`);
+                  continue;
+                }
+                
+                await projectApi.createProject(project);
+                successCount++;
+              } catch (projectError) {
+                const errorMsg = `Erreur pour "${project.nom_projet}": ${projectError instanceof Error ? projectError.message : 'Unknown error'}`;
+                console.error(errorMsg);
+                errorMessages.push(errorMsg);
+              }
+            }
+            
+            if (successCount > 0) {
+              toast.success(`${successCount} projets importés avec succès`);
+              if (errorMessages.length > 0) {
+                toast.error(`${errorMessages.length} projets n'ont pas pu être importés`);
+              }
+              onClose();
+            } else {
+              toast.error(`Aucun projet n'a pu être importé. Vérifiez les erreurs dans la console.`);
+            }
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            toast.error(`Erreur lors de l'importation: ${errorMessage}`);
+          }
+        }
+      });
+    } catch (error) {
+      console.error("CSV parsing error:", error);
     }
   };
 
@@ -46,114 +144,6 @@ export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => 
     link.href = URL.createObjectURL(blob);
     link.download = "template_projets.csv";
     link.click();
-  };
-
-  const handleImport = async () => {
-    if (!file) {
-      toast.error("Veuillez sélectionner un fichier CSV");
-      return;
-    }
-
-    setIsLoading(true);
-
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        interface CSVRow {
-          [key: string]: string;
-        }
-
-        try {
-          // Validate data before processing
-          if (!results.data || results.data.length === 0) {
-            throw new Error("Le fichier CSV ne contient pas de données valides");
-          }
-
-          const projects = [];
-          
-          // Process each row individually to avoid issues with the entire batch
-          for (const row of results.data) {
-            if (!row || typeof row !== 'object' || Object.keys(row).length === 0) {
-              continue;
-            }
-            
-            const csvRow = row as CSVRow;
-            
-            // Sanitize numeric values
-            const tjm = csvRow["TJM"] ? 
-              csvRow["TJM"].toString().replace(/[^\d.,]/g, '').replace(',', '.') : "0";
-            
-            const chargeVendue = csvRow["Charge vendue"] ? 
-              csvRow["Charge vendue"].toString().replace(/[^\d.,]/g, '').replace(',', '.') : "0";
-            
-            // Create a clean project object with only the necessary fields
-            const project = {
-              nom_projet: csvRow["Nom du projet"] || "",
-              client: csvRow["Client"] || "",
-              statut: csvRow["Statut"] || "ongoing",
-              categorie_projet: csvRow["Catégorie"] || "TMA",
-              localite: csvRow["Localisation"] || "Local",
-              date_debut: csvRow["Date début"] || new Date().toISOString().split("T")[0],
-              date_fin_prevu: csvRow["Date fin prévue"] || new Date().toISOString().split("T")[0],
-              date_fin_reelle: csvRow["Date fin réelle"] || null,
-              description_bc: csvRow["Description"] || "",
-              tjm: tjm,
-              charge_vendu_jours: chargeVendue,
-              cp: csvRow["CP"] || "",
-              technologie: csvRow["Technologie"] || "",
-              secteur: csvRow["Secteur"] || "",
-              bu: csvRow["BU"] || "MSX"
-            };
-            
-            projects.push(project);
-          }
-
-          if (projects.length === 0) {
-            throw new Error("Aucun projet valide n'a été trouvé dans le fichier CSV");
-          }
-
-          // Create projects one by one
-          let successCount = 0;
-          let errorMessages = [];
-          
-          for (const project of projects) {
-            try {
-              // Skip projects without required fields
-              if (!project.nom_projet || !project.client) {
-                errorMessages.push(`Projet sans nom ou client: ${project.nom_projet || "Sans nom"}`);
-                continue;
-              }
-              
-              await projectApi.createProject(project);
-              successCount++;
-            } catch (projectError) {
-              const errorMsg = `Erreur pour "${project.nom_projet}": ${projectError.message}`;
-              console.error(errorMsg);
-              errorMessages.push(errorMsg);
-            }
-          }
-          
-          if (successCount > 0) {
-            toast.success(`${successCount} projets importés avec succès`);
-            if (errorMessages.length > 0) {
-              toast.error(`${errorMessages.length} projets n'ont pas pu être importés`);
-            }
-            onClose();
-          } else {
-            toast.error(`Aucun projet n'a pu être importé. Vérifiez les erreurs dans la console.`);
-          }
-        } catch (error) {
-          toast.error(`Erreur lors de l'importation: ${error.message || "Erreur inconnue"}`);
-        } finally {
-          setIsLoading(false);
-        }
-      },
-      error: (error) => {
-        toast.error(`Erreur lors de la lecture du fichier CSV: ${error.message}`);
-        setIsLoading(false);
-      }
-    });
   };
 
   return (

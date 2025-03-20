@@ -11,5 +11,13 @@
   "ai.providers": "Fournisseurs IA",
   "ai.history": "Historique des conversations",
   "ai.clear": "Effacer l'historique",
-  "ai.prompt": "Posez-moi n'importe quelle question sur vos données..."
+  "ai.prompt": "Posez-moi n'importe quelle question sur vos données...",
+  "ai.send": "Envoyer",
+  "ai.test": "Tester la connexion",
+  "ai.save": "Enregistrer & Tester",
+  "ai.model": "Modèle",
+  "ai.apiKey": "Clé API",
+  "ai.provider": "Fournisseur",
+  "ai.configured": "Configuré",
+  "ai.notConfigured": "Non configuré"
 }

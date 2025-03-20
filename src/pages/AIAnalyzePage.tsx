@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,15 +32,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import StructuredMessage, {
-  type ChartData,
-  type TableData
-} from '@/components/StructuredMessage';
+import StructuredMessage from '@/components/StructuredMessage';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from "@/components/ui/spinner";
 import ChatMessage from '@/components/ChatMessage';
-import { useTranslation } from '@/components/LanguageProvider';
+import { useLanguage } from '@/components/LanguageProvider';
 
 interface Message {
   text: string;
@@ -157,7 +155,7 @@ const PROVIDER_MODELS = {
 const API_URL = config.apiUrl;
 
 const AIAnalyzePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, language } = useLanguage();
   const [config, setConfig] = useState<Config>(DEFAULT_CONFIG);
   const [isConfigured, setIsConfigured] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -835,4 +833,3 @@ const AIAnalyzePage: React.FC = () => {
 };
 
 export default AIAnalyzePage;
-

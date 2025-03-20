@@ -11,5 +11,13 @@
   "ai.providers": "AI Providers",
   "ai.history": "Chat History",
   "ai.clear": "Clear History",
-  "ai.prompt": "Ask me anything about your data..."
+  "ai.prompt": "Ask me anything about your data...",
+  "ai.send": "Send",
+  "ai.test": "Test Connection",
+  "ai.save": "Save & Test",
+  "ai.model": "Model",
+  "ai.apiKey": "API Key",
+  "ai.provider": "Provider",
+  "ai.configured": "Configured",
+  "ai.notConfigured": "Not Configured"
 }

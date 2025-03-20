@@ -1,3 +1,4 @@
+
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -5,10 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/components/LanguageProvider";
-import { GSheetSync } from "@/components/import/GSheetSync";
 import Index from "./pages/Index";
 import EmployeesPage from "./pages/EmployeesPage";
-import ProjectsPage from "./pages/ProjectsPage";
 import ProjectsPageWrapper from "./pages/ProjectsPageWrapper";
 import ImportPage from "./pages/ImportPage";
 import SettingsPage from "./pages/SettingsPage";

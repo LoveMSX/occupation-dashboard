@@ -1,180 +1,199 @@
-import { SalesOperationResponse } from "@/services/api";
 
-interface SalesAnalysis {
-  totalOpportunities: number;
-  wonOpportunities: number;
-  successRate: number;
-  averageTJM: number;
-  topCommercials: Array<{ name: string; wonDeals: number }>;
+import { SalesOperationResponse } from '@/services/api';
+
+export interface SalesAnalysis {
+  totalOppCount: number;
+  totalAmount: number;
+  avgTJM: number;
+  avgJH: number;
+  statusDistribution: Record<string, number>;
+  topClients: { name: string; count: number }[];
+  monthlyTrends: { month: string; count: number; amount: number }[];
+  performance: string;
 }
 
 export const analyzeSalesData = (sales: SalesOperationResponse[]): SalesAnalysis => {
   if (!sales || sales.length === 0) {
     return {
-      totalOpportunities: 0,
-      wonOpportunities: 0,
-      successRate: 0,
-      averageTJM: 0,
-      topCommercials: [],
+      totalOppCount: 0,
+      totalAmount: 0,
+      avgTJM: 0,
+      avgJH: 0,
+      statusDistribution: {},
+      topClients: [],
+      monthlyTrends: [],
+      performance: 'No data available'
     };
   }
 
-  // Compter les opportunités gagnées (statut === "gagne")
-  const wonOpportunities = sales.filter(sale => sale.statut === "gagne").length;
+  // Analyze total opportunities and amounts
+  const totalOppCount = sales.length;
+  let totalAmount = 0;
+  let totalTJM = 0;
+  let totalJH = 0;
+  const statusCount: Record<string, number> = {};
+  const clientCount: Record<string, number> = {};
+  const monthlyData: Record<string, { count: number; amount: number }> = {};
 
-  // Calculer le taux de succès
-  const successRate = (wonOpportunities / sales.length) * 100;
+  sales.forEach(sale => {
+    const amount = (sale.tjm || 0) * (sale.chiffrage_jh || 0);
+    totalAmount += amount;
+    totalTJM += sale.tjm || 0;
+    totalJH += sale.chiffrage_jh || 0;
 
-  // Calculer le TJM moyen
-  const averageTJM = sales.reduce((acc, sale) => acc + (sale.tjm || 0), 0) / sales.length;
+    // Count by status
+    const status = sale.statut;
+    statusCount[status] = (statusCount[status] || 0) + 1;
 
-  // Analyser les performances par commercial
-  const commercialPerformance = sales.reduce((acc, sale) => {
-    if (sale.commerciale) {
-      if (!acc[sale.commerciale]) {
-        acc[sale.commerciale] = { total: 0, won: 0 };
-      }
-      acc[sale.commerciale].total += 1;
-      if (sale.statut === "gagne") {
-        acc[sale.commerciale].won += 1;
-      }
+    // Count by client
+    const client = sale.client;
+    clientCount[client] = (clientCount[client] || 0) + 1;
+
+    // Group by month
+    const date = new Date(sale.date_reception);
+    const monthYear = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+    if (!monthlyData[monthYear]) {
+      monthlyData[monthYear] = { count: 0, amount: 0 };
     }
-    return acc;
-  }, {} as Record<string, { total: number; won: number }>);
+    monthlyData[monthYear].count += 1;
+    monthlyData[monthYear].amount += amount;
+  });
 
-  // Trier les commerciaux par nombre d'opportunités gagnées
-  const topCommercials = Object.entries(commercialPerformance)
-    .map(([name, stats]) => ({
-      name,
-      wonDeals: stats.won,
+  // Calculate averages
+  const avgTJM = totalTJM / totalOppCount;
+  const avgJH = totalJH / totalOppCount;
+
+  // Transform data for response
+  const topClients = Object.entries(clientCount)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  const monthlyTrends = Object.entries(monthlyData)
+    .map(([month, data]) => ({
+      month,
+      count: data.count,
+      amount: data.amount
     }))
-    .sort((a, b) => b.wonDeals - a.wonDeals)
-    .slice(0, 5); // Top 5 commerciaux
+    .sort((a, b) => a.month.localeCompare(b.month));
 
-  return {
-    totalOpportunities: sales.length,
-    wonOpportunities,
-    successRate: Math.round(successRate * 100) / 100, // Arrondir à 2 décimales
-    averageTJM: Math.round(averageTJM),
-    topCommercials,
+  // Evaluate performance
+  const wonOpportunities = statusCount['gagne'] || 0;
+  const winRate = totalOppCount > 0 ? (wonOpportunities / totalOppCount) * 100 : 0;
+  
+  let performance = '';
+  if (winRate >= 70) {
+    performance = 'Excellent';
+  } else if (winRate >= 50) {
+    performance = 'Good';
+  } else if (winRate >= 30) {
+    performance = 'Average';
+  } else {
+    performance = 'Needs improvement';
+  }
+
+  const stats = {
+    totalOppCount,
+    totalAmount,
+    avgTJM,
+    avgJH,
+    statusDistribution: statusCount,
+    topClients,
+    monthlyTrends,
+    performance
   };
+
+  return stats as SalesAnalysis;
 };
 
-interface FormatConfig {
-  title: string;
-  emoji: string;
-  fields: Array<{
-    label: string;
-    value: number | string;
-    format?: 'number' | 'currency' | 'percent' | 'text';
-    emoji?: string;
-  }>;
-  subSections?: Array<{
-    title: string;
-    emoji: string;
-    items: Array<{
-      label: string;
-      value: number | string;
-      format?: 'number' | 'currency' | 'percent' | 'text';
-      badge?: string;
-    }>;
-  }>;
-}
+export const generateSalesInsights = (analysis: SalesAnalysis): string => {
+  if (analysis.totalOppCount === 0) {
+    return 'No sales data available for analysis.';
+  }
 
-export const formatAPIResponse = (config: FormatConfig): string => {
-  const formatNumber = (num: number) => new Intl.NumberFormat('fr-FR').format(num);
-  const formatCurrency = (num: number) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(num);
-  const formatPercent = (num: number) => new Intl.NumberFormat('fr-FR', { style: 'percent', minimumFractionDigits: 1 }).format(num / 100);
+  // Format numbers for display
+  const formatCurrency = (value: number) => 
+    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
 
-  const formatValue = (value: number | string, format?: string) => {
-    if (typeof value === 'number') {
-      switch (format) {
-        case 'currency': return formatCurrency(value);
-        case 'percent': return formatPercent(value);
-        case 'number': return formatNumber(value);
-        default: return value.toString();
-      }
-    }
-    return value;
-  };
+  const formatNumber = (value: number) => 
+    new Intl.NumberFormat('fr-FR').format(Math.round(value * 100) / 100);
 
-  const header = `${config.emoji} ${config.title}`;
-  const separator = '─'.repeat(50);
-
-  const mainStats = config.fields
-    .map(field => `${field.emoji || ''} ${field.label.padEnd(25)}: ${formatValue(field.value, field.format)}`)
+  // Generate status breakdown text
+  const statusText = Object.entries(analysis.statusDistribution)
+    .map(([status, count]) => {
+      const percentage = (count / analysis.totalOppCount) * 100;
+      return `- ${status}: ${count} (${percentage.toFixed(1)}%)`;
+    })
     .join('\n');
 
-  const sections = config.subSections?.map(section => {
-    const sectionHeader = `\n${section.emoji} ${section.title}`;
-    const items = section.items
-      .map((item, index) => {
-        const badge = item.badge || '';
-        return `${badge} ${item.label.padEnd(20)} : ${formatValue(item.value, item.format)}`;
-      })
-      .join('\n');
-    return [sectionHeader, separator, items].join('\n');
-  }).join('\n') || '';
+  // Generate client breakdown text
+  const clientsText = analysis.topClients
+    .map(client => `- ${client.name}: ${client.count} opportunités`)
+    .join('\n');
 
-  return [header, separator, mainStats, sections].join('\n');
+  // Generate insights
+  return `
+ANALYSE DES VENTES
+
+Aperçu général
+--------------
+Nombre total d'opportunités: ${analysis.totalOppCount}
+Valeur totale: ${formatCurrency(analysis.totalAmount)}
+TJM moyen: ${formatCurrency(analysis.avgTJM)}
+Charge moyenne (JH): ${formatNumber(analysis.avgJH)}
+
+Répartition par statut
+---------------------
+${statusText}
+
+Principaux clients
+----------------
+${clientsText}
+
+Performance globale
+----------------
+${analysis.performance}
+
+Recommandations
+--------------
+${getRecommendations(analysis)}
+`;
 };
 
-// Example usage for sales analysis
-export const generateSalesInsights = (analysis: SalesAnalysis): string => {
-  return formatAPIResponse({
-    title: 'Analyse des Opportunités Commerciales',
-    emoji: '📊',
-    fields: [
-      { label: 'Total des opportunités', value: analysis.totalOpportunities, format: 'number', emoji: '📈' },
-      { label: 'Opportunités gagnées', value: analysis.wonOpportunities, format: 'number', emoji: '✅' },
-      { label: 'Taux de succès', value: analysis.successRate, format: 'percent', emoji: '🎯' },
-      { label: 'TJM moyen', value: analysis.averageTJM, format: 'currency', emoji: '💰' }
-    ],
-    subSections: [{
-      title: 'Top Commerciaux',
-      emoji: '🏆',
-      items: analysis.topCommercials.map((commercial, index) => ({
-        label: commercial.name,
-        value: commercial.wonDeals,
-        format: 'number',
-        badge: index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  '
-      }))
-    }]
-  });
-};
+function getRecommendations(analysis: SalesAnalysis): string {
+  const recommendations = [];
 
-export const formatProjectsList = (projects: Array<{ id: number; client: string; name?: string; status?: string }>): string => {
-  const header = '📋 Liste des Projets';
-  const separator = '─'.repeat(50);
-
-  const projectsList = projects.map((project, index) => {
-    const projectNumber = (index + 1).toString().padStart(2, '0');
-    const clientInfo = `${project.client}${project.name ? ` - ${project.name}` : ''}`;
-    const statusEmoji = project.status ? getStatusEmoji(project.status) : '🔵';
-    
-    return `${projectNumber}. ${statusEmoji} ${clientInfo}`;
-  }).join('\n');
-
-  return [
-    header,
-    separator,
-    projectsList,
-    separator,
-    `Total: ${projects.length} projets`
-  ].join('\n');
-};
-
-const getStatusEmoji = (status: string): string => {
-  const statusMap: Record<string, string> = {
-    'ongoing': '🟢',
-    'completed': '✅',
-    'planned': '🟡',
-    'standby': '🟠',
-    'en cours': '🟢',
-    'terminé': '✅',
-    'planifié': '🟡',
-    'en attente': '🟠'
-  };
-  return statusMap[status.toLowerCase()] || '🔵';
-};
-
+  // Win rate based recommendations
+  const totalOpps = analysis.totalOppCount;
+  const wonOpps = analysis.statusDistribution['gagne'] || 0;
+  const pendingOpps = analysis.statusDistribution['en_cours'] || 0;
+  const lostOpps = analysis.statusDistribution['perdu'] || 0;
+  
+  const winRate = totalOpps > 0 ? (wonOpps / totalOpps) * 100 : 0;
+  
+  if (winRate < 30) {
+    recommendations.push("- Examiner les raisons des échecs commerciaux pour améliorer le taux de réussite.");
+  }
+  
+  if (pendingOpps > totalOpps * 0.5) {
+    recommendations.push("- Accélérer le suivi des opportunités en cours pour éviter les délais trop longs.");
+  }
+  
+  // TJM-based recommendations
+  if (analysis.avgTJM < 600) {
+    recommendations.push("- Envisager une stratégie de valorisation des prestations pour augmenter le TJM moyen.");
+  }
+  
+  // Client concentration recommendations
+  if (analysis.topClients.length > 0 && analysis.topClients[0].count > totalOpps * 0.3) {
+    recommendations.push("- Diversifier le portefeuille client pour réduire la dépendance au client principal.");
+  }
+  
+  // Add general recommendations if specific ones are insufficient
+  if (recommendations.length < 2) {
+    recommendations.push("- Maintenir un suivi régulier des opportunités commerciales.");
+    recommendations.push("- Analyser les facteurs de succès des projets gagnés pour les reproduire.");
+  }
+  
+  return recommendations.join('\n');
+}

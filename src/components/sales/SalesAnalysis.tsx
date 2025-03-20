@@ -15,11 +15,11 @@ export const SalesAnalysis = () => {
 
   const aiService = new AIService({
     provider: 'openai',
-    apiKey: config.aiApiKey || '', // Using config.aiApiKey instead of config.aiApiKey
+    apiKey: config.aiApiKey || '', // Using config.aiApiKey
     model: 'gpt-4'
   });
 
-  const analysis = analyzeSalesData(sales);
+  const analysis = analyzeSalesData(sales as any[]);
   const insights = generateSalesInsights(analysis);
 
   return (

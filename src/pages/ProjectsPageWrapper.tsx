@@ -1,3 +1,5 @@
+
+import React from 'react';
 import ProjectsPage from "./ProjectsPage";
 
 // Create a function to reset console.log to its original state

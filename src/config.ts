@@ -1,61 +1,44 @@
 
-type Environment = 'development' | 'staging' | 'production';
+// Different configurations based on environment
+interface Config {
+  apiUrl: string;
+  debug: boolean;
+  appName: string;
+  apiTimeout: number;
+  env: 'development' | 'staging' | 'production';
+  aiApiKey?: string; // Optional AI API key
+}
 
-// Determine the environment based on the URL or env var
-const determineEnvironment = (): Environment => {
-  if (import.meta.env.VITE_APP_ENV) {
-    return import.meta.env.VITE_APP_ENV as Environment;
-  }
-  
-  const hostname = window.location.hostname;
-  if (hostname.includes('staging')) {
-    return 'staging';
-  } else if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
-    return 'development';
-  } else {
-    return 'production';
-  }
-};
-
-// Configuration based on environment
-const environments = {
+// Define the different configs
+const configs = {
   development: {
-    apiUrl: "http://localhost:3000/api",
+    apiUrl: 'http://localhost:3000/api',
     debug: true,
+    appName: 'Employee Manager',
+    apiTimeout: 30000,
+    env: 'development' as const,
+    aiApiKey: process.env.VITE_AI_API_KEY || 'sk-demo-key'
   },
   staging: {
-    apiUrl: "https://staging.example.com/api",
+    apiUrl: 'https://staging.example.com/api',
     debug: true,
+    appName: 'Employee Manager',
+    apiTimeout: 30000,
+    env: 'staging' as const,
+    aiApiKey: process.env.VITE_AI_API_KEY
   },
   production: {
-    apiUrl: "https://api.example.com/api",
+    apiUrl: 'https://api.example.com/api',
     debug: false,
+    appName: 'Employee Manager',
+    apiTimeout: 30000,
+    env: 'production' as const,
+    aiApiKey: process.env.VITE_AI_API_KEY
   }
 };
 
-// App-wide configuration
-const appConfig = {
-  appName: "Employee Manager",
-  apiTimeout: 30000,
-};
-
-// Additional configuration including AI API key
-const additionalConfig = {
-  aiApiKey: import.meta.env.VITE_OPENAI_API_KEY || "",
-  aiModels: {
-    default: "gpt-3.5-turbo",
-    advanced: "gpt-4",
-    vision: "gpt-4-vision-preview"
-  }
-};
-
-// Combine configurations
-const env = determineEnvironment();
-const config = {
-  ...environments[env],
-  ...appConfig,
-  ...additionalConfig,
-  env
-};
+// Determine which config to use
+const env = process.env.NODE_ENV || 'development';
+const config: Config = configs[env as keyof typeof configs] || configs.development;
 
 export default config;

@@ -119,35 +119,28 @@ const calculateUtilization = (total: number) => {
   return Math.round((total / allWorkingDays) * 100);
 };
 
-// Generate employee allocation data
+// Define the data structure for occupancy table
 export interface OccupancyTableData {
   employeeId: number;
   employee_name: string;
-  january: number,
-  february: number,
-  march: number,
-  april: number,
-  may: number,
-  june: number,
-  july: number,
-  august: number,
-  september: number,
-  october: number,
-  november: number,
-  december: number,
-  total: number
+  january: number;
+  february: number;
+  march: number;
+  april: number;
+  may: number;
+  june: number;
+  july: number;
+  august: number;
+  september: number;
+  october: number;
+  november: number;
+  december: number;
+  total: number;
 }
 
-const employeeData = generateEmployeeAllocations();
-
 export function OccupancyTable() {
-
   const { language, t } = useLanguage();
-
-  const { getOccupancyRate } = dashboardApi;
-
-  const [ dataOccupancyRate, setDataOccupancyRate ] = React.useState<OccupancyTableData[]>([]);
-  
+  const [dataOccupancyRate, setDataOccupancyRate] = React.useState<OccupancyTableData[]>([]);
   const [expandedEmployees, setExpandedEmployees] = React.useState<Record<string, boolean>>({});
 
   const toggleEmployeeExpand = (employeeId: string) => {
@@ -159,7 +152,7 @@ export function OccupancyTable() {
 
   const getDataTable = async () => {
     try {
-      const result = await getOccupancyRate();
+      const result = await dashboardApi.getOccupancyRate();
       setDataOccupancyRate(result);
     } catch (error) {
       console.error('Error fetching occupancy data:', error);
@@ -204,7 +197,6 @@ export function OccupancyTable() {
                   </TableHead>
                 ))}
                 <TableHead className="text-right">Total</TableHead>
-                {/* <TableHead className="text-right">%</TableHead> */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -271,11 +263,10 @@ export function OccupancyTable() {
   );
 }
 
-// Updated function to use dashboardApi instead of the undefined api variable
+// Function to fetch employee occupation
 const fetchEmployeeOccupation = async (employeeId: number) => {
   try {
-    // Using optional chaining and providing a fallback empty array
-    const data = await dashboardApi.getEmployeeOccupation?.(employeeId) || [];
+    const data = await dashboardApi.getEmployeeOccupation(employeeId) || [];
     return data;
   } catch (error) {
     console.error('Error fetching employee occupation:', error);

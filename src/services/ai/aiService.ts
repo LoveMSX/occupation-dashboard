@@ -1,7 +1,53 @@
-
 import axios from 'axios';
 import config from '@/config';
-import { AIConfig, AIResponse, ChartData, TableData } from '@/types/ai-service';
+
+export interface AIConfig {
+  provider: "openai" | "anthropic" | "gemini" | "mistral" | "deepseek" | "ollama" | "huggingface" | "openrouter";
+  apiKey: string;
+  model: string;
+  endpoint?: string;
+}
+
+export interface AIResponse {
+  text: string;
+  structured?: {
+    title?: string;
+    sections: Array<TextSection | ChartSection | TableSection>;
+  };
+}
+
+interface TextSection {
+  type: 'text';
+  content: string;
+  title?: string;
+}
+
+interface ChartSection {
+  type: 'chart';
+  content: ChartData;
+  title?: string;
+}
+
+interface TableSection {
+  type: 'table';
+  content: TableData;
+  title?: string;
+}
+
+export interface ChartData {
+  type: 'bar' | 'line' | 'pie' | 'doughnut';
+  labels: string[];
+  datasets: {
+    label?: string;
+    data: number[];
+    backgroundColor?: string | string[];
+  }[];
+}
+
+export interface TableData {
+  headers: string[];
+  rows: (string | number)[][];
+}
 
 export class AIService {
   private apiKey: string;
@@ -433,3 +479,37 @@ export class AIService {
     }
   }
 }
+
+export const generateProjectAnalysis = async (
+  data: string, 
+  analysisType: string = 'summary'
+): Promise<AIResponse> => {
+  try {
+    // Simple implementation that returns a mock response
+    return {
+      text: `Analysis of project data (${analysisType}): ${data.substring(0, 100)}...`,
+      structured: {
+        sections: [
+          {
+            type: 'text',
+            content: `This is a project analysis in ${analysisType} format.`,
+            title: 'Project Analysis'
+          }
+        ]
+      }
+    };
+  } catch (error) {
+    console.error('Error generating project analysis:', error);
+    return {
+      text: `Error generating analysis: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      structured: {
+        sections: [
+          {
+            type: 'text',
+            content: `Error generating analysis: ${error instanceof Error ? error.message : 'Unknown error'}`
+          }
+        ]
+      }
+    };
+  }
+};

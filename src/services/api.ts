@@ -1,7 +1,5 @@
-
 import axios from 'axios';
 import config from '@/config';
-import 'axios'; // Import axios types
 
 // Create a standard API client
 const API_URL = config.apiUrl;
@@ -18,8 +16,8 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Check if the error is an Axios error
-    if (axios.isAxiosError(error)) {
+    // Check if the error is from axios
+    if (error && error.response) {
       console.error('API Error Response:', error.response?.data);
       console.error('Status:', error.response?.status);
     } else {

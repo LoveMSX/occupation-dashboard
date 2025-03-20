@@ -1,197 +1,178 @@
-import React, { useState, useEffect } from "react";
-import { projectApi } from "@/services/api";
-import { useQuery } from "@tanstack/react-query";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { ProjectCard } from "@/components/projects/ProjectCard";
-import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Search, Filter } from "lucide-react";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { projectApi } from '@/services/api';
+import { useNavigate } from 'react-router-dom';
+import { ProjectCard } from '@/components/projects/ProjectCard';
+import { toast } from 'sonner';
+import { ProjectData } from '@/types/project';
 
-const handleSyncProjects = async (spreadsheetId: string) => {
-  console.log("Would sync projects from spreadsheet:", spreadsheetId);
-  // Use a mock promise to simulate API call
-  return Promise.resolve({ success: true });
-};
+export default function ProjectsPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [activeTab, setActiveTab] = useState('all');
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-function ProjectsPage() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [activeTab, setActiveTab] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  
-  const { data: projects = [], isLoading, error, refetch } = useQuery({
+  const { data: projects, isLoading, isError } = useQuery({
     queryKey: ['projects'],
-    queryFn: projectApi.getAllProjects,
+    queryFn: projectApi.getAllProjects
   });
 
   const handleDeleteProject = async (id: number) => {
     try {
       await projectApi.deleteProject(id);
-      toast.success("Project deleted successfully");
-      refetch();
+      toast.success('Projet supprimé avec succès');
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
     } catch (error) {
-      toast.error("Failed to delete project");
+      toast.error('Erreur lors de la suppression du projet');
+      console.error('Error deleting project:', error);
     }
   };
 
-  const filteredProjects = projects.filter((project: any) => {
-    const statusMatch = 
-      activeTab === "all" || 
-      (activeTab === "active" && project.status === "ongoing") ||
-      (activeTab === "completed" && project.status === "completed") ||
-      (activeTab === "planned" && project.status === "planned") ||
-      (activeTab === "standby" && project.status === "standby");
+  const filteredProjects = Array.isArray(projects) 
+    ? projects.filter(project => {
+      const matchesSearch = project.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           project.client?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      if (activeTab === 'all') return matchesSearch;
+      return matchesSearch && project.status?.toLowerCase() === activeTab.toLowerCase();
+    })
+    : [];
 
-    const searchMatch = 
-      searchQuery === "" ||
-      project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      project.client.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return statusMatch && searchMatch;
-  });
+  // Group projects by status
+  const activeProjects = filteredProjects.filter(p => p.status?.toLowerCase() === 'active' || p.status?.toLowerCase() === 'en cours');
+  const completedProjects = filteredProjects.filter(p => p.status?.toLowerCase() === 'completed' || p.status?.toLowerCase() === 'terminé');
+  const plannedProjects = filteredProjects.filter(p => p.status?.toLowerCase() === 'planned' || p.status?.toLowerCase() === 'planifié');
+  const onHoldProjects = filteredProjects.filter(p => p.status?.toLowerCase() === 'on hold' || p.status?.toLowerCase() === 'en pause');
+  const cancelledProjects = filteredProjects.filter(p => p.status?.toLowerCase() === 'cancelled' || p.status?.toLowerCase() === 'annulé');
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Projects</h1>
-        <div className="flex space-x-4">
-          <Button>New Project</Button>
-          <Button variant="outline">Import</Button>
-        </div>
+    <div className="flex h-screen bg-background">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Projets</h1>
+            <div className="flex space-x-2">
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Filtres
+              </Button>
+              <Button onClick={() => navigate('/projects/create')}>
+                <Plus className="h-4 w-4 mr-2" />
+                Nouveau Projet
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Rechercher des projets..."
+                className="pl-8 w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center space-x-4">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+              >
+                Grid
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                Liste
+              </Button>
+            </div>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-6">
+              <TabsTrigger value="all">
+                Tous <Badge className="ml-2">{filteredProjects.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="active">
+                En cours <Badge className="ml-2">{activeProjects.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="completed">
+                Terminés <Badge className="ml-2">{completedProjects.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="planned">
+                Planifiés <Badge className="ml-2">{plannedProjects.length}</Badge>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredProjects.map(project => (
+                <ProjectCard 
+                  key={project.id} 
+                  project={project as unknown as ProjectData} 
+                  viewMode={viewMode}
+                  onDelete={() => handleDeleteProject(project.id)}
+                />
+              ))}
+            </TabsContent>
+
+            <TabsContent value="active" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {activeProjects.map(project => (
+                <ProjectCard 
+                  key={project.id} 
+                  project={project as unknown as ProjectData} 
+                  viewMode={viewMode}
+                  onDelete={() => handleDeleteProject(project.id)}
+                />
+              ))}
+            </TabsContent>
+
+            <TabsContent value="completed" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {completedProjects.map(project => (
+                <ProjectCard 
+                  key={project.id} 
+                  project={project as unknown as ProjectData} 
+                  viewMode={viewMode}
+                  onDelete={() => handleDeleteProject(project.id)}
+                />
+              ))}
+            </TabsContent>
+
+            <TabsContent value="planned" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {plannedProjects.map(project => (
+                <ProjectCard 
+                  key={project.id} 
+                  project={project as unknown as ProjectData} 
+                  viewMode={viewMode}
+                  onDelete={() => handleDeleteProject(project.id)}
+                />
+              ))}
+            </TabsContent>
+
+            <TabsContent value="on-hold" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {onHoldProjects.map(project => (
+                <ProjectCard 
+                  key={project.id} 
+                  project={project as unknown as ProjectData} 
+                  viewMode={viewMode}
+                  onDelete={() => handleDeleteProject(project.id)}
+                />
+              ))}
+            </TabsContent>
+          </Tabs>
+        </main>
       </div>
-
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="md:w-3/4">
-          <input
-            type="text"
-            placeholder="Search projects..."
-            className="w-full rounded-md border border-input px-4 py-2"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div className="md:w-1/4 flex justify-end">
-          <Button variant="outline" size="sm" onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}>
-            {viewMode === "grid" ? "List View" : "Grid View"}
-          </Button>
-        </div>
-      </div>
-
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-          <TabsTrigger value="planned">Planned</TabsTrigger>
-          <TabsTrigger value="standby">On Hold</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="all" className="mt-0">
-          {isLoading ? (
-            <div className="text-center py-8">Loading projects...</div>
-          ) : error ? (
-            <div className="text-center py-8 text-destructive">Error loading projects.</div>
-          ) : filteredProjects.length === 0 ? (
-            <div className="text-center py-8">No projects found.</div>
-          ) : (
-            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-              {filteredProjects.map((project: any) => (
-                <ProjectCard 
-                  key={project.id} 
-                  project={project} 
-                  viewMode={viewMode} 
-                  onDelete={() => handleDeleteProject(project.id)}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="active" className="mt-0">
-          {isLoading ? (
-            <div className="text-center py-8">Loading projects...</div>
-          ) : error ? (
-            <div className="text-center py-8 text-destructive">Error loading projects.</div>
-          ) : filteredProjects.length === 0 ? (
-            <div className="text-center py-8">No projects found.</div>
-          ) : (
-            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-              {filteredProjects.filter((project: any) => project.status === "ongoing").map((project: any) => (
-                <ProjectCard 
-                  key={project.id} 
-                  project={project} 
-                  viewMode={viewMode} 
-                  onDelete={() => handleDeleteProject(project.id)}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="completed" className="mt-0">
-          {isLoading ? (
-            <div className="text-center py-8">Loading projects...</div>
-          ) : error ? (
-            <div className="text-center py-8 text-destructive">Error loading projects.</div>
-          ) : filteredProjects.length === 0 ? (
-            <div className="text-center py-8">No projects found.</div>
-          ) : (
-            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-              {filteredProjects.filter((project: any) => project.status === "completed").map((project: any) => (
-                <ProjectCard 
-                  key={project.id} 
-                  project={project} 
-                  viewMode={viewMode} 
-                  onDelete={() => handleDeleteProject(project.id)}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="planned" className="mt-0">
-          {isLoading ? (
-            <div className="text-center py-8">Loading projects...</div>
-          ) : error ? (
-            <div className="text-center py-8 text-destructive">Error loading projects.</div>
-          ) : filteredProjects.length === 0 ? (
-            <div className="text-center py-8">No projects found.</div>
-          ) : (
-            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-              {filteredProjects.filter((project: any) => project.status === "planned").map((project: any) => (
-                <ProjectCard 
-                  key={project.id} 
-                  project={project} 
-                  viewMode={viewMode} 
-                  onDelete={() => handleDeleteProject(project.id)}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="standby" className="mt-0">
-          {isLoading ? (
-            <div className="text-center py-8">Loading projects...</div>
-          ) : error ? (
-            <div className="text-center py-8 text-destructive">Error loading projects.</div>
-          ) : filteredProjects.length === 0 ? (
-            <div className="text-center py-8">No projects found.</div>
-          ) : (
-            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-              {filteredProjects.filter((project: any) => project.status === "standby").map((project: any) => (
-                <ProjectCard 
-                  key={project.id} 
-                  project={project} 
-                  viewMode={viewMode} 
-                  onDelete={() => handleDeleteProject(project.id)}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }
-
-export default ProjectsPage;

@@ -139,7 +139,9 @@ export function EmployeeCard({
   // Fonction pour obtenir le nom du projet
   const getProjectName = (projectId: number) => {
     if (!projects) return "N/A";
-    const project = projects.find((p) => p.id === projectId);
+    const project = Array.isArray(projects) 
+      ? projects.find(p => p.id === projectId) 
+      : null;
     return project?.name || "N/A";
   };
 
@@ -149,7 +151,7 @@ export function EmployeeCard({
     
     return (
       occupationData
-        .filter((o) => o.employee_id === employee.id)
+        .filter(o => o.employee_id === employee.id)
         .reduce((sum, o) => sum + (Number(o[month.toLowerCase()]) || 0), 0) || 0
     );
   };

@@ -347,7 +347,7 @@ const SalesPage = () => {
                 />
               </div>
             )}
-</div>
+          </div>
           {/* Barre de recherche et filtres */}
           <div className="flex gap-4 mb-6">
             <div className="flex-1">
@@ -417,7 +417,7 @@ const SalesPage = () => {
                         <TableCell>{opp.tjm} €</TableCell>
                         <TableCell>{opp.chiffrage_jh}</TableCell>
                         <TableCell>{getStatusBadge(opp.statut)}</TableCell>
-                        <TableCell>{opp.commerciale}</TableCell>
+                        <TableCell>{opp.commercial}</TableCell>
                         <TableCell>{opp.personne_en_charge_msx}</TableCell>
                         <TableCell>{opp.type_projet}</TableCell>
                         <TableCell>

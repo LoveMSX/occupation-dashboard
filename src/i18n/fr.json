@@ -1,6 +1,15 @@
+
 {
   "skills": "Compétences",
   "skills.summary": "Résumé des compétences",
   "resources": "ressources",
-  "count": "Nombre"
+  "count": "Nombre",
+  "ai": "Intelligence Artificielle",
+  "ai.analyze": "Analyse IA",
+  "ai.assistant": "Assistant IA",
+  "ai.configuration": "Configuration IA",
+  "ai.providers": "Fournisseurs IA",
+  "ai.history": "Historique des conversations",
+  "ai.clear": "Effacer l'historique",
+  "ai.prompt": "Posez-moi n'importe quelle question sur vos données..."
 }

@@ -18,7 +18,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Settings, Eye, EyeOff, Brain, Send } from "lucide-react";
+import { ChevronDown, ChevronUp, Settings, Eye, EyeOff, Brain, Send, Trash2, Bot, Sparkles } from "lucide-react";
 import { AIService, AIConfig, APIContext } from "@/services/ai/aiService";
 import { Badge } from "@/components/ui/badge";
 import config from "@/config";
@@ -39,6 +39,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from "@/components/ui/spinner";
 import ChatMessage from '@/components/ChatMessage';
+import { useTranslation } from '@/components/LanguageProvider';
 
 interface Message {
   text: string;
@@ -156,6 +157,7 @@ const PROVIDER_MODELS = {
 const API_URL = config.apiUrl;
 
 const AIAnalyzePage: React.FC = () => {
+  const { t } = useTranslation();
   const [config, setConfig] = useState<Config>(DEFAULT_CONFIG);
   const [isConfigured, setIsConfigured] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -602,40 +604,52 @@ const AIAnalyzePage: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-gray-900 to-black">
       {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-gray-800">
+      <header className="flex items-center justify-between p-4 border-b border-gray-800 bg-black/50 backdrop-blur-sm">
         <div className="flex items-center space-x-2">
-          <Brain className="w-6 h-6 text-primary" />
-          <h1 className="text-xl font-bold">AI Analysis Dashboard</h1>
+          <div className="p-2 bg-primary/10 rounded-full">
+            <Brain className="w-6 h-6 text-primary" />
+          </div>
+          <h1 className="text-xl font-bold">{t('ai.analyze')}</h1>
         </div>
         <div className="flex items-center space-x-4">
-          <Badge variant={isConfigured ? "success" : "destructive"}>
+          <Badge 
+            variant={isConfigured ? "success" : "destructive"}
+            className="transition-all duration-300 hover:scale-105"
+          >
             {isConfigured ? "Configured" : "Not Configured"}
           </Badge>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsConfigOpen(true)}
+            className="group transition-all duration-300 hover:bg-primary/20 hover:text-primary"
           >
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
+            <Settings className="w-4 h-4 mr-2 group-hover:rotate-45 transition-transform duration-300" />
+            {t('ai.configuration')}
           </Button>
         </div>
       </header>
 
       {/* Main chat area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
         {messages.map((message, index) => (
-          <ChatMessage
+          <div 
             key={index}
-            message={message}
-            isTyping={isTyping && index === messages.length - 1}
-          />
+            className={`animate-fadeIn transition-all duration-300 ${
+              index === messages.length - 1 && !message.isUser ? 'animate-slideInFromBottom' : ''
+            }`}
+          >
+            <ChatMessage
+              message={message}
+              isTyping={isTyping && index === messages.length - 1}
+            />
+          </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input area */}
-      <div className="border-t border-gray-800 p-4">
+      <div className="border-t border-gray-800 p-4 bg-black/30 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto">
           <div className="relative">
             <textarea
@@ -648,21 +662,21 @@ const AIAnalyzePage: React.FC = () => {
                   handleSubmit();
                 }
               }}
-              placeholder="Ask me anything about your data..."
-              className="w-full p-3 pr-24 rounded-lg bg-gray-800 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary resize-none min-h-[50px]"
+              placeholder={t('ai.prompt')}
+              className="w-full p-3 pr-24 rounded-lg bg-gray-800 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary resize-none min-h-[50px] transition-all duration-200"
               disabled={loading}
             />
             <div className="absolute right-2 bottom-2 flex items-center space-x-2">
               {loading ? (
-                <Spinner className="w-6 h-6 text-primary" />
+                <Spinner className="w-6 h-6 text-primary animate-pulse" />
               ) : (
                 <Button
                   onClick={handleSubmit}
                   disabled={!prompt.trim() || !isConfigured}
-                  className="h-8"
+                  className="h-8 group"
                 >
-                  <div className="flex items-center gap-2 group transition-all duration-200 hover:scale-105">
-                    <Send className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  <div className="flex items-center gap-2 group transition-all duration-200">
+                    <Send className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                     <span className="hidden sm:inline font-medium">Envoyer</span>
                     <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-slate-100 px-1.5 font-mono text-[10px] font-medium text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 ml-2">
                       ⏎
@@ -676,15 +690,149 @@ const AIAnalyzePage: React.FC = () => {
             <span>Press Enter to send, Shift + Enter for new line</span>
             <button
               onClick={clearHistory}
-              className="hover:text-gray-300 transition-colors"
+              className="flex items-center gap-1 hover:text-gray-300 transition-colors group"
             >
-              Clear History
+              <Trash2 className="w-3 h-3 group-hover:text-red-400 transition-colors" />
+              {t('ai.clear')}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Settings Dialog */}
+      <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
+        <DialogContent className="max-w-md bg-gray-900 border-gray-800">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              {t('ai.configuration')}
+            </DialogTitle>
+            <DialogDescription>
+              Configure your AI provider and model settings
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 my-2">
+            <div className="space-y-2">
+              <Label htmlFor="provider" className="text-sm font-medium">
+                Provider
+              </Label>
+              <RadioGroup
+                id="provider"
+                value={config.provider}
+                onValueChange={(value) => handleProviderChange(value as Config["provider"])}
+                className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+              >
+                {Object.keys(PROVIDER_MODELS).map((provider) => (
+                  <div key={provider}>
+                    <RadioGroupItem
+                      value={provider}
+                      id={`provider-${provider}`}
+                      className="peer sr-only"
+                    />
+                    <Label
+                      htmlFor={`provider-${provider}`}
+                      className="flex flex-col items-center justify-between rounded-md border-2 border-gray-700 p-3 hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10 [&:has([data-state=checked])]:border-primary [&:has([data-state=checked])]:bg-primary/10 transition-all duration-200"
+                    >
+                      <span className="text-sm font-semibold capitalize">{provider}</span>
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="api-key" className="text-sm font-medium flex justify-between">
+                <span>API Key</span>
+                <button
+                  type="button"
+                  onClick={() => setIsApiKeyVisible(!isApiKeyVisible)}
+                  className="text-xs text-gray-400 hover:text-primary flex items-center gap-1 transition-colors"
+                >
+                  {isApiKeyVisible ? (
+                    <>
+                      <EyeOff className="h-3 w-3" /> Hide
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-3 w-3" /> Show
+                    </>
+                  )}
+                </button>
+              </Label>
+              <div className="relative">
+                <Input
+                  id="api-key"
+                  type={isApiKeyVisible ? "text" : "password"}
+                  value={config.apiKey}
+                  onChange={handleApiKeyChange}
+                  placeholder={`Enter your ${config.provider} API key`}
+                  className="bg-gray-800 border-gray-700"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="model" className="text-sm font-medium">
+                Model
+              </Label>
+              {isLoadingModels ? (
+                <div className="flex items-center justify-center p-2">
+                  <Spinner className="h-5 w-5 text-primary mr-2" />
+                  <span className="text-sm">Loading models...</span>
+                </div>
+              ) : (
+                <Select
+                  value={config.model}
+                  onValueChange={handleModelChange}
+                  disabled={!config.apiKey}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(availableModels.length > 0
+                      ? availableModels
+                      : PROVIDER_MODELS[config.provider] || []
+                    ).map((model) => (
+                      <SelectItem key={model.value} value={model.value}>
+                        {model.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsConfigOpen(false)}
+              className="mr-2"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveAndTest}
+              disabled={!config.apiKey || !config.model || loading}
+              className="bg-primary hover:bg-primary/90"
+            >
+              {loading ? (
+                <>
+                  <Spinner className="mr-2 h-4 w-4" />
+                  Testing...
+                </>
+              ) : (
+                <>Save & Test</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 export default AIAnalyzePage;
+

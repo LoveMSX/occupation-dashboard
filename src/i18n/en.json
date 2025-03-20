@@ -1,6 +1,15 @@
+
 {
   "skills": "Skills",
   "skills.summary": "Skills Summary",
   "resources": "resources",
-  "count": "Count"
+  "count": "Count",
+  "ai": "Artificial Intelligence",
+  "ai.analyze": "AI Analysis",
+  "ai.assistant": "AI Assistant",
+  "ai.configuration": "AI Configuration",
+  "ai.providers": "AI Providers",
+  "ai.history": "Chat History",
+  "ai.clear": "Clear History",
+  "ai.prompt": "Ask me anything about your data..."
 }

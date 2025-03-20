@@ -1,124 +1,166 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CSVImportForm } from "@/components/import/CSVImportForm";
-import { ResourceCSVImportForm } from "@/components/import/ResourceCSVImportForm";
 import { ProjectCSVImportForm } from "@/components/import/ProjectCSVImportForm";
 import { SalesCSVImportForm } from "@/components/import/SalesCSVImportForm";
+import { ResourceCSVImportForm } from "@/components/import/ResourceCSVImportForm";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { GSheetSync } from "@/components/import/GSheetSync";
 import { NotionIntegration } from "@/components/import/NotionIntegration";
 
-export const ImportPage = () => {
-  const [activeTab, setActiveTab] = useState("employee-csv");
-  
-  // Dummy close handler for demo purposes
-  const handleClose = () => {
-    console.log("Import form closed");
-  };
+export default function ImportPage() {
+  const [showEmployeeImport, setShowEmployeeImport] = useState(false);
+  const [showProjectImport, setShowProjectImport] = useState(false);
+  const [showSalesImport, setShowSalesImport] = useState(false);
+  const [showResourceImport, setShowResourceImport] = useState(false);
 
   return (
-    <div className="container mx-auto py-6 space-y-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Import Data</h1>
-      </div>
+    <div className="p-6 space-y-6">
+      <h1 className="text-3xl font-bold mb-6">Import / Export</h1>
 
-      <Tabs defaultValue="employee-csv" className="space-y-4" onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-          <TabsTrigger value="employee-csv">Employees CSV</TabsTrigger>
-          <TabsTrigger value="resource-csv">Resources CSV</TabsTrigger>
-          <TabsTrigger value="project-csv">Projects CSV</TabsTrigger>
-          <TabsTrigger value="sales-csv">Sales CSV</TabsTrigger>
-          <TabsTrigger value="google-sheets">Google Sheets</TabsTrigger>
+      <Tabs defaultValue="csv">
+        <TabsList className="mb-4">
+          <TabsTrigger value="csv">CSV Import</TabsTrigger>
+          <TabsTrigger value="google">Google Sheets</TabsTrigger>
           <TabsTrigger value="notion">Notion</TabsTrigger>
+          <TabsTrigger value="api" disabled>API Integration</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="employee-csv">
-          <Card>
-            <CardHeader>
-              <CardTitle>Import Employees from CSV</CardTitle>
-              <CardDescription>
-                Upload a CSV file containing employee data to be imported into the system.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CSVImportForm onClose={handleClose} />
-            </CardContent>
-          </Card>
+        <TabsContent value="csv" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card className="flex flex-col justify-between">
+              <CardHeader>
+                <CardTitle>Employés</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <p className="text-muted-foreground">
+                  Importez vos données employés depuis un fichier CSV.
+                </p>
+                <div className="mt-4">
+                  <Button variant="default" onClick={() => setShowEmployeeImport(true)}>
+                    Importer des employés
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="flex flex-col justify-between">
+              <CardHeader>
+                <CardTitle>Projets</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <p className="text-muted-foreground">
+                  Importez vos données de projets depuis un fichier CSV.
+                </p>
+                <div className="mt-4">
+                  <Button variant="default" onClick={() => setShowProjectImport(true)}>
+                    Importer des projets
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="flex flex-col justify-between">
+              <CardHeader>
+                <CardTitle>Opportunités commerciales</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <p className="text-muted-foreground">
+                  Importez vos données d'opportunités commerciales depuis un fichier CSV.
+                </p>
+                <div className="mt-4">
+                  <Button variant="default" onClick={() => setShowSalesImport(true)}>
+                    Importer des opportunités
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="flex flex-col justify-between">
+              <CardHeader>
+                <CardTitle>Ressources</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <p className="text-muted-foreground">
+                  Importez des données de ressources externes depuis un fichier CSV.
+                </p>
+                <div className="mt-4">
+                  <Button variant="default" onClick={() => setShowResourceImport(true)}>
+                    Importer des ressources
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
-        <TabsContent value="resource-csv">
+        <TabsContent value="google">
           <Card>
             <CardHeader>
-              <CardTitle>Import Resources from CSV</CardTitle>
-              <CardDescription>
-                Upload a CSV file containing resource data to be imported into the system.
-              </CardDescription>
+              <CardTitle>Synchronisation Google Sheets</CardTitle>
+              <CardContent className="px-0">
+                <GSheetSync pageId="import" onSync={() => {}} />
+              </CardContent>
             </CardHeader>
-            <CardContent>
-              <ResourceCSVImportForm onClose={handleClose} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="project-csv">
-          <Card>
-            <CardHeader>
-              <CardTitle>Import Projects from CSV</CardTitle>
-              <CardDescription>
-                Upload a CSV file containing project data to be imported into the system.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ProjectCSVImportForm onClose={handleClose} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="sales-csv">
-          <Card>
-            <CardHeader>
-              <CardTitle>Import Sales Opportunities from CSV</CardTitle>
-              <CardDescription>
-                Upload a CSV file containing sales opportunity data to be imported into the system.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <SalesCSVImportForm onClose={handleClose} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="google-sheets">
-          <Card>
-            <CardHeader>
-              <CardTitle>Import from Google Sheets</CardTitle>
-              <CardDescription>
-                Connect to Google Sheets to import data directly.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <GSheetSync />
-            </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="notion">
-          <Card>
-            <CardHeader>
-              <CardTitle>Import from Notion</CardTitle>
-              <CardDescription>
-                Connect to Notion to import data directly.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <NotionIntegration />
-            </CardContent>
-          </Card>
+          <NotionIntegration />
         </TabsContent>
       </Tabs>
+
+      {/* Dialogs for import forms */}
+      <Dialog open={showEmployeeImport} onOpenChange={setShowEmployeeImport}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Importer des employés</DialogTitle>
+            <DialogDescription>
+              Importez vos données employés depuis un fichier CSV.
+            </DialogDescription>
+          </DialogHeader>
+          <CSVImportForm onClose={() => setShowEmployeeImport(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showProjectImport} onOpenChange={setShowProjectImport}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Importer des projets</DialogTitle>
+            <DialogDescription>
+              Importez vos données projets depuis un fichier CSV.
+            </DialogDescription>
+          </DialogHeader>
+          <ProjectCSVImportForm onClose={() => setShowProjectImport(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSalesImport} onOpenChange={setShowSalesImport}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Importer des opportunités commerciales</DialogTitle>
+            <DialogDescription>
+              Importez vos données d'opportunités depuis un fichier CSV.
+            </DialogDescription>
+          </DialogHeader>
+          <SalesCSVImportForm onClose={() => setShowSalesImport(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showResourceImport} onOpenChange={setShowResourceImport}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Importer des ressources</DialogTitle>
+            <DialogDescription>
+              Importez vos données de ressources depuis un fichier CSV.
+            </DialogDescription>
+          </DialogHeader>
+          <ResourceCSVImportForm onClose={() => setShowResourceImport(false)} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
-};
-
-export default ImportPage;
+}

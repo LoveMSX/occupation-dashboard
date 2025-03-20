@@ -1,4 +1,5 @@
 
+import React, { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -6,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Download, Filter } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
 import { enhancedEmployeesData } from "@/data/employeesData";
 import { dashboardApi } from "@/services/api";
 
@@ -43,7 +43,23 @@ const WORKING_DAYS = {
 };
 
 // Generate allocation data based on real employees
-const generateEmployeeAllocations = () => {
+interface ProjectAllocation {
+  id: string;
+  name: string;
+  allocations: Record<string, number>;
+  total: number;
+  percentage: number;
+}
+
+interface EmployeeAllocation {
+  id: string;
+  name: string;
+  projects: ProjectAllocation[];
+  totalProduction: number;
+  utilizationRate: number;
+}
+
+const generateEmployeeAllocations = (): EmployeeAllocation[] => {
   return enhancedEmployeesData.slice(0, 10).map(employee => {
     // Generate random allocations for each month
     const allocations: Record<string, number> = {};
@@ -255,13 +271,14 @@ export function OccupancyTable() {
   );
 }
 
-// Update this function to use dashboardApi instead of the undefined api variable
+// Updated function to use dashboardApi instead of the undefined api variable
 const fetchEmployeeOccupation = async (employeeId: number) => {
   try {
+    // Using optional chaining and providing a fallback empty array
     const data = await dashboardApi.getEmployeeOccupation?.(employeeId) || [];
-    return data; // Assure qu'on retourne toujours un tableau
+    return data;
   } catch (error) {
     console.error('Error fetching employee occupation:', error);
-    return []; // Retourne un tableau vide en cas d'erreur
+    return []; // Return an empty array in case of an error
   }
 };

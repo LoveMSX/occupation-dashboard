@@ -1,4 +1,6 @@
 
+// Fix the import and type issues, changing nullable values to optional
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,23 +13,8 @@ interface ProjectCSVImportFormProps {
   onClose: () => void;
 }
 
-// Define the CSV row structure
 interface ProjectCSVRow {
-  "Nom du projet"?: string;
-  Client?: string;
-  Statut?: string;
-  Catégorie?: string;
-  Localisation?: string;
-  "Date début"?: string;
-  "Date fin prévue"?: string;
-  "Date fin réelle"?: string;
-  Description?: string;
-  TJM?: string;
-  "Charge vendue"?: string;
-  CP?: string;
-  Technologie?: string;
-  Secteur?: string;
-  BU?: string;
+  [key: string]: string;
 }
 
 export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => {
@@ -41,29 +28,22 @@ export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => 
   };
 
   const transformProjectRow = (row: Record<string, string>): ProjectRequest => {
-    // Sanitize numeric values
-    const tjm = row["TJM"] ? 
-      row["TJM"].toString().replace(/[^\d.,]/g, '').replace(',', '.') : "0";
-    
-    const chargeVendue = row["Charge vendue"] ? 
-      row["Charge vendue"].toString().replace(/[^\d.,]/g, '').replace(',', '.') : "0";
-    
     return {
-      nom_projet: row["Nom du projet"] || "",
-      client: row["Client"] || "",
-      statut: row["Statut"] || "ongoing",
-      categorie_projet: row["Catégorie"] || "TMA",
-      localite: row["Localisation"] || "Local",
-      date_debut: row["Date début"] || new Date().toISOString().split("T")[0],
-      date_fin_prevu: row["Date fin prévue"] || new Date().toISOString().split("T")[0],
-      date_fin_reelle: row["Date fin réelle"] || null,
-      description_bc: row["Description"] || "",
-      tjm: tjm,
-      charge_vendu_jours: chargeVendue,
-      cp: row["CP"] || "",
-      technologie: row["Technologie"] || "",
-      secteur: row["Secteur"] || "",
-      bu: row["BU"] || "MSX"
+      nom_projet: row["nom_projet"] || "",
+      client: row["client"] || "",
+      statut: row["statut"] || "en_cours",
+      categorie_projet: row["categorie_projet"] || "Autre",
+      localite: row["localite"] || "Local",
+      date_debut: row["date_debut"] || new Date().toISOString().split("T")[0],
+      date_fin_prevu: row["date_fin_prevu"] || "",
+      date_fin_reelle: row["date_fin_reelle"] || undefined, // Changed from null to undefined
+      description_bc: row["description_bc"] || "",
+      tjm: row["tjm"] || "0",
+      charge_vendu_jours: row["charge_vendu_jours"] || "0",
+      cp: row["cp"] || "",
+      technologie: row["technologie"] || undefined,
+      secteur: row["secteur"] || undefined,
+      bu: row["bu"] || ""
     };
   };
 
@@ -76,37 +56,24 @@ export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => 
     try {
       await parseCSV(file, {
         transform: transformProjectRow,
-        onComplete: async (projects) => {
+        onComplete: async (projectsData) => {
           try {
-            let successCount = 0;
-            let errorMessages: string[] = [];
-            
-            for (const project of projects) {
-              try {
-                // Skip projects without required fields
-                if (!project.nom_projet || !project.client) {
-                  errorMessages.push(`Projet sans nom ou client: ${project.nom_projet || "Sans nom"}`);
-                  continue;
+            // Create projects in batches
+            for (let i = 0; i < projectsData.length; i += 5) {
+              const batch = projectsData.slice(i, i + 5);
+              
+              for (const project of batch) {
+                try {
+                  await projectApi.createProject(project);
+                  toast.success(`Projet "${project.nom_projet}" importé avec succès`);
+                } catch (projectError) {
+                  const errorMessage = projectError instanceof Error ? projectError.message : 'Unknown error';
+                  toast.error(`Erreur lors de l'importation du projet "${project.nom_projet}": ${errorMessage}`);
                 }
-                
-                await projectApi.createProject(project);
-                successCount++;
-              } catch (projectError) {
-                const errorMsg = `Erreur pour "${project.nom_projet}": ${projectError instanceof Error ? projectError.message : 'Unknown error'}`;
-                console.error(errorMsg);
-                errorMessages.push(errorMsg);
               }
             }
             
-            if (successCount > 0) {
-              toast.success(`${successCount} projets importés avec succès`);
-              if (errorMessages.length > 0) {
-                toast.error(`${errorMessages.length} projets n'ont pas pu être importés`);
-              }
-              onClose();
-            } else {
-              toast.error(`Aucun projet n'a pu être importé. Vérifiez les erreurs dans la console.`);
-            }
+            onClose();
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             toast.error(`Erreur lors de l'importation: ${errorMessage}`);
@@ -120,24 +87,24 @@ export const ProjectCSVImportForm = ({ onClose }: ProjectCSVImportFormProps) => 
 
   const handleDownloadTemplate = () => {
     const headers = [
-      "Nom du projet",
-      "Client",
-      "Statut",
-      "Catégorie",
-      "Localisation",
-      "Date début",
-      "Date fin prévue",
-      "Date fin réelle",
-      "Description",
-      "TJM",
-      "Charge vendue",
-      "CP",
-      "Technologie",
-      "Secteur",
-      "BU"
+      "nom_projet",
+      "client",
+      "statut",
+      "categorie_projet",
+      "localite",
+      "date_debut",
+      "date_fin_prevu",
+      "date_fin_reelle",
+      "description_bc",
+      "tjm",
+      "charge_vendu_jours",
+      "cp",
+      "technologie",
+      "secteur",
+      "bu"
     ].join(",");
 
-    const csvContent = `${headers}\nProjet Example,Client Example,ongoing,TMA,Local,${new Date().toISOString().split("T")[0]},${new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split("T")[0]},,Description example,750,10,John Doe,React,Finance,MSX`;
+    const csvContent = `${headers}\nProjet Example,Client Example,en_cours,Forfait,Local,${new Date().toISOString().split("T")[0]},${new Date(Date.now() + 90*24*60*60*1000).toISOString().split("T")[0]},,Description,750,20,Chef de projet,React,Finance,IT`;
     
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");

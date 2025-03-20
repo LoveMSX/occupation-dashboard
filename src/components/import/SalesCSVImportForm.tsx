@@ -56,11 +56,11 @@ export const SalesCSVImportForm = ({ onClose }: SalesCSVImportFormProps) => {
       tjm: tjm,
       chiffrage_jh: chiffrage_jh,
       statut: status,
-      commerciale: row.Commerciale || undefined,
-      personne_en_charge_msx: row["Personne en charge MSX"] || undefined,
-      type_projet: row["Type projet"] || undefined,
-      remarques: row.Remarques || undefined,
-      url: row.URL || undefined
+      commerciale: row.Commerciale || "",
+      personne_en_charge_msx: row["Personne en charge MSX"] || "",
+      type_projet: row["Type projet"] || "",
+      remarques: row.Remarques || "",
+      url: row.URL || ""
     };
   };
 

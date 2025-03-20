@@ -738,6 +738,40 @@ export const dashboardApi = {
       throw error;
     }
   },
+  // Add the missing getEmployeeOccupation method
+  getEmployeeOccupation: async (employeeId: number): Promise<any[]> => {
+    try {
+      const response = await axios.get(`${API_URL}/occupation/employee/${employeeId}`, {
+        validateStatus: (status) => status < 500, // Accept all codes < 500
+      });
+
+      // If the response is 204 No Content or empty data
+      if (!response.data || response.status === 204) {
+        return [];
+      }
+
+      // Check the data type received
+      if (typeof response.data === 'string') {
+        try {
+          const parsed = JSON.parse(response.data);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (parseError) {
+          window.console.error('JSON parse error:', parseError);
+          return [];
+        }
+      }
+
+      // If the data is already a JavaScript object
+      return Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+      window.console.error('API error in getEmployeeOccupation:', error);
+      if (axios.isAxiosError(error)) {
+        window.console.error('Response data:', error.response?.data);
+        window.console.error('Status:', error.response?.status);
+      }
+      return []; // Return an empty array in case of an error
+    }
+  }
 };
 
 export interface ProjectRequest {

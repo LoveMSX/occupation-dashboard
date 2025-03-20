@@ -13,11 +13,14 @@ export interface EmployeeData {
   department?: string;
   competences_2024?: string[];
   occupancyRate?: number;
-  projects?: {
-    id?: number;
-    name: string;
-    status: string;
-    client?: string;
-    category?: string;
-  }[];
+  projects?: ProjectRef[];
+}
+
+// Define a type for project references within employee data
+export interface ProjectRef {
+  id?: number;
+  name: string;
+  status: string;
+  client?: string;
+  category?: string;
 }

@@ -61,14 +61,16 @@ const renderCustomizedLabel = ({
   );
 };
 
+// Process data for project type chart
 const processProjectTypeData = () => {
   const categoryCount: Record<string, number> = {};
   
   projectsData.forEach(project => {
-    if (categoryCount[project.category]) {
-      categoryCount[project.category]++;
+    const category = project.category || 'Unknown';
+    if (categoryCount[category]) {
+      categoryCount[category]++;
     } else {
-      categoryCount[project.category] = 1;
+      categoryCount[category] = 1;
     }
   });
   
@@ -105,6 +107,7 @@ const processProjectTypeData = () => {
   });
 };
 
+// Process data for employee distribution chart
 const processEmployeeDistribution = () => {
   const clients = Array.from(new Set(projectsData.map(p => p.client))).slice(0, 6);
   
@@ -125,6 +128,7 @@ const processEmployeeDistribution = () => {
   });
 };
 
+// Process data for project duration chart
 const processProjectDuration = () => {
   const durations: Record<string, number> = {
     "< 3 months": 0,
@@ -165,6 +169,7 @@ const processProjectDuration = () => {
   }));
 };
 
+// Generate data for project allocation chart
 const processProjectAllocation = () => {
   const departments = ["Information Technology", "Development", "Design", "Project Management", "Operations", "Business Analysis"];
   
@@ -175,14 +180,14 @@ const processProjectAllocation = () => {
     
     for (let i = 0; i < mockProjectsPerDepartment; i++) {
       // Create dummy data for visualization
-      const employeeData = {
+      const projectData = {
         name: `${department} Project ${i+1}`,
         size: Math.floor(Math.random() * 10) + 2, // Random team size between 2-12
         department: department,
         project: `Project ${Math.floor(Math.random() * 100)}`
       };
       
-      result.push(employeeData);
+      result.push(projectData);
     }
   }
   
@@ -194,7 +199,7 @@ const employeeDistributionData = processEmployeeDistribution();
 const projectDurationData = processProjectDuration();
 const projectAllocationData = processProjectAllocation();
 
-const DEPARTMENT_COLORS = {
+const DEPARTMENT_COLORS: Record<string, string> = {
   "Information Technology": "#3B82F6", // blue
   "Design": "#10B981", // green
   "Development": "#F97316", // orange

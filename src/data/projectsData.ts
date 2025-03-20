@@ -1,4 +1,4 @@
-import { ProjectData } from '@/types/project';
+import { ProjectData, TeamMember, BudgetInfo, ManagerInfo } from '@/types/project';
 
 // Real project data from the provided spreadsheet
 export const projectsData: ProjectData[] = [
@@ -13,8 +13,8 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 75,
-    manager: { id: 1, name: "Manager", avatar: "" },
-    team: [{ id: 1, name: "Team Member", avatar: "" }]
+    manager: { id: 1, name: "Manager", avatar: "" } as ManagerInfo,
+    team: [{ id: 1, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 2,
@@ -27,8 +27,8 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 80,
-    manager: { id: 2, name: "Manager", avatar: "" },
-    team: [{ id: 2, name: "Team Member", avatar: "" }]
+    manager: { id: 2, name: "Manager", avatar: "" } as ManagerInfo,
+    team: [{ id: 2, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 3,
@@ -41,9 +41,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-10-31",
     progress: 90,
-    manager: { id: 3, name: "Mano", avatar: "" },
-    budget: { planned: 125, consumed: 110, currency: "€" },
-    team: [{ id: 3, name: "Team Member", avatar: "" }]
+    manager: { id: 3, name: "Mano", avatar: "" } as ManagerInfo,
+    budget: { planned: 125, consumed: 110, currency: "€" } as BudgetInfo,
+    team: [{ id: 3, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 4,
@@ -56,9 +56,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 65,
-    manager: { id: 4, name: "Tanjona", avatar: "" },
-    budget: { planned: 125, consumed: 70, currency: "€" },
-    team: [{ id: 4, name: "Team Member", avatar: "" }]
+    manager: { id: 4, name: "Tanjona", avatar: "" } as ManagerInfo,
+    budget: { planned: 125, consumed: 70, currency: "€" } as BudgetInfo,
+    team: [{ id: 4, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 5,
@@ -71,9 +71,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2024-07-01",
     endDate: "2025-08-01",
     progress: 30,
-    manager: { id: 5, name: "Tanjona", avatar: "" },
-    budget: { planned: 125, consumed: 40, currency: "€" },
-    team: [{ id: 5, name: "Team Member", avatar: "" }]
+    manager: { id: 5, name: "Tanjona", avatar: "" } as ManagerInfo,
+    budget: { planned: 125, consumed: 40, currency: "€" } as BudgetInfo,
+    team: [{ id: 5, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 6,
@@ -86,9 +86,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 55,
-    manager: { id: 6, name: "Mano", avatar: "" },
-    budget: { planned: 125, consumed: 70, currency: "€" },
-    team: [{ id: 6, name: "Team Member", avatar: "" }]
+    manager: { id: 6, name: "Mano", avatar: "" } as ManagerInfo,
+    budget: { planned: 125, consumed: 70, currency: "€" } as BudgetInfo,
+    team: [{ id: 6, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 7,
@@ -101,9 +101,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 60,
-    manager: { id: 7, name: "Edoupt", avatar: "" },
-    budget: { planned: 175, consumed: 105, currency: "€" },
-    team: [{ id: 7, name: "Team Member", avatar: "" }]
+    manager: { id: 7, name: "Edoupt", avatar: "" } as ManagerInfo,
+    budget: { planned: 175, consumed: 105, currency: "€" } as BudgetInfo,
+    team: [{ id: 7, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 8,
@@ -116,9 +116,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 85,
-    manager: { id: 8, name: "Edoupt", avatar: "" },
-    budget: { planned: 205, consumed: 175, currency: "€" },
-    team: [{ id: 8, name: "Team Member", avatar: "" }]
+    manager: { id: 8, name: "Edoupt", avatar: "" } as ManagerInfo,
+    budget: { planned: 205, consumed: 175, currency: "€" } as BudgetInfo,
+    team: [{ id: 8, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 9,
@@ -131,9 +131,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 70,
-    manager: { id: 9, name: "Edoupt", avatar: "" },
-    budget: { planned: 175, consumed: 120, currency: "€" },
-    team: [{ id: 9, name: "Team Member", avatar: "" }]
+    manager: { id: 9, name: "Edoupt", avatar: "" } as ManagerInfo,
+    budget: { planned: 175, consumed: 120, currency: "€" } as BudgetInfo,
+    team: [{ id: 9, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 10,
@@ -146,9 +146,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 75,
-    manager: { id: 10, name: "Toly", avatar: "" },
-    budget: { planned: 175, consumed: 130, currency: "€" },
-    team: [{ id: 10, name: "Team Member", avatar: "" }]
+    manager: { id: 10, name: "Toly", avatar: "" } as ManagerInfo,
+    budget: { planned: 175, consumed: 130, currency: "€" } as BudgetInfo,
+    team: [{ id: 10, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 11,
@@ -161,9 +161,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 65,
-    manager: { id: 11, name: "Mano", avatar: "" },
-    budget: { planned: 175, consumed: 115, currency: "€" },
-    team: [{ id: 11, name: "Team Member", avatar: "" }]
+    manager: { id: 11, name: "Mano", avatar: "" } as ManagerInfo,
+    budget: { planned: 175, consumed: 115, currency: "€" } as BudgetInfo,
+    team: [{ id: 11, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 12,
@@ -176,9 +176,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 55,
-    manager: { id: 12, name: "Edoupt", avatar: "" },
-    budget: { planned: 175, consumed: 95, currency: "€" },
-    team: [{ id: 12, name: "Team Member", avatar: "" }]
+    manager: { id: 12, name: "Edoupt", avatar: "" } as ManagerInfo,
+    budget: { planned: 175, consumed: 95, currency: "€" } as BudgetInfo,
+    team: [{ id: 12, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 13,
@@ -191,9 +191,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 60,
-    manager: { id: 13, name: "Ny Antsa", avatar: "" },
-    budget: { planned: 175, consumed: 105, currency: "€" },
-    team: [{ id: 13, name: "Team Member", avatar: "" }]
+    manager: { id: 13, name: "Ny Antsa", avatar: "" } as ManagerInfo,
+    budget: { planned: 175, consumed: 105, currency: "€" } as BudgetInfo,
+    team: [{ id: 13, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 14,
@@ -206,9 +206,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 70,
-    manager: { id: 14, name: "Moka", avatar: "" },
-    budget: { planned: 195, consumed: 135, currency: "€" },
-    team: [{ id: 14, name: "Team Member", avatar: "" }]
+    manager: { id: 14, name: "Moka", avatar: "" } as ManagerInfo,
+    budget: { planned: 195, consumed: 135, currency: "€" } as BudgetInfo,
+    team: [{ id: 14, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 15,
@@ -221,9 +221,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 75,
-    manager: { id: 15, name: "Zakriana", avatar: "" },
-    budget: { planned: 125, consumed: 95, currency: "€" },
-    team: [{ id: 15, name: "Team Member", avatar: "" }]
+    manager: { id: 15, name: "Zakriana", avatar: "" } as ManagerInfo,
+    budget: { planned: 125, consumed: 95, currency: "€" } as BudgetInfo,
+    team: [{ id: 15, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 16,
@@ -236,9 +236,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 90,
-    manager: { id: 16, name: "Miora Lalaina", avatar: "" },
-    budget: { planned: 0, consumed: 0, currency: "€" },
-    team: [{ id: 16, name: "Team Member", avatar: "" }]
+    manager: { id: 16, name: "Miora Lalaina", avatar: "" } as ManagerInfo,
+    budget: { planned: 0, consumed: 0, currency: "€" } as BudgetInfo,
+    team: [{ id: 16, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 17,
@@ -251,9 +251,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 80,
-    manager: { id: 17, name: "Ravalsa", avatar: "" },
-    budget: { planned: 92, consumed: 75, currency: "€" },
-    team: [{ id: 17, name: "Team Member", avatar: "" }]
+    manager: { id: 17, name: "Ravalsa", avatar: "" } as ManagerInfo,
+    budget: { planned: 92, consumed: 75, currency: "€" } as BudgetInfo,
+    team: [{ id: 17, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 18,
@@ -266,9 +266,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2024-01-30",
     progress: 70,
-    manager: { id: 18, name: "Nohara", avatar: "" },
-    budget: { planned: 135, consumed: 95, currency: "€" },
-    team: [{ id: 18, name: "Team Member", avatar: "" }]
+    manager: { id: 18, name: "Nohara", avatar: "" } as ManagerInfo,
+    budget: { planned: 135, consumed: 95, currency: "€" } as BudgetInfo,
+    team: [{ id: 18, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 19,
@@ -281,9 +281,9 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 65,
-    manager: { id: 19, name: "Edoupt", avatar: "" },
-    budget: { planned: 230, consumed: 150, currency: "€" },
-    team: [{ id: 19, name: "Team Member", avatar: "" }]
+    manager: { id: 19, name: "Edoupt", avatar: "" } as ManagerInfo,
+    budget: { planned: 230, consumed: 150, currency: "€" } as BudgetInfo,
+    team: [{ id: 19, name: "Team Member", avatar: "" } as TeamMember]
   },
   {
     id: 20,
@@ -296,9 +296,8 @@ export const projectsData: ProjectData[] = [
     startDate: "2023-01-01",
     endDate: "2024-03-11",
     progress: 60,
-    manager: { id: 20, name: "Mano / Tova Freddy", avatar: "" },
-    budget: { planned: 175, consumed: 105, currency: "€" },
-    team: [{ id: 20, name: "Team Member", avatar: "" }]
+    manager: { id: 20, name: "Mano / Tova Freddy", avatar: "" } as ManagerInfo,
+    budget: { planned: 175, consumed: 105, currency: "€" } as BudgetInfo,
+    team: [{ id: 20, name: "Team Member", avatar: "" } as TeamMember]
   }
 ];
-

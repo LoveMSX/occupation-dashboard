@@ -1,5 +1,5 @@
 
-import { EmployeeData } from "@/types/employee";
+import { EmployeeData, ProjectRef } from "@/types/employee";
 
 // Real employee data from the provided excel sheet
 export const employeesData: EmployeeData[] = [
@@ -539,7 +539,7 @@ export const enhanceEmployeesData = () => {
       "LogisticsPro"
     ];
     
-    const projects = [];
+    const projects: ProjectRef[] = [];
     
     for (let i = 0; i < randomProjectCount; i++) {
       projects.push({

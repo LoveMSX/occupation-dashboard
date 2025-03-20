@@ -8,10 +8,30 @@ export interface ProjectData {
   description?: string;
   startDate?: string;
   endDate?: string;
-  team?: any[];
-  budget?: number;
-  manager?: string;
+  team?: TeamMember[];
+  budget?: BudgetInfo;
+  manager?: ManagerInfo;
   locality?: string;
+  location?: string;
+  progress?: number;
+}
+
+export interface TeamMember {
+  id: number;
+  name: string;
+  avatar: string;
+}
+
+export interface BudgetInfo {
+  planned: number;
+  consumed: number;
+  currency: string;
+}
+
+export interface ManagerInfo {
+  id: number;
+  name: string;
+  avatar: string;
 }
 
 export interface ProjectCardProps {

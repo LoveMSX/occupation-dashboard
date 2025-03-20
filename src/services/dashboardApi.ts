@@ -27,7 +27,7 @@ const API_URL = config.apiUrl;
 
 // Create a stub for API calls
 export const dashboardApi = {
-  getGloabalData: async (): Promise<IDashboardData> => {
+  getGlobalData: async (): Promise<IDashboardData> => {
     try {
       const response = await axios.get(`${API_URL}/dashboard`);
       return response.data as IDashboardData;

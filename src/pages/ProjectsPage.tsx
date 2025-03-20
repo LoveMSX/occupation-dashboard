@@ -120,7 +120,7 @@ export default function ProjectsPage() {
               {filteredProjects.map(project => (
                 <ProjectCard 
                   key={project.id} 
-                  project={project as unknown as ProjectData} 
+                  project={project as ProjectData} 
                   viewMode={viewMode}
                   onDelete={() => handleDeleteProject(project.id)}
                 />
@@ -131,7 +131,7 @@ export default function ProjectsPage() {
               {activeProjects.map(project => (
                 <ProjectCard 
                   key={project.id} 
-                  project={project as unknown as ProjectData} 
+                  project={project as ProjectData} 
                   viewMode={viewMode}
                   onDelete={() => handleDeleteProject(project.id)}
                 />
@@ -142,7 +142,7 @@ export default function ProjectsPage() {
               {completedProjects.map(project => (
                 <ProjectCard 
                   key={project.id} 
-                  project={project as unknown as ProjectData} 
+                  project={project as ProjectData} 
                   viewMode={viewMode}
                   onDelete={() => handleDeleteProject(project.id)}
                 />
@@ -153,7 +153,7 @@ export default function ProjectsPage() {
               {plannedProjects.map(project => (
                 <ProjectCard 
                   key={project.id} 
-                  project={project as unknown as ProjectData} 
+                  project={project as ProjectData} 
                   viewMode={viewMode}
                   onDelete={() => handleDeleteProject(project.id)}
                 />
@@ -164,7 +164,7 @@ export default function ProjectsPage() {
               {onHoldProjects.map(project => (
                 <ProjectCard 
                   key={project.id} 
-                  project={project as unknown as ProjectData} 
+                  project={project as ProjectData} 
                   viewMode={viewMode}
                   onDelete={() => handleDeleteProject(project.id)}
                 />

@@ -1,5 +1,4 @@
-
-import { ProjectData } from "@/components/projects/ProjectCard";
+import { ProjectData } from '@/types/project';
 
 // Real project data from the provided spreadsheet
 export const projectsData: ProjectData[] = [
@@ -232,8 +231,8 @@ export const projectsData: ProjectData[] = [
     description: "Implémentation des projets locaux",
     status: "ongoing",
     client: "Etech",
-    category: "Other", // Changed from "FORMATION" to "Other" to match allowed types
-    location: "Local", // Changed from "Interne" to "Local" to match allowed types
+    category: "Other",
+    location: "Local",
     startDate: "2023-01-01",
     endDate: "2023-12-31",
     progress: 90,
@@ -302,3 +301,4 @@ export const projectsData: ProjectData[] = [
     team: [{ id: 20, name: "Team Member", avatar: "" }]
   }
 ];
+

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/layout/Header";
@@ -109,7 +110,7 @@ const processEmployeeDistribution = () => {
   
   return clients.map(client => {
     const clientProjects = projectsData.filter(p => p.client === client);
-    const averageTeamSize = clientProjects.reduce((acc, p) => acc + p.team.length, 0) / clientProjects.length;
+    const averageTeamSize = clientProjects.reduce((acc, p) => acc + (p.team?.length || 0), 0) / clientProjects.length;
     
     let underAllocated = Math.floor(Math.random() * 5) + 1;
     let optimal = Math.floor(averageTeamSize);
@@ -170,14 +171,15 @@ const processProjectAllocation = () => {
   const result = [];
   
   for (const department of departments) {
-    const departmentProjects = projectsData.slice(0, 3);
+    const mockProjectsPerDepartment = 3;
     
-    for (const project of departmentProjects) {
+    for (let i = 0; i < mockProjectsPerDepartment; i++) {
+      // Create dummy data for visualization
       const employeeData = {
-        name: employee?.name || 'Unknown',
-        size: projects?.filter(p => p.team?.includes(employee.id)).length || 0,
-        department: employee?.department || 'Unknown',
-        project: project?.name || 'N/A'
+        name: `${department} Project ${i+1}`,
+        size: Math.floor(Math.random() * 10) + 2, // Random team size between 2-12
+        department: department,
+        project: `Project ${Math.floor(Math.random() * 100)}`
       };
       
       result.push(employeeData);

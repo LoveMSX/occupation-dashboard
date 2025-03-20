@@ -76,7 +76,7 @@ export default function Index() {
               </CardHeader>
               <CardContent>
                 {dashboardData?.occupationOverYear && (
-                  <OccupancyChart occupancyData={dashboardData.occupationOverYear || []} />
+                  <OccupancyChart occupancyData={dashboardData.occupationOverYear} />
                 )}
               </CardContent>
             </Card>
@@ -87,7 +87,7 @@ export default function Index() {
               </CardHeader>
               <CardContent>
                 {dashboardData?.projectsByType && (
-                  <ProjectsDistributionChart distribution={dashboardData.projectsByType || []} />
+                  <ProjectsDistributionChart distribution={dashboardData.projectsByType} />
                 )}
               </CardContent>
             </Card>
@@ -104,11 +104,17 @@ export default function Index() {
                 <Card>
                   <CardContent className="p-6">
                     {dashboardData && (
-                      <ProjectStats data={{
-                        completed: dashboardData.completedProjects,
-                        ongoing: dashboardData.ongoingProjects,
-                        upcoming: dashboardData.upcomingProjects
-                      }} />
+                      <ProjectStats 
+                        data={{
+                          completedProjects: dashboardData.completedProjects,
+                          ongoingProjects: dashboardData.ongoingProjects,
+                          upcomingProjects: dashboardData.upcomingProjects,
+                          totalProjects: dashboardData.totalProjects,
+                          completedPercentage: dashboardData.completedPercentage,
+                          ongoingPercentage: dashboardData.ongoingPercentage,
+                          upcomingPercentage: dashboardData.upcomingPercentage
+                        }} 
+                      />
                     )}
                   </CardContent>
                 </Card>

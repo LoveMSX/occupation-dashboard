@@ -54,7 +54,9 @@ const DATA_TYPE_MAPPING = {
 };
 
 export function NotionIntegration() {
-  const [apiKey, setApiKey] = useState("");
+  // Remplacer les clés codées en dur par des variables d'environnement
+  const defaultApiKey = import.meta.env.VITE_NOTION_API_KEY || '';
+  const [apiKey, setApiKey] = useState(defaultApiKey);
   const [databaseId, setDatabaseId] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);

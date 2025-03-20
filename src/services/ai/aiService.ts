@@ -448,11 +448,13 @@ Please provide clear, concise answers and when relevant:
 
   private async callOpenAI(prompt: string): Promise<any> {
     const formattedPrompt = this.formatPromptForProvider(prompt, 'openai');
+    const apiKey = this.config.apiKey || import.meta.env.VITE_OPENAI_API_KEY;
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.apiKey}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: this.config.model,
@@ -480,7 +482,9 @@ Please provide clear, concise answers and when relevant:
   }
 
   private async callGemini(prompt: string): Promise<AIResponse> {
-    const response = await fetch(`/api/gemini/v1beta/models/${this.config.model}:generateContent?key=${this.config.apiKey}`, {
+    const apiKey = this.config.apiKey || import.meta.env.VITE_GEMINI_API_KEY;
+    
+    const response = await fetch(`/api/gemini/v1beta/models/${this.config.model}:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -563,11 +567,13 @@ Please provide clear, concise answers and when relevant:
   }
 
   private async callDeepseek(prompt: string): Promise<AIResponse> {
+    const apiKey = this.config.apiKey || import.meta.env.VITE_DEEPSEEK_API_KEY;
+    
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.apiKey}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Accept': 'application/json'
       },
       body: JSON.stringify({
@@ -617,11 +623,13 @@ Please provide clear, concise answers and when relevant:
   }
 
   private async callHuggingFace(prompt: string): Promise<AIResponse> {
+    const apiKey = this.config.apiKey || import.meta.env.VITE_HUGGINGFACE_API_KEY;
+    
     const response = await fetch(`https://api-inference.huggingface.co/models/${this.config.model}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.apiKey}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         inputs: prompt,

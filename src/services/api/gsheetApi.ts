@@ -22,7 +22,7 @@ export const gsheetApi = {
   getAuthUrl(): string {
     const config: GoogleAuthConfig = {
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      redirect_uri: 'http://localhost:8080/auth/google/callback', // Fixed redirect URI
+      redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URI || 'http://localhost:8080/auth/google/callback',
       scope: GOOGLE_AUTH_SCOPE,
       response_type: 'code'
     };
@@ -44,7 +44,7 @@ export const gsheetApi = {
       const response = await axios.post('https://oauth2.googleapis.com/token', {
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
-        redirect_uri: 'http://localhost:8080/auth/google/callback', // Fixed redirect URI
+        redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URI || 'http://localhost:8080/auth/google/callback',
         grant_type: 'authorization_code',
         code
       });

@@ -8,7 +8,7 @@ import { Download, Filter } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { cn } from "@/lib/utils";
 import { enhancedEmployeesData } from "@/data/employeesData";
-import { dashboardApi } from "@/services/api";
+import { dashboardApi, OccupancyTableData } from "@/services/dashboardApi";
 
 // Month abbreviations for headers
 const MONTHS = [
@@ -119,25 +119,6 @@ const calculateUtilization = (total: number) => {
   return Math.round((total / allWorkingDays) * 100);
 };
 
-// Define the data structure for occupancy table
-export interface OccupancyTableData {
-  employeeId: number;
-  employee_name: string;
-  january: number;
-  february: number;
-  march: number;
-  april: number;
-  may: number;
-  june: number;
-  july: number;
-  august: number;
-  september: number;
-  october: number;
-  november: number;
-  december: number;
-  total: number;
-}
-
 export function OccupancyTable() {
   const { language, t } = useLanguage();
   const [dataOccupancyRate, setDataOccupancyRate] = React.useState<OccupancyTableData[]>([]);
@@ -164,6 +145,9 @@ export function OccupancyTable() {
     console.log("in occupancy table");
     getDataTable();
   }, []);
+
+  // Generate mock data for visualization
+  const employeeAllocations = generateEmployeeAllocations();
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
@@ -200,61 +184,150 @@ export function OccupancyTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dataOccupancyRate?.map(employee => (
-                <React.Fragment key={employee.employeeId.toString()}>
-                  <TableRow 
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => toggleEmployeeExpand(employee.employeeId.toString())}
-                  >
-                    <TableCell className="font-medium sticky left-0 bg-background z-10">
-                      <div className="flex items-center">
-                        <div className={`mr-2 transition-transform ${expandedEmployees[employee.employeeId.toString()] ? 'rotate-90' : ''}`}>
-                          ▶
-                        </div>
-                        {employee.employee_name}
-                        <span className="ml-2 text-xs text-muted-foreground">
-                          ({employee.employeeId})
-                        </span>
-                      </div>
-                    </TableCell>
-                    {MONTHS.map(month => {
-                      const monthId = month.id as keyof typeof WORKING_DAYS;
-                      const workingDays = WORKING_DAYS[monthId];
-                      const utilization = Math.ceil(employee[month.id as keyof OccupancyTableData] as number);
-                      
-                      return (
-                        <TableCell 
-                          key={`${employee.employeeId}-${month.id}`} 
-                          className="text-center px-2"
-                        >
-                          <div className="flex flex-col items-center">
-                            <span className={cn(
-                              utilization > 100 ? "text-danger font-medium" :
-                              utilization < 70 ? "text-warning" : ""
-                            )}>
-                              {employee[month.id as keyof OccupancyTableData]}
-                            </span>
-                            <div className="w-full mt-1">
-                              <Progress 
-                                value={Math.min(utilization, 100)} 
-                                className="h-1" 
-                                indicatorClassName={cn(
-                                  utilization > 100 ? "bg-danger" :
-                                  utilization > 90 ? "bg-success" :
-                                  utilization > 70 ? "bg-primary" : "bg-warning"
-                                )}
-                              />
-                            </div>
+              {dataOccupancyRate.length > 0 ? (
+                // If we have actual data from API
+                dataOccupancyRate.map(employee => (
+                  <React.Fragment key={employee.employeeId.toString()}>
+                    <TableRow 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => toggleEmployeeExpand(employee.employeeId.toString())}
+                    >
+                      <TableCell className="font-medium sticky left-0 bg-background z-10">
+                        <div className="flex items-center">
+                          <div className={`mr-2 transition-transform ${expandedEmployees[employee.employeeId.toString()] ? 'rotate-90' : ''}`}>
+                            ▶
                           </div>
+                          {employee.employee_name}
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            ({employee.employeeId})
+                          </span>
+                        </div>
+                      </TableCell>
+                      {MONTHS.map(month => {
+                        const monthId = month.id as keyof typeof WORKING_DAYS;
+                        const workingDays = WORKING_DAYS[monthId];
+                        const utilization = Math.ceil(employee[month.id as keyof OccupancyTableData] as number);
+                        
+                        return (
+                          <TableCell 
+                            key={`${employee.employeeId}-${month.id}`} 
+                            className="text-center px-2"
+                          >
+                            <div className="flex flex-col items-center">
+                              <span className={cn(
+                                utilization > 100 ? "text-danger font-medium" :
+                                utilization < 70 ? "text-warning" : ""
+                              )}>
+                                {employee[month.id as keyof OccupancyTableData]}
+                              </span>
+                              <div className="w-full mt-1">
+                                <Progress 
+                                  value={Math.min(utilization, 100)} 
+                                  className="h-1" 
+                                  indicatorClassName={cn(
+                                    utilization > 100 ? "bg-danger" :
+                                    utilization > 90 ? "bg-success" :
+                                    utilization > 70 ? "bg-primary" : "bg-warning"
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          </TableCell>
+                        );
+                      })}
+                      <TableCell className="text-right font-medium">
+                        {employee.total}
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                ))
+              ) : (
+                // Use mock data when no API data is available
+                employeeAllocations.map(employee => (
+                  <React.Fragment key={employee.id}>
+                    <TableRow 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => toggleEmployeeExpand(employee.id)}
+                    >
+                      <TableCell className="font-medium sticky left-0 bg-background z-10">
+                        <div className="flex items-center">
+                          <div className={`mr-2 transition-transform ${expandedEmployees[employee.id] ? 'rotate-90' : ''}`}>
+                            ▶
+                          </div>
+                          {employee.name}
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            ({employee.id})
+                          </span>
+                        </div>
+                      </TableCell>
+                      {MONTHS.map(month => {
+                        const monthId = month.id as keyof typeof WORKING_DAYS;
+                        const totalDays = employee.projects.reduce(
+                          (sum, project) => sum + (project.allocations[monthId] || 0), 
+                          0
+                        );
+                        const workingDays = WORKING_DAYS[monthId];
+                        const utilization = Math.ceil((totalDays / workingDays) * 100);
+                        
+                        return (
+                          <TableCell 
+                            key={`${employee.id}-${month.id}`} 
+                            className="text-center px-2"
+                          >
+                            <div className="flex flex-col items-center">
+                              <span className={cn(
+                                utilization > 100 ? "text-red-500 font-medium" :
+                                utilization < 70 ? "text-amber-500" : ""
+                              )}>
+                                {totalDays}
+                              </span>
+                              <div className="w-full mt-1">
+                                <Progress 
+                                  value={Math.min(utilization, 100)} 
+                                  className="h-1" 
+                                  indicatorClassName={cn(
+                                    utilization > 100 ? "bg-red-500" :
+                                    utilization > 90 ? "bg-green-500" :
+                                    utilization > 70 ? "bg-blue-500" : "bg-amber-500"
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          </TableCell>
+                        );
+                      })}
+                      <TableCell className="text-right font-medium">
+                        {employee.totalProduction}
+                      </TableCell>
+                    </TableRow>
+                    {expandedEmployees[employee.id] && employee.projects.map(project => (
+                      <TableRow key={`${employee.id}-${project.id}`} className="bg-muted/10">
+                        <TableCell className="pl-8 sticky left-0 bg-muted/10 z-10">
+                          <span className="text-sm font-normal">
+                            {project.name}
+                          </span>
                         </TableCell>
-                      );
-                    })}
-                    <TableCell className="text-right font-medium">
-                      {employee.total}
-                    </TableCell>
-                  </TableRow>
-                </React.Fragment>
-              ))}
+                        {MONTHS.map(month => {
+                          const monthId = month.id as keyof typeof WORKING_DAYS;
+                          const days = project.allocations[monthId] || 0;
+                          
+                          return (
+                            <TableCell 
+                              key={`${employee.id}-${project.id}-${month.id}`} 
+                              className="text-center text-muted-foreground text-sm"
+                            >
+                              {days}
+                            </TableCell>
+                          );
+                        })}
+                        <TableCell className="text-right font-medium text-sm">
+                          {project.total}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </React.Fragment>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>

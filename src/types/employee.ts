@@ -10,7 +10,7 @@ export interface EmployeeData {
   joinDate?: string;
   manager?: string;
   skills?: string[];
-  department?: string; // Add department field to fix the data errors
+  department?: string; // Added department field to fix the data errors
   competences_2024?: string[];
   occupancyRate?: number;
   projects?: {

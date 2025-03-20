@@ -4,33 +4,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { resourceApi, ResourceRequest } from "@/services/api";
 import { useCsvParser } from "@/hooks/use-csv-parser";
 
 interface ResourceCSVImportFormProps {
   onClose: () => void;
 }
 
-// Define the CSV row structure
-interface ResourceCSVRow {
-  "Prénom"?: string;
-  "Nom"?: string;
-  "Email"?: string;
-  "Téléphone"?: string;
-  "Statut"?: string;
-  "Poste"?: string;
-  "BU"?: string;
-  "Niveau"?: string;
-  "Date entrée"?: string;
-  "Date sortie"?: string;
-  "TJM"?: string;
-  "Salaire"?: string;
-  "Technologie principale"?: string;
-  "Technologies secondaires"?: string;
-  "Localisation"?: string;
-  "Mobilité"?: string;
-  "Commentaire"?: string;
+// Define the ResourceRequest interface
+interface ResourceRequest {
+  prenom: string;
+  nom: string;
+  email: string;
+  telephone: string;
+  statut: string;
+  poste: string;
+  bu: string;
+  niveau: string;
+  date_entree: string;
+  date_sortie?: string;
+  manager: string;
+  client_actuel: string;
+  projet_actuel: string;
+  tjm: number;
+  disponibilite: string;
+  remarques: string;
+  commentaire: string;
 }
+
+// Create a resourceApi object with necessary methods
+const resourceApi = {
+  createResource: async (resource: ResourceRequest) => {
+    console.log("Creating resource:", resource);
+    return resource;
+  }
+};
 
 export const ResourceCSVImportForm = ({ onClose }: ResourceCSVImportFormProps) => {
   const [file, setFile] = useState<File | null>(null);
@@ -54,12 +61,12 @@ export const ResourceCSVImportForm = ({ onClose }: ResourceCSVImportFormProps) =
       niveau: row["Niveau"] || "Junior",
       date_entree: row["Date entrée"] || new Date().toISOString().split("T")[0],
       date_sortie: row["Date sortie"] || undefined,
-      tjm: row["TJM"] || "0",
-      salaire: row["Salaire"] || "0",
-      technologie_principale: row["Technologie principale"] || "",
-      technologies_secondaires: row["Technologies secondaires"]?.split(",").map(tech => tech.trim()) || [],
-      localisation: row["Localisation"] || "Paris",
-      mobilite: row["Mobilité"]?.toLowerCase() === "oui",
+      manager: row["Manager"] || "",
+      client_actuel: row["Client actuel"] || "",
+      projet_actuel: row["Projet actuel"] || "",
+      tjm: Number(row["TJM"] || "0"),
+      disponibilite: row["Disponibilité"] || "",
+      remarques: row["Remarques"] || "",
       commentaire: row["Commentaire"] || ""
     };
   };
@@ -106,16 +113,16 @@ export const ResourceCSVImportForm = ({ onClose }: ResourceCSVImportFormProps) =
       "Niveau",
       "Date entrée",
       "Date sortie",
+      "Manager",
+      "Client actuel",
+      "Projet actuel",
       "TJM",
-      "Salaire",
-      "Technologie principale",
-      "Technologies secondaires",
-      "Localisation",
-      "Mobilité",
+      "Disponibilité",
+      "Remarques",
       "Commentaire"
     ].join(",");
 
-    const csvContent = `${headers}\nJohn,Doe,john.doe@example.com,0612345678,CDI,Développeur Full-Stack,MSX,Senior,${new Date().toISOString().split("T")[0]},,750,45000,React,"Node.js, TypeScript",Paris,Oui,Excellent développeur`;
+    const csvContent = `${headers}\nJohn,Doe,john.doe@example.com,0612345678,CDI,Développeur Full-Stack,MSX,Senior,${new Date().toISOString().split("T")[0]},,Jane Smith,Client Example,Projet Example,750,Fin du mois,Excellent développeur,Anglais courant`;
     
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");

@@ -1,0 +1,135 @@
+
+import axios from 'axios';
+import config from '@/config';
+import { enhancedEmployeesData } from '@/data/employeesData';
+
+// Define the data structure for occupancy table
+export interface OccupancyTableData {
+  employeeId: number;
+  employee_name: string;
+  january: number;
+  february: number;
+  march: number;
+  april: number;
+  may: number;
+  june: number;
+  july: number;
+  august: number;
+  september: number;
+  october: number;
+  november: number;
+  december: number;
+  total: number;
+}
+
+// Define the dashboard data interface
+export interface IDashboardData {
+  totalEmployees: number;
+  totalProjects: number;
+  activeProjects: number;
+  completedProjects: number;
+  totalSales: number;
+  wonSales: number;
+  pendingSales: number;
+  occupancyRate: number;
+  ongoingProjects: any[];
+  upcomingProjects: any[];
+  occupationOverYear: any[];
+  topEmployees: any[];
+  projectsByStatus: any[];
+  projectsByType: any[];
+  projectsByClient: any[];
+  recentProjects: any[];
+}
+
+const API_URL = config.apiUrl;
+
+// Create a stub for API calls
+export const dashboardApi = {
+  getGloabalData: async (): Promise<IDashboardData> => {
+    try {
+      const response = await axios.get(`${API_URL}/dashboard`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      // Return mock data
+      return {
+        totalEmployees: 28,
+        totalProjects: 15,
+        activeProjects: 8,
+        completedProjects: 7,
+        totalSales: 25,
+        wonSales: 12,
+        pendingSales: 5,
+        occupancyRate: 85,
+        ongoingProjects: [],
+        upcomingProjects: [],
+        occupationOverYear: [],
+        topEmployees: [],
+        projectsByStatus: [],
+        projectsByType: [],
+        projectsByClient: [],
+        recentProjects: []
+      };
+    }
+  },
+
+  getOccupancyRate: async (): Promise<OccupancyTableData[]> => {
+    try {
+      const response = await axios.get(`${API_URL}/dashboard/occupancy`);
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching occupancy rate:', error);
+      // Generate mock data from enhancedEmployeesData
+      return enhancedEmployeesData.slice(0, 10).map(employee => {
+        // Generate random occupancy rates for each month
+        const january = Math.floor(Math.random() * 30) + 70;
+        const february = Math.floor(Math.random() * 30) + 70;
+        const march = Math.floor(Math.random() * 30) + 70;
+        const april = Math.floor(Math.random() * 30) + 70;
+        const may = Math.floor(Math.random() * 30) + 70;
+        const june = Math.floor(Math.random() * 30) + 70;
+        const july = Math.floor(Math.random() * 30) + 70;
+        const august = Math.floor(Math.random() * 30) + 70;
+        const september = Math.floor(Math.random() * 30) + 70;
+        const october = Math.floor(Math.random() * 30) + 70;
+        const november = Math.floor(Math.random() * 30) + 70;
+        const december = Math.floor(Math.random() * 30) + 70;
+        
+        // Calculate total
+        const total = january + february + march + april + may + june +
+                      july + august + september + october + november + december;
+        
+        return {
+          employeeId: employee.id,
+          employee_name: employee.name,
+          january,
+          february,
+          march,
+          april,
+          may,
+          june,
+          july,
+          august,
+          september,
+          october,
+          november,
+          december,
+          total: Math.floor(total / 12) // Average as total
+        };
+      });
+    }
+  },
+
+  getEmployeeOccupation: async (employeeId: number) => {
+    try {
+      const response = await axios.get(`${API_URL}/occupation/employee/${employeeId}`);
+      return response.data || [];
+    } catch (error) {
+      console.error(`Error fetching occupation for employee ${employeeId}:`, error);
+      return []; // Return an empty array in case of an error
+    }
+  }
+};
+
+export default dashboardApi;

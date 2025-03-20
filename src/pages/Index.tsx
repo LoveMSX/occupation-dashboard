@@ -1,163 +1,149 @@
 
-import { BarChart2, Briefcase, Users, TrendingUp } from "lucide-react";
-import Sidebar from "@/components/layout/Sidebar";
-import { Header } from "@/components/layout/Header";
-import { OccupancyChart, OccupancyData } from "@/components/dashboard/OccupancyChart";
-import { ProjectsDistributionChart } from "@/components/dashboard/ProjectsDistributionChart";
-import { TopEmployeesTable } from "@/components/dashboard/TopEmployeesTable";
-import { OccupancyTable } from "@/components/dashboard/OccupancyTable";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useLanguage } from "@/components/LanguageProvider";
-import { useEffect, useState } from "react";
-import { ProjectStats } from "@/components/dashboard/ProjectStats";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatCard } from "@/components/dashboard/StatCard";
 import { RecentProjects } from "@/components/dashboard/RecentProjects";
+import { TopEmployeesTable } from "@/components/dashboard/TopEmployeesTable";
+import { OccupancyChart } from "@/components/dashboard/OccupancyChart";
+import { ProjectsDistributionChart } from "@/components/dashboard/ProjectsDistributionChart";
 import { ProjectStatusByClient } from "@/components/dashboard/ProjectStatusByClient";
-import { dashboardApi } from "../services/api";
+import { ProjectStats } from "@/components/dashboard/ProjectStats";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/components/LanguageProvider";
+import { useQuery } from '@tanstack/react-query';
+import { dashboardApi, IDashboardData } from '@/services/dashboardApi';
 
-export interface IProjectDashboard {
-  id: number;
-  nom_projet: string;
-  statut: string;
-}
-export interface ItopEmployee {
-  employee_id: number;
-  employee_name: string;
-  average_occupancy_top: string;
-  position: string;
-  projects: IProjectDashboard[];
-}
-export interface IRateProjectCategories {
-  categorie_projet: string;
-  count: string;
-  percentage: string;
-}
-export interface IRecentProject {
-  nom_projet: string;
-  statut: string;
-  client: string;
-  categorie_projet: string;
-  progression: string;
-}
+export function IndexPage() {
+  const { language, t } = useLanguage();
+  const [dashboardData, setDashboardData] = useState<IDashboardData | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
 
-export interface IDashboardData {
-  ongoingProjects: number;
-  totalProjects: number;
-  completedProjects: number;
-  upcomingProjects: number;
-  occupationOverYear: OccupancyData[];
-  topEmployees: ItopEmployee[];
-  RateProjectCategories: IRateProjectCategories[];
-  RecentProject: IRecentProject[];
-  ongoingPercentage: number;
-  completedPercentage: number;
-  upcomingPercentage: number;
-}
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['dashboardData'],
+    queryFn: dashboardApi.getGloabalData,
+    staleTime: 1000 * 60 * 15, // 15 minutes
+  });
 
-const Dashboard = () => {
-
-  const { t } = useLanguage();
-
-  const [activeTab, setActiveTab] = useState("overview");
-
-  const [dashboardData, setDashboardData] = useState<IDashboardData>();
-
-  const getDashbordData = async() =>{
-    try {
-      const data = await dashboardApi.getGloabalData();
-      console.log("dashboard data", data);
+  useEffect(() => {
+    if (data) {
       setDashboardData(data);
-    } catch(error){
-      return (<div> Failed to fetch data</div>)
+      setLoading(false);
     }
-  }
-
-  useEffect(()=>{
-    getDashbordData();
-  },[])
-
-  const statsData = {
-    ongoingProjects: dashboardData ? dashboardData.ongoingProjects : 0,
-    totalProjects: dashboardData ? dashboardData.totalProjects : 0,
-    completedProjects: dashboardData ? dashboardData.completedProjects : 0,
-    upcomingProjects: dashboardData ? dashboardData.upcomingProjects : 0,
-    ongoingPercentage: dashboardData ? dashboardData.ongoingPercentage : 0,
-    completedPercentage: dashboardData ? dashboardData.completedPercentage : 0,
-    upcomingPercentage: dashboardData ? dashboardData.upcomingPercentage : 0,
-  };
+  }, [data]);
 
   return (
-    <div className="flex h-screen bg-background">
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <TabsList>
-                <TabsTrigger value="overview">{t('dashboard')}</TabsTrigger>
-                <TabsTrigger value="occupancy">{t('occupancy.rate')}</TabsTrigger>
-                <TabsTrigger value="projects">{t('projects')}</TabsTrigger>
-              </TabsList>
-              <Button variant="outline" size="sm">Q3 2025</Button>
-            </div>
-            
-            <TabsContent value="overview" className="mt-0 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <ProjectStats data={statsData} />
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div className="lg:col-span-2">
-                  <OccupancyChart
-                    occupancyData={dashboardData?.occupationOverYear}
-                  />
-                </div>
-                <div>
-                  <ProjectsDistributionChart 
-                    distribution={dashboardData?.RateProjectCategories}
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div className="lg:col-span-2">
-                  <TopEmployeesTable 
-                    Employees={dashboardData?.topEmployees}
-                  />
-                </div>
-                <div>
-                  <RecentProjects 
-                    projectsData = {dashboardData?.RecentProject}
-                  />
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="occupancy" className="mt-0 space-y-6">
-              <OccupancyTable />
-            </TabsContent>
-            
-            <TabsContent value="projects" className="mt-0 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <ProjectStats data={statsData} />
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <RecentProjects 
-                  projectsData = {dashboardData?.RecentProject}
-                />
-                <ProjectsDistributionChart 
-                  distribution={dashboardData?.RateProjectCategories}
-                />
-              </div>
-              
-              <ProjectStatusByClient />
-            </TabsContent>
-          </Tabs>
-        </main>
-      </div>
-    </div>
-  );
-};
+    <SidebarProvider>
+      <div className="container mx-auto py-4">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome to your analytics dashboard</p>
+        </div>
 
-export default Dashboard;
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <StatCard
+            title={t("Employees")}
+            value={loading ? <Skeleton className="h-9 w-24" /> : dashboardData?.totalEmployees || 0}
+            description={t("Total employees")}
+            trend="up"
+            trendValue="12%"
+            icon="users"
+          />
+          <StatCard
+            title={t("Projects")}
+            value={loading ? <Skeleton className="h-9 w-24" /> : dashboardData?.totalProjects || 0}
+            description={`${dashboardData?.activeProjects || 0} active`}
+            trend="up"
+            trendValue="4%"
+            icon="folder"
+          />
+          <StatCard
+            title={t("Sales")}
+            value={loading ? <Skeleton className="h-9 w-24" /> : dashboardData?.totalSales || 0}
+            description={`${dashboardData?.wonSales || 0} won, ${dashboardData?.pendingSales || 0} pending`}
+            trend="up"
+            trendValue="9%"
+            icon="trending-up"
+          />
+          <StatCard
+            title={t("Occupancy")}
+            value={loading ? <Skeleton className="h-9 w-24" /> : `${dashboardData?.occupancyRate || 0}%`}
+            description={t("Average rate")}
+            trend="down"
+            trendValue="3%"
+            icon="activity"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <Card className="col-span-1">
+            <CardHeader className="pb-2">
+              <CardTitle>{t("Occupation Rate")}</CardTitle>
+              <CardDescription>{t("Monthly occupation rate for all resources")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <OccupancyChart />
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-1">
+            <CardHeader className="pb-2">
+              <CardTitle>{t("Projects Distribution")}</CardTitle>
+              <CardDescription>{t("Number of projects per category")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ProjectsDistributionChart />
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <Card className="col-span-1">
+            <CardHeader className="pb-2">
+              <CardTitle>{t("Project Status by Client")}</CardTitle>
+              <CardDescription>{t("Current projects per client")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ProjectStatusByClient />
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-2">
+            <CardHeader className="pb-2">
+              <CardTitle>{t("Project Statistics")}</CardTitle>
+              <CardDescription>{t("Timeline of project starts and completions")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ProjectStats />
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="col-span-2">
+            <CardHeader className="pb-2">
+              <CardTitle>{t("Recent Projects")}</CardTitle>
+              <CardDescription>{t("Latest project updates")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RecentProjects />
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-1">
+            <CardHeader className="pb-2">
+              <CardTitle>{t("Top Performers")}</CardTitle>
+              <CardDescription>{t("Employees with highest occupancy")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TopEmployeesTable />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+}
+
+export default IndexPage;

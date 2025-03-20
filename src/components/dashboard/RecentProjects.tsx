@@ -1,79 +1,92 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-// import { projectsData } from "@/data/projectsData";
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
-import { IRecentProject } from "@/pages/Index";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useLanguage } from "@/components/LanguageProvider";
+import { IRecentProject } from "@/types/dashboard";
+import { formatDistanceToNow } from "date-fns";
 
-type RecentProjectsProps = {
-  projectsData : IRecentProject[] | undefined;
+interface RecentProjectsProps {
+  projectsData: IRecentProject[];
 }
-export function RecentProjects({projectsData}:RecentProjectsProps) {
-  // Récupérer les 5 projets les plus récents basés sur la date de début
-  const recentProjects = [...projectsData ? projectsData : []]
-    // .sort((a, b) => {
-    //   return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-    // })
-    // .slice(0, 5);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "ongoing":
-        return "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20";
-      case "completed":
-        return "bg-green-500/10 text-green-500 hover:bg-green-500/20";
-      case "standby":
-        return "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20";
-      default:
-        return "bg-gray-500/10 text-gray-500 hover:bg-gray-500/20";
-    }
-  };
+export function RecentProjects({ projectsData }: RecentProjectsProps) {
+  const { t } = useLanguage();
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "ongoing":
-        return "En cours";
-      case "completed":
-        return "Terminé";
-      case "standby":
-        return "En attente";
+  if (!projectsData || projectsData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('Recent Projects')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">{t('No recent projects')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const getStatusVariant = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+      case 'en cours':
+        return 'default';
+      case 'completed':
+      case 'terminé':
+        return 'success';
+      case 'pending':
+      case 'en attente':
+        return 'warning';
       default:
-        return status;
+        return 'outline';
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Projets Récents</CardTitle>
-        <CardDescription>Vue d'ensemble des derniers projets ajoutés</CardDescription>
+        <CardTitle>{t('Recent Projects')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          {recentProjects.map((project, index) => (
-            <div key={index} className="flex flex-col space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="font-medium">{project.nom_projet}</div>
-                <Badge 
-                  variant="outline" 
-                  className={cn("font-normal", getStatusColor(project.statut))}
-                >
-                  {getStatusText(project.statut)}
-                </Badge>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Client: {project.client}
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span>Progression: {project.progression}</span>
-                <span>Catégorie: {project.categorie_projet}</span>
-              </div>
-              <Progress value={parseInt(project.progression)} className="h-2" />
-            </div>
-          ))}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t('Project')}</TableHead>
+              <TableHead>{t('Client')}</TableHead>
+              <TableHead>{t('Status')}</TableHead>
+              <TableHead className="text-right">{t('Team')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {projectsData.map((project) => (
+              <TableRow key={project.project_id} className="group hover:bg-muted/50">
+                <TableCell className="font-medium">
+                  <div className="flex flex-col">
+                    <span className="group-hover:text-primary transition-colors">
+                      {project.project_name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {project.start_date && formatDistanceToNow(new Date(project.start_date), { addSuffix: true })}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>{project.client_name}</TableCell>
+                <TableCell>
+                  <Badge variant={getStatusVariant(project.status)}>
+                    {project.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end">
+                    <span className="mr-2">{project.team_count}</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );

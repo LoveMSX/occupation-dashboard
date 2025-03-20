@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { enhancedEmployeesData } from "@/data/employeesData";
-import { ItopEmployee } from "@/pages/Index";
+import { ItopEmployee } from "@/types/dashboard";
 
 type TopEmployeesProps = {
   Employees : ItopEmployee[] | undefined

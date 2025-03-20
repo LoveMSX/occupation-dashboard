@@ -1,4 +1,6 @@
+
 import axios from 'axios';
+import '@/types/axios-types'; // Import the custom types
 
 const GOOGLE_SHEETS_API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
 const GOOGLE_AUTH_SCOPE = [
@@ -134,16 +136,22 @@ export const gsheetApi = {
           data: formattedData
         };
       }
+      
+      // Default return for unexpected cases
+      return {
+        success: false,
+        data: null
+      };
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Full error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        headers: error.response?.headers
+        message: error instanceof Error ? error.message : String(error),
+        response: axios.isAxiosError(error) ? error.response?.data : null,
+        status: axios.isAxiosError(error) ? error.response?.status : null,
+        headers: axios.isAxiosError(error) ? error.response?.headers : null
       });
 
-      if (error.response?.status === 400) {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
         const errorMessage = error.response.data?.error?.message || 'Unknown error';
         throw new Error(`Google Sheets API error: ${errorMessage}`);
       }
@@ -168,6 +176,46 @@ export const gsheetApi = {
     } catch (error) {
       window.console.error('Sales sync error:', error);
       throw new Error('Failed to sync sales with Google Sheets');
+    }
+  },
+
+  syncProjects: async (spreadsheetId: string): Promise<GSheetResponse> => {
+    try {
+      const response = await axios.post('/api/gsheet/sync/projects', {
+        spreadsheetId,
+      });
+
+      if (!response.data) {
+        throw new Error('No data received from projects sync');
+      }
+
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      window.console.error('Projects sync error:', error);
+      throw new Error('Failed to sync projects with Google Sheets');
+    }
+  },
+
+  syncResources: async (spreadsheetId: string): Promise<GSheetResponse> => {
+    try {
+      const response = await axios.post('/api/gsheet/sync/resources', {
+        spreadsheetId,
+      });
+
+      if (!response.data) {
+        throw new Error('No data received from resources sync');
+      }
+
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      window.console.error('Resources sync error:', error);
+      throw new Error('Failed to sync resources with Google Sheets');
     }
   },
 

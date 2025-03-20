@@ -184,7 +184,7 @@ export function OccupancyTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dataOccupancyRate.length > 0 ? (
+              {dataOccupancyRate && dataOccupancyRate.length > 0 ? (
                 // If we have actual data from API
                 dataOccupancyRate.map(employee => (
                   <React.Fragment key={employee.employeeId.toString()}>
@@ -335,14 +335,3 @@ export function OccupancyTable() {
     </Card>
   );
 }
-
-// Function to fetch employee occupation
-const fetchEmployeeOccupation = async (employeeId: number) => {
-  try {
-    const data = await dashboardApi.getEmployeeOccupation(employeeId) || [];
-    return data;
-  } catch (error) {
-    console.error('Error fetching employee occupation:', error);
-    return []; // Return an empty array in case of an error
-  }
-};

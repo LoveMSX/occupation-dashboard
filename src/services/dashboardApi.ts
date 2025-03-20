@@ -2,6 +2,7 @@
 import axios from 'axios';
 import config from '@/config';
 import { enhancedEmployeesData } from '@/data/employeesData';
+import { IDashboardData, ItopEmployee, IRecentProject, IRateProjectCategories } from '@/types/dashboard';
 
 // Define the data structure for occupancy table
 export interface OccupancyTableData {
@@ -22,26 +23,6 @@ export interface OccupancyTableData {
   total: number;
 }
 
-// Define the dashboard data interface
-export interface IDashboardData {
-  totalEmployees: number;
-  totalProjects: number;
-  activeProjects: number;
-  completedProjects: number;
-  totalSales: number;
-  wonSales: number;
-  pendingSales: number;
-  occupancyRate: number;
-  ongoingProjects: any[];
-  upcomingProjects: any[];
-  occupationOverYear: any[];
-  topEmployees: any[];
-  projectsByStatus: any[];
-  projectsByType: any[];
-  projectsByClient: any[];
-  recentProjects: any[];
-}
-
 const API_URL = config.apiUrl;
 
 // Create a stub for API calls
@@ -52,7 +33,7 @@ export const dashboardApi = {
       return response.data;
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      // Return mock data
+      // Return mock data with the correct shape
       return {
         totalEmployees: 28,
         totalProjects: 15,
@@ -62,8 +43,11 @@ export const dashboardApi = {
         wonSales: 12,
         pendingSales: 5,
         occupancyRate: 85,
-        ongoingProjects: [],
-        upcomingProjects: [],
+        ongoingProjects: 8,
+        upcomingProjects: 4,
+        completedPercentage: 35,
+        ongoingPercentage: 40,
+        upcomingPercentage: 25,
         occupationOverYear: [],
         topEmployees: [],
         projectsByStatus: [],

@@ -1,16 +1,11 @@
 
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import axios from 'axios';
 import config from '@/config';
-
-// Fix the isAxiosError check
-if (axios.isAxiosError && axios.isAxiosError(error)) {
-  window.console.error('Response data:', error.response?.data);
-  window.console.error('Status:', error.response?.status);
-}
+import '@/types/axios-types'; // Import the custom types
 
 // Create a standard API client
 const API_URL = config.apiUrl;
-const api: AxiosInstance = axios.create({
+const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Accept': 'application/json',
@@ -24,11 +19,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     // Check if the error is an Axios error
-    if (axios.isAxiosError && axios.isAxiosError(error)) {
-      window.console.error('API Error Response:', error.response?.data);
-      window.console.error('Status:', error.response?.status);
+    if (axios.isAxiosError(error)) {
+      console.error('API Error Response:', error.response?.data);
+      console.error('Status:', error.response?.status);
     } else {
-      window.console.error('Unexpected error:', error);
+      console.error('Unexpected error:', error);
     }
     return Promise.reject(error);
   }
@@ -46,6 +41,7 @@ export interface EmployeeRequest {
   date_debauche: string;
   manager: string;
   occupancyRate: number;
+  tjm?: number;
   projects: any[]; // Replace with proper project type when available
 }
 
@@ -65,6 +61,7 @@ export interface ProjectRequest {
   budget: number;
   manager: string;
   bu: string;
+  tjm?: number;
 }
 
 export interface SalesOperationRequest {
@@ -129,6 +126,7 @@ export interface OccupationData {
   november: number;
   december: number;
   occupancyRate: number;
+  utilizationRate: number;
 }
 
 export interface SalesOperationResponse {
@@ -146,17 +144,6 @@ export interface SalesOperationResponse {
   url: string;
   created_at: string;
   updated_at: string;
-}
-
-export interface IDashboardData {
-  totalEmployees: number;
-  totalProjects: number;
-  activeProjects: number;
-  completedProjects: number;
-  totalSales: number;
-  wonSales: number;
-  pendingSales: number;
-  occupancyRate: number;
 }
 
 // Employee API
@@ -389,48 +376,6 @@ export const resourceApi = {
       throw error;
     }
   },
-};
-
-// Dashboard API
-export const dashboardApi = {
-  getGloabalData: async (): Promise<IDashboardData> => {
-    try {
-      const response = await api.get('/dashboard');
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      return {
-        totalEmployees: 0,
-        totalProjects: 0,
-        activeProjects: 0,
-        completedProjects: 0,
-        totalSales: 0,
-        wonSales: 0,
-        pendingSales: 0,
-        occupancyRate: 0
-      };
-    }
-  },
-
-  getOccupancyRate: async () => {
-    try {
-      const response = await api.get('/dashboard/occupancy');
-      return response.data || [];
-    } catch (error) {
-      console.error('Error fetching occupancy rate:', error);
-      return [];
-    }
-  },
-
-  getEmployeeOccupation: async (employeeId: number) => {
-    try {
-      const response = await api.get(`/occupation/employee/${employeeId}`);
-      return response.data || [];
-    } catch (error) {
-      console.error(`Error fetching occupation for employee ${employeeId}:`, error);
-      return [];
-    }
-  }
 };
 
 // Health API for system status checks

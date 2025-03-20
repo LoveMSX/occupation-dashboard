@@ -1,6 +1,7 @@
+
 import { FC } from "react";
 import { Briefcase, Clock, CheckCircle, AlertCircle } from "lucide-react";
-import { IDashboardData } from "@/pages/Index";
+import { IDashboardData } from "@/types/dashboard";
 import { StatCard } from "./StatCard";
 
 interface ProjectStatsProps {

@@ -9,7 +9,7 @@ import { SkillsSummaryPanel } from '@/components/employees/SkillsSummaryPanel';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { UserPlus, FileImport, Filter } from 'lucide-react';
+import { UserPlus, Upload, Filter } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useLanguage } from '@/components/LanguageProvider';
@@ -17,6 +17,41 @@ import { EmployeeForm } from '@/components/employees/EmployeeForm';
 import { enhancedEmployeesData } from '@/data/employeesData';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
+
+// Define the prop types for child components
+export interface EmployeeSearchProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export interface ViewModeToggleProps {
+  mode: 'grid' | 'table';
+  onChange: (mode: 'grid' | 'table') => void;
+}
+
+export interface EmployeeFiltersProps {
+  departments: string[];
+  positions: string[];
+  skills: string[];
+  locations: string[];
+  filters: {
+    departments: string[];
+    positions: string[];
+    skills: string[];
+    locations: string[];
+  };
+  onChange: (filters: any) => void;
+}
+
+export interface EmployeeGridProps {
+  employees: any[];
+  viewMode: 'grid' | 'table';
+}
+
+export interface SkillsSummaryPanelProps {
+  skills: string[];
+  employees: any[];
+}
 
 // Create a mock employeeApi for now
 const employeeApi = {
@@ -155,7 +190,7 @@ export function EmployeesPage() {
             <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">
-                  <FileImport className="mr-2 h-4 w-4" />
+                  <Upload className="mr-2 h-4 w-4" />
                   {t('Import')}
                 </Button>
               </DialogTrigger>
@@ -172,7 +207,10 @@ export function EmployeesPage() {
         
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-grow">
-            <EmployeeSearch onSearch={setSearchQuery} />
+            <EmployeeSearch 
+              value={searchQuery} 
+              onChange={setSearchQuery} 
+            />
           </div>
           <div className="flex space-x-2">
             <Button 
@@ -190,7 +228,10 @@ export function EmployeesPage() {
                 </span>
               ) : null}
             </Button>
-            <ViewModeToggle mode={viewMode} onModeChange={setViewMode} />
+            <ViewModeToggle 
+              mode={viewMode} 
+              onChange={setViewMode} 
+            />
           </div>
         </div>
         
@@ -223,27 +264,33 @@ export function EmployeesPage() {
               <TabsContent value="all" className="mt-2">
                 {filteredEmployees.length > 0 ? (
                   viewMode === 'grid' ? (
-                    <EmployeeGrid employees={filteredEmployees} />
+                    <EmployeeGrid 
+                      employees={filteredEmployees} 
+                      viewMode={viewMode} 
+                    />
                   ) : (
                     <EmployeeTable employees={filteredEmployees} />
                   )
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">{t('No employees match your filters')}</div>
+                  <div className="text-center py-8 text-muted-foreground">
+                    {t('No employees match your filters')}
+                  </div>
                 )}
               </TabsContent>
               <TabsContent value="active" className="mt-2">
-                {/* Active employees tab content */}
                 <div className="text-center py-8 text-muted-foreground">{t('Active employees content')}</div>
               </TabsContent>
               <TabsContent value="available" className="mt-2">
-                {/* Available employees tab content */}
                 <div className="text-center py-8 text-muted-foreground">{t('Available employees content')}</div>
               </TabsContent>
             </Tabs>
           </div>
           
           <div className="xl:w-96">
-            <SkillsSummaryPanel skills={skillOptions} employees={filteredEmployees} />
+            <SkillsSummaryPanel 
+              skills={skillOptions} 
+              employees={filteredEmployees} 
+            />
           </div>
         </div>
       </div>

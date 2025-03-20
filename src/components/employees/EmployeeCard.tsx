@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Card,
@@ -17,6 +18,7 @@ import {
   User,
   Edit,
   Trash2,
+  Calendar,
 } from "lucide-react";
 import {
   Dialog,
@@ -46,7 +48,6 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Calendar } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import {
   Table,
@@ -79,6 +80,7 @@ export interface EmployeeData {
   joinDate: string;
   manager?: string;
   skills?: string[];
+  department?: string;
   competences_2024?: string[];
   occupancyRate: number;
   projects: {
@@ -136,16 +138,19 @@ export function EmployeeCard({
 
   // Fonction pour obtenir le nom du projet
   const getProjectName = (projectId: number) => {
-    const project = projects?.find((p) => p.id === projectId);
+    if (!projects) return "N/A";
+    const project = projects.find((p) => p.id === projectId);
     return project?.name || "N/A";
   };
 
   // Fonction helper pour calculer le total d'un mois
-  const calculateMonthTotal = (month: keyof (typeof occupationData)[0]) => {
+  const calculateMonthTotal = (month: keyof typeof WORKING_DAYS) => {
+    if (!occupationData || !Array.isArray(occupationData)) return 0;
+    
     return (
       occupationData
-        ?.filter((o) => o.employee_id === employee.id)
-        .reduce((sum, o) => sum + (Number(o[month]) || 0), 0) || 0
+        .filter((o) => o.employee_id === employee.id)
+        .reduce((sum, o) => sum + (Number(o[month.toLowerCase()]) || 0), 0) || 0
     );
   };
 
@@ -166,24 +171,10 @@ export function EmployeeCard({
 
   // Ajouter cette fonction pour calculer le taux d'occupation
   const calculateTotalOccupancyRate = () => {
-    if (!occupationData) return 0;
+    if (!occupationData || !Array.isArray(occupationData)) return 0;
 
-    const totalAllocatedDays = [
-      "january",
-      "february",
-      "march",
-      "april",
-      "may",
-      "june",
-      "july",
-      "august",
-      "september",
-      "october",
-      "november",
-      "december",
-    ].reduce(
-      (total, month) =>
-        total + calculateMonthTotal(month as keyof (typeof occupationData)[0]),
+    const totalAllocatedDays = Object.keys(WORKING_DAYS).reduce(
+      (total, month) => total + calculateMonthTotal(month as keyof typeof WORKING_DAYS),
       0
     );
 
@@ -234,8 +225,8 @@ export function EmployeeCard({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {occupationData
-                  ?.filter(
+                {Array.isArray(occupationData) && occupationData
+                  .filter(
                     (occupation) => occupation.employee_id === employee.id
                   )
                   .map((occupation) => (
@@ -577,11 +568,13 @@ const COLORS = [
   "#d0ed57",
 ];
 
+export interface SkillsSummaryPanelProps {
+  employees: EmployeeData[];
+}
+
 export function SkillsSummaryPanel({
   employees,
-}: {
-  employees: EmployeeData[];
-}) {
+}: SkillsSummaryPanelProps) {
   const { t } = useLanguage();
   const skillsData = calculateSkillsSummary(employees);
 

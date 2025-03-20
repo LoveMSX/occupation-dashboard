@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 import config from '@/config';
-import '@/types/axios-types'; // Import the custom types
+import 'axios'; // Import axios types
 
 // Create a standard API client
 const API_URL = config.apiUrl;
@@ -23,7 +23,7 @@ api.interceptors.response.use(
       console.error('API Error Response:', error.response?.data);
       console.error('Status:', error.response?.status);
     } else {
-      console.error('Unexpected error:', error);
+      console.error('Unexpected error:', error instanceof Error ? error.message : String(error));
     }
     return Promise.reject(error);
   }
@@ -153,7 +153,7 @@ export const employeeApi = {
       const response = await api.get('/employees');
       return response.data;
     } catch (error) {
-      console.error('Error fetching employees:', error);
+      console.error('Error fetching employees:', error instanceof Error ? error.message : String(error));
       return [];
     }
   },
@@ -163,7 +163,7 @@ export const employeeApi = {
       const response = await api.get(`/employees/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching employee ${id}:`, error);
+      console.error(`Error fetching employee ${id}:`, error instanceof Error ? error.message : String(error));
       return null;
     }
   },
@@ -173,7 +173,7 @@ export const employeeApi = {
       const response = await api.post('/employees', employee);
       return response.data;
     } catch (error) {
-      console.error('Error creating employee:', error);
+      console.error('Error creating employee:', error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -183,7 +183,7 @@ export const employeeApi = {
       const response = await api.put(`/employees/${id}`, employee);
       return response.data;
     } catch (error) {
-      console.error(`Error updating employee ${id}:`, error);
+      console.error(`Error updating employee ${id}:`, error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -193,7 +193,7 @@ export const employeeApi = {
       const response = await api.delete(`/employees/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`Error deleting employee ${id}:`, error);
+      console.error(`Error deleting employee ${id}:`, error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -203,7 +203,7 @@ export const employeeApi = {
       const response = await api.get(`/occupation/employee/${employeeId}`);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching occupation for employee ${employeeId}:`, error);
+      console.error(`Error fetching occupation for employee ${employeeId}:`, error instanceof Error ? error.message : String(error));
       return [];
     }
   },
@@ -216,7 +216,7 @@ export const projectApi = {
       const response = await api.get('/projects');
       return response.data;
     } catch (error) {
-      console.error('Error fetching projects:', error);
+      console.error('Error fetching projects:', error instanceof Error ? error.message : String(error));
       return [];
     }
   },
@@ -226,7 +226,7 @@ export const projectApi = {
       const response = await api.get(`/projects/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching project ${id}:`, error);
+      console.error(`Error fetching project ${id}:`, error instanceof Error ? error.message : String(error));
       return null;
     }
   },
@@ -236,7 +236,7 @@ export const projectApi = {
       const response = await api.post('/projects', project);
       return response.data;
     } catch (error) {
-      console.error('Error creating project:', error);
+      console.error('Error creating project:', error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -246,7 +246,7 @@ export const projectApi = {
       const response = await api.put(`/projects/${id}`, project);
       return response.data;
     } catch (error) {
-      console.error(`Error updating project ${id}:`, error);
+      console.error(`Error updating project ${id}:`, error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -256,7 +256,7 @@ export const projectApi = {
       const response = await api.delete(`/projects/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`Error deleting project ${id}:`, error);
+      console.error(`Error deleting project ${id}:`, error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -266,7 +266,7 @@ export const projectApi = {
       const response = await api.get(`/projects/${projectId}/employees`);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching employees for project ${projectId}:`, error);
+      console.error(`Error fetching employees for project ${projectId}:`, error instanceof Error ? error.message : String(error));
       return [];
     }
   },
@@ -277,9 +277,9 @@ export const salesApi = {
   getAllSalesOperations: async () => {
     try {
       const response = await api.get('/sales');
-      return response.data;
+      return response.data as SalesOperationResponse[];
     } catch (error) {
-      console.error('Error fetching sales operations:', error);
+      console.error('Error fetching sales operations:', error instanceof Error ? error.message : String(error));
       return [];
     }
   },
@@ -289,7 +289,7 @@ export const salesApi = {
       const response = await api.get(`/sales/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching sales operation ${id}:`, error);
+      console.error(`Error fetching sales operation ${id}:`, error instanceof Error ? error.message : String(error));
       return null;
     }
   },
@@ -299,7 +299,7 @@ export const salesApi = {
       const response = await api.post('/sales', salesOperation);
       return response.data;
     } catch (error) {
-      console.error('Error creating sales operation:', error);
+      console.error('Error creating sales operation:', error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -309,7 +309,7 @@ export const salesApi = {
       const response = await api.put(`/sales/${id}`, salesOperation);
       return response.data;
     } catch (error) {
-      console.error(`Error updating sales operation ${id}:`, error);
+      console.error(`Error updating sales operation ${id}:`, error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -319,7 +319,7 @@ export const salesApi = {
       const response = await api.delete(`/sales/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`Error deleting sales operation ${id}:`, error);
+      console.error(`Error deleting sales operation ${id}:`, error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -332,7 +332,7 @@ export const resourceApi = {
       const response = await api.get('/resources');
       return response.data;
     } catch (error) {
-      console.error('Error fetching resources:', error);
+      console.error('Error fetching resources:', error instanceof Error ? error.message : String(error));
       return [];
     }
   },
@@ -342,7 +342,7 @@ export const resourceApi = {
       const response = await api.get(`/resources/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching resource ${id}:`, error);
+      console.error(`Error fetching resource ${id}:`, error instanceof Error ? error.message : String(error));
       return null;
     }
   },
@@ -352,7 +352,7 @@ export const resourceApi = {
       const response = await api.post('/resources', resource);
       return response.data;
     } catch (error) {
-      console.error('Error creating resource:', error);
+      console.error('Error creating resource:', error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -362,7 +362,7 @@ export const resourceApi = {
       const response = await api.put(`/resources/${id}`, resource);
       return response.data;
     } catch (error) {
-      console.error(`Error updating resource ${id}:`, error);
+      console.error(`Error updating resource ${id}:`, error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
@@ -372,10 +372,54 @@ export const resourceApi = {
       const response = await api.delete(`/resources/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`Error deleting resource ${id}:`, error);
+      console.error(`Error deleting resource ${id}:`, error instanceof Error ? error.message : String(error));
       throw error;
     }
   },
+};
+
+// Dashboard API
+export const dashboardApi = {
+  getGlobalData: async () => {
+    try {
+      const response = await api.get('/dashboard');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error instanceof Error ? error.message : String(error));
+      // Return default data structure
+      return {
+        totalEmployees: 0,
+        totalProjects: 0,
+        activeProjects: 0,
+        completedProjects: 0,
+        totalSales: 0,
+        wonSales: 0,
+        pendingSales: 0,
+        occupancyRate: 0,
+        ongoingProjects: 0,
+        upcomingProjects: 0,
+        completedPercentage: 0,
+        ongoingPercentage: 0,
+        upcomingPercentage: 0,
+        occupationOverYear: [],
+        topEmployees: [],
+        projectsByStatus: [],
+        projectsByType: [],
+        projectsByClient: [],
+        recentProjects: []
+      };
+    }
+  },
+  
+  getOccupancyRate: async () => {
+    try {
+      const response = await api.get('/dashboard/occupancy');
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching occupancy rate:', error instanceof Error ? error.message : String(error));
+      return [];
+    }
+  }
 };
 
 // Health API for system status checks
@@ -385,7 +429,7 @@ export const healthApi = {
       const response = await api.get('/health');
       return response.data;
     } catch (error) {
-      console.error('Error checking API health:', error);
+      console.error('Error checking API health:', error instanceof Error ? error.message : String(error));
       return { status: 'error' };
     }
   }

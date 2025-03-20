@@ -1,31 +1,24 @@
 
-import { Button } from "@/components/ui/button";
-import { Grid, List } from "lucide-react";
+import React from 'react';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Grid, List } from 'lucide-react';
 
-interface ViewModeToggleProps {
-  viewMode: "grid" | "list";
-  setViewMode: (mode: "grid" | "list") => void;
+export interface ViewModeToggleProps {
+  mode: 'grid' | 'table';
+  onChange: (mode: 'grid' | 'table') => void;
 }
 
-export function ViewModeToggle({ viewMode, setViewMode }: ViewModeToggleProps) {
+export function ViewModeToggle({ mode, onChange }: ViewModeToggleProps) {
   return (
-    <div className="flex rounded-md border">
-      <Button
-        variant={viewMode === "grid" ? "default" : "ghost"}
-        size="icon"
-        onClick={() => setViewMode("grid")}
-        className="rounded-r-none"
-      >
+    <ToggleGroup type="single" value={mode} onValueChange={value => value && onChange(value as 'grid' | 'table')}>
+      <ToggleGroupItem value="grid" aria-label="Grid View">
         <Grid className="h-4 w-4" />
-      </Button>
-      <Button
-        variant={viewMode === "list" ? "default" : "ghost"}
-        size="icon"
-        onClick={() => setViewMode("list")}
-        className="rounded-l-none"
-      >
+      </ToggleGroupItem>
+      <ToggleGroupItem value="table" aria-label="Table View">
         <List className="h-4 w-4" />
-      </Button>
-    </div>
+      </ToggleGroupItem>
+    </ToggleGroup>
   );
 }
+
+export default ViewModeToggle;

@@ -38,7 +38,7 @@ export function RecentProjects({ projectsData }: RecentProjectsProps) {
         return 'success';
       case 'pending':
       case 'en attente':
-        return 'warning';
+        return 'secondary';
       default:
         return 'outline';
     }

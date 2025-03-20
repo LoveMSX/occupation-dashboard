@@ -1,5 +1,5 @@
 
-import { EmployeeData } from "@/components/employees/EmployeeCard";
+import { EmployeeData } from "@/types/employee";
 
 // Real employee data from the provided excel sheet
 export const employeesData: EmployeeData[] = [
@@ -514,7 +514,7 @@ export const getDepartmentSkills = (department: string): string[] => {
 export const enhanceEmployeesData = () => {
   return employeesData.map(employee => {
     // Generate random skills from department
-    const departmentSkills = getDepartmentSkills(employee.department);
+    const departmentSkills = getDepartmentSkills(employee.department || "");
     const randomSkillCount = Math.floor(Math.random() * 3) + 1; // 1-3 skills
     const selectedSkills: string[] = [];
     

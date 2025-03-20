@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { Drawer as DrawerPrimitive } from "vaul"
 
@@ -14,11 +15,20 @@ const Drawer = ({
 )
 Drawer.displayName = "Drawer"
 
-const DrawerTrigger = DrawerPrimitive.Trigger
+// Add type annotation to fix TS2742 error
+const DrawerTrigger = DrawerPrimitive.Trigger as React.FC<
+  React.ComponentProps<typeof DrawerPrimitive.Trigger>
+>
 
-const DrawerPortal = DrawerPrimitive.Portal
+// Add type annotation to fix TS2742 error
+const DrawerPortal = DrawerPrimitive.Portal as React.FC<
+  React.ComponentProps<typeof DrawerPrimitive.Portal>
+>
 
-const DrawerClose = DrawerPrimitive.Close
+// Add type annotation to fix TS2742 error
+const DrawerClose = DrawerPrimitive.Close as React.FC<
+  React.ComponentProps<typeof DrawerPrimitive.Close>
+>
 
 const DrawerOverlay = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Overlay>,

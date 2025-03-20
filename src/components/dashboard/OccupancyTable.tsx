@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -146,9 +146,9 @@ export function OccupancyTable() {
 
   const { getOccupancyRate } = dashboardApi;
 
-  const [ dataOccupancyRate, setDataOccupancyRate ] = useState<OccupancyTableData[]>([]);
+  const [ dataOccupancyRate, setDataOccupancyRate ] = React.useState<OccupancyTableData[]>([]);
   
-  const [expandedEmployees, setExpandedEmployees] = useState<Record<string, boolean>>({});
+  const [expandedEmployees, setExpandedEmployees] = React.useState<Record<string, boolean>>({});
 
   const toggleEmployeeExpand = (employeeId: string) => {
     setExpandedEmployees(prev => ({
@@ -167,7 +167,7 @@ export function OccupancyTable() {
     }
   }
 
-  useEffect(() => {
+  React.useEffect(() => {
     console.log("in occupancy table");
     getDataTable();
   }, []);

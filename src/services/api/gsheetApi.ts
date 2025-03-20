@@ -87,50 +87,53 @@ export const gsheetApi = {
         }
       });
 
-      console.log('Response data:', response.data); // Ajout d'un log pour vérifier les données
-
-      if (!response.data || !response.data.values) {
-        throw new Error('Empty response from Google Sheets API');
-      }
-
-      const values = response.data.values;
-      if (!Array.isArray(values) || values.length < 2) {
-        throw new Error('Invalid data format or empty sheet');
-      }
-
-      const [headers, ...rows] = values;
-
-      // Validation des données avant transformation
-      const formattedData = rows.map((row: any[], index: number) => {
-        if (row.length < 14) {
-          console.warn(`Row ${index + 2} has insufficient columns`);
-          while (row.length < 14) row.push('0');
+      if (response.data && typeof response.data === 'object') {
+        console.log('Response data:', response.data);
+        
+        const responseData = response.data as { values?: any[] };
+        if (!responseData.values || !Array.isArray(responseData.values)) {
+          throw new Error('Empty response from Google Sheets API');
         }
 
-        return {
-          employee: row[0] || '',
-          project: row[1] || '',
-          occupationRates: {
-            january: parsePercentage(row[2]),
-            february: parsePercentage(row[3]),
-            march: parsePercentage(row[4]),
-            april: parsePercentage(row[5]),
-            may: parsePercentage(row[6]),
-            june: parsePercentage(row[7]),
-            july: parsePercentage(row[8]),
-            august: parsePercentage(row[9]),
-            september: parsePercentage(row[10]),
-            october: parsePercentage(row[11]),
-            november: parsePercentage(row[12]),
-            december: parsePercentage(row[13])
-          }
-        };
-      });
+        const values = responseData.values;
+        if (values.length < 2) {
+          throw new Error('Invalid data format or empty sheet');
+        }
 
-      return {
-        success: true,
-        data: formattedData
-      };
+        const [headers, ...rows] = values;
+
+        // Validation des données avant transformation
+        const formattedData = rows.map((row: any[], index: number) => {
+          if (row.length < 14) {
+            console.warn(`Row ${index + 2} has insufficient columns`);
+            while (row.length < 14) row.push('0');
+          }
+
+          return {
+            employee: row[0] || '',
+            project: row[1] || '',
+            occupationRates: {
+              january: parsePercentage(row[2]),
+              february: parsePercentage(row[3]),
+              march: parsePercentage(row[4]),
+              april: parsePercentage(row[5]),
+              may: parsePercentage(row[6]),
+              june: parsePercentage(row[7]),
+              july: parsePercentage(row[8]),
+              august: parsePercentage(row[9]),
+              september: parsePercentage(row[10]),
+              october: parsePercentage(row[11]),
+              november: parsePercentage(row[12]),
+              december: parsePercentage(row[13])
+            }
+          };
+        });
+
+        return {
+          success: true,
+          data: formattedData
+        };
+      }
 
     } catch (error: any) {
       console.error('Full error details:', {

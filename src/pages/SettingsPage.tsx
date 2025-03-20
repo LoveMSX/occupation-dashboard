@@ -1,4 +1,3 @@
-
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
@@ -30,10 +29,10 @@ const SettingsPage = () => {
     <ThemeProvider>
       <div className="flex h-screen bg-background">
         <div className="w-64 hidden md:block">
-          <Sidebar />
+          <Sidebar isOpen={true} />
         </div>
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Header />
+          <Header onToggleSidebar={() => console.log("Toggle sidebar")} />
           <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in">
             <div className="max-w-5xl mx-auto">
               <h1 className="text-2xl font-bold mb-6">{t('settings')}</h1>

@@ -15,7 +15,7 @@ export const SalesAnalysis = () => {
 
   const aiService = new AIService({
     provider: 'openai',
-    apiKey: config.aiApiKey || '', // Modified to use the correct property
+    apiKey: config.aiApiKey || '', // Using config.aiApiKey instead of config.aiApiKey
     model: 'gpt-4'
   });
 

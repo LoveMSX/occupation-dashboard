@@ -1,7 +1,8 @@
+
 import { employeeApi, projectApi, salesApi } from '../api';
 import { occupationApi } from '@/api/occupation';
-import type { EmployeeData } from '@/components/employees/EmployeeCard';
-import type { Project, SalesOperationResponse } from '../api';
+import type { EmployeeData } from '@/types/employee';
+import type { ProjectData } from '@/types/project';
 import type { OccupationData } from '../api';
 
 export interface DataQueryResult {
@@ -19,6 +20,15 @@ interface AnalysisResult {
   type?: string;
   sample?: unknown[];
   value?: unknown;
+}
+
+export interface SalesOperationResponse {
+  commercial: string;
+  [key: string]: any;
+}
+
+export interface Project extends ProjectData {
+  [key: string]: any;
 }
 
 export class AIDataService {

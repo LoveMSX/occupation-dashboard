@@ -5,7 +5,7 @@
   "compilerOptions": {
     "noEmit": true,
     "declaration": false,
-    "emitDeclarationOnly": false
-  },
-  "references": []
+    "emitDeclarationOnly": false,
+    "composite": false
+  }
 }

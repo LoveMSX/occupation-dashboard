@@ -4,8 +4,7 @@ import { occupationApi } from '@/api/occupation';
 import type { EmployeeData } from '@/types/employee';
 import type { ProjectData } from '@/types/project';
 
-// The issue was here - OccupationData is not exported from dashboard
-// Let's instead create an interface specifically for this purpose
+// Define OccupationData interface locally to avoid import issues
 interface OccupationData {
   occupancyRate: number;
   [key: string]: any;

@@ -30,6 +30,7 @@ const DrawerClose = DrawerPrimitive.Close as React.FC<
   React.ComponentProps<typeof DrawerPrimitive.Close>
 >
 
+// Add type annotation to fix TS2742 error
 const DrawerOverlay = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
@@ -39,9 +40,10 @@ const DrawerOverlay = React.forwardRef<
     className={cn("fixed inset-0 z-50 bg-black/80", className)}
     {...props}
   />
-))
+)) as React.FC<React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>>
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName
 
+// Add type annotation to fix TS2742 error
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
@@ -60,7 +62,7 @@ const DrawerContent = React.forwardRef<
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>
-))
+)) as React.FC<React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>>
 DrawerContent.displayName = "DrawerContent"
 
 const DrawerHeader = ({
@@ -85,6 +87,7 @@ const DrawerFooter = ({
 )
 DrawerFooter.displayName = "DrawerFooter"
 
+// Add type annotation to fix TS2742 error
 const DrawerTitle = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Title>
@@ -97,9 +100,10 @@ const DrawerTitle = React.forwardRef<
     )}
     {...props}
   />
-))
+)) as React.FC<React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Title>>
 DrawerTitle.displayName = DrawerPrimitive.Title.displayName
 
+// Add type annotation to fix TS2742 error
 const DrawerDescription = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Description>
@@ -109,7 +113,7 @@ const DrawerDescription = React.forwardRef<
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
-))
+)) as React.FC<React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Description>>
 DrawerDescription.displayName = DrawerPrimitive.Description.displayName
 
 export {

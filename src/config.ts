@@ -12,7 +12,7 @@ interface Config {
 // Define the different configs
 const configs = {
   development: {
-    apiUrl: 'http://localhost:3000/api',
+    apiUrl: 'http://localhost:3000',
     debug: true,
     appName: 'Employee Manager',
     apiTimeout: 30000,

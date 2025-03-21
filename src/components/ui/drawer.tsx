@@ -15,22 +15,18 @@ const Drawer = ({
 )
 Drawer.displayName = "Drawer"
 
-// Add type annotation to fix TS2742 error
 const DrawerTrigger = DrawerPrimitive.Trigger as React.FC<
   React.ComponentProps<typeof DrawerPrimitive.Trigger>
 >
 
-// Add type annotation to fix TS2742 error
 const DrawerPortal = DrawerPrimitive.Portal as React.FC<
   React.ComponentProps<typeof DrawerPrimitive.Portal>
 >
 
-// Add type annotation to fix TS2742 error
 const DrawerClose = DrawerPrimitive.Close as React.FC<
   React.ComponentProps<typeof DrawerPrimitive.Close>
 >
 
-// Add type annotation to fix TS2742 error
 const DrawerOverlay = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
@@ -43,7 +39,6 @@ const DrawerOverlay = React.forwardRef<
 )) as React.FC<React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>>
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName
 
-// Add type annotation to fix TS2742 error
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
@@ -87,7 +82,6 @@ const DrawerFooter = ({
 )
 DrawerFooter.displayName = "DrawerFooter"
 
-// Add type annotation to fix TS2742 error
 const DrawerTitle = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Title>
@@ -103,7 +97,6 @@ const DrawerTitle = React.forwardRef<
 )) as React.FC<React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Title>>
 DrawerTitle.displayName = DrawerPrimitive.Title.displayName
 
-// Add type annotation to fix TS2742 error
 const DrawerDescription = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Description>

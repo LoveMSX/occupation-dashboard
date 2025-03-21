@@ -3,7 +3,7 @@ import { employeeApi, projectApi, salesApi } from '../api';
 import { occupationApi } from '@/api/occupation';
 import type { EmployeeData } from '@/types/employee';
 import type { ProjectData } from '@/types/project';
-import type { OccupationData } from '../api';
+import type { OccupationData } from '@/types/dashboard';
 
 export interface DataQueryResult {
   data: unknown;

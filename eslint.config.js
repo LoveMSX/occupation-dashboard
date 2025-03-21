@@ -1,3 +1,4 @@
+
 import js from "@eslint/js";
 import react from "eslint-plugin-react";
 import markdown from "eslint-plugin-markdown";
@@ -20,7 +21,7 @@ export default [
       parser: tsParser,
       parserOptions: {
         project: './tsconfig.eslint.json',
-        tsconfigRootDir: __dirname,
+        tsconfigRootDir: process.cwd(),
       },
       globals: globals.browser,
     },
